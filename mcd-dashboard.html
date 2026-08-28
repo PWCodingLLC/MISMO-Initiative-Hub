@@ -908,6 +908,24 @@
   .video-title{color:#fff; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:16.5px; line-height:1.25;}
   .video-cta{color:var(--amber); font-size:11.5px; font-weight:600;}
 
+  .video-embed-wrap{
+    position:relative; width:100%; padding-bottom:56.25%; height:0; overflow:hidden;
+  }
+  .video-embed-wrap iframe{
+    position:absolute; top:0; left:0; width:100%; height:100%; border:0;
+  }
+
+  .savings-placeholder{text-align:center; padding:10px 0 4px;}
+  .savings-placeholder .fig{font-family:'IBM Plex Mono',monospace; font-size:30px; font-weight:700; color:var(--ink);}
+  .savings-placeholder .note{font-size:11.5px; color:var(--ink-soft); margin:4px 0 12px;}
+
+  .roi-link{
+    display:block; text-align:center; font-size:12px; font-weight:600;
+    color:var(--brand-text); text-decoration:none; margin-top:8px;
+  }
+  .roi-link:hover{text-decoration:underline;}
+  .roi-link.disabled{color:var(--slate-text); pointer-events:none; font-style:italic; font-weight:500;}
+
   .savings-value-row{display:flex; justify-content:space-between; font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:18px; margin-bottom:10px;}
   .savings-track{height:6px; background:#C7D6F7; border-radius:4px; position:relative; margin:0 6px 16px;}
   .savings-fill{position:absolute; left:14%; right:8%; top:0; height:100%; background:var(--brand); border-radius:4px;}
@@ -1113,6 +1131,15 @@
               <strong>Status:</strong>
               <span class="status-chip-inline" style="background:var(--success-soft); color:var(--success-text);" contenteditable="true">Published — Version 2.0</span>
             </p>
+          </div>
+
+          <div class="overview-card">
+            <h3 class="overview-head">Estimated per loan savings</h3>
+            <div class="savings-placeholder">
+              <span class="fig" contenteditable="true">$0</span>
+              <p class="note">No published estimate yet — placeholder pending real data</p>
+            </div>
+            <span class="roi-link disabled">ROI model not yet published</span>
           </div>
 
           <div class="overview-card" id="deliverables-card">

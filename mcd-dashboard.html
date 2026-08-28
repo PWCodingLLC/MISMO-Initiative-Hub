@@ -1,0 +1,2001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mortgage Compliance Dataset (MCD) — Workgroup Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#101B33;
+    --ink-soft:#4B5670;
+    --paper:#F1F3F9;
+    --card:#FFFFFF;
+    --line:#E1E4EC;
+
+    --brand:#0E9488;
+    --brand-soft:#E3F5F3;
+    --brand-text:#0B7A70;
+
+    --signal:#FF5A36;
+    --signal-soft:#FFEAE3;
+    --signal-text:#B8391B;
+
+    --success:#1D9A56;
+    --success-soft:#E7F7EE;
+    --success-text:#157A44;
+
+    --amber:#F2A93B;
+    --amber-soft:#FDF2DF;
+    --amber-text:#9C6B0E;
+
+    --slate:#8B94A7;
+    --slate-soft:#EEF0F4;
+    --slate-text:#5B6478;
+
+    --dwg:#7C3AED;
+    --dwg-soft:#F2EBFE;
+
+    --radius:10px;
+    --shadow:0 1px 2px rgba(16,27,51,.05), 0 10px 28px rgba(16,27,51,.06);
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+  }
+
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    line-height:1.5;
+  }
+
+  h1,h2,h3,.display{
+    font-family:'Space Grotesk',system-ui,sans-serif;
+    letter-spacing:-0.01em;
+    margin:0;
+  }
+
+  .mono{font-family:'IBM Plex Mono',monospace;}
+
+  a{color:var(--brand-text);}
+
+  :focus-visible{
+    outline:2.5px solid var(--brand);
+    outline-offset:2px;
+    border-radius:4px;
+  }
+
+  .wrap{
+    max-width:1180px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- MASTHEAD ---------- */
+  .masthead{
+    padding:36px 24px 0;
+  }
+  .masthead-inner{
+    max-width:1180px;
+    margin:0 auto;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:24px;
+    flex-wrap:wrap;
+    padding-bottom:24px;
+    border-bottom:1px solid var(--line);
+  }
+  .eyebrow-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:10px;
+  }
+  .eyebrow{
+    font-size:12.5px;
+    font-weight:600;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+  }
+  .sponsor-mark{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;
+    font-size:11px;
+    letter-spacing:0.06em;
+    background:var(--ink);
+    color:#fff;
+    padding:3px 8px;
+    border-radius:4px;
+  }
+  .workgroup-tag{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;
+    font-size:11px;
+    letter-spacing:0.03em;
+    background:var(--dwg);
+    color:#fff;
+    padding:3px 10px;
+    border-radius:999px;
+    white-space:nowrap;
+  }
+  .title-row h1{
+    font-size:34px;
+    font-weight:700;
+  }
+  .title-row .segment-tag{
+    font-size:17px;
+    font-weight:500;
+    color:var(--ink-soft);
+    margin-left:6px;
+  }
+  .leadership{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:14px;
+  }
+  .lead-chip{
+    display:flex;
+    flex-direction:column;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:6px 12px;
+    font-size:12.5px;
+  }
+  .lead-chip .role{color:var(--ink-soft); font-size:10.5px; text-transform:uppercase; letter-spacing:.05em;}
+  .lead-chip .name{font-weight:600;}
+
+  .masthead-right{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    gap:10px;
+  }
+  .back-to-hub{
+    font-family:'Inter',sans-serif; font-size:12.5px; font-weight:600;
+    color:var(--brand-text); text-decoration:none;
+    padding:6px 12px; border:1px solid var(--line); border-radius:999px; background:var(--card);
+  }
+  .back-to-hub:hover{background:var(--brand-soft); border-color:var(--brand);}
+
+  /* ---------- MANIFEST CHECK (signature element) ---------- */
+  .manifest{
+    max-width:1180px;
+    margin:22px auto 0;
+    padding:0 24px;
+  }
+  .manifest-panel{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    position:relative;
+    overflow:hidden;
+  }
+  .manifest-panel::before{
+    content:"";
+    position:absolute;
+    top:0; left:0; right:0;
+    height:6px;
+    background-image: radial-gradient(circle, var(--paper) 2.6px, transparent 2.7px);
+    background-size:16px 16px;
+    background-position:6px -5px;
+    background-color:var(--signal);
+  }
+  .manifest-toggle{
+    width:100%;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    background:none;
+    border:none;
+    cursor:pointer;
+    padding:18px 20px 16px;
+    font-family:inherit;
+    color:inherit;
+    text-align:left;
+  }
+  .manifest-toggle-left{
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .stamp{
+    flex:0 0 auto;
+    width:38px; height:38px;
+    border-radius:50%;
+    border:2px dashed var(--signal);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--signal);
+  }
+  .manifest-title{font-size:15.5px; font-weight:700;}
+  .manifest-sub{font-size:12.5px; color:var(--ink-soft); margin-top:2px;}
+  .manifest-count{
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:600;
+    font-size:12px;
+    background:var(--signal-soft);
+    color:var(--signal-text);
+    padding:4px 10px;
+    border-radius:999px;
+    white-space:nowrap;
+  }
+  .chevron{
+    transition:transform .18s ease;
+    color:var(--ink-soft);
+    flex:0 0 auto;
+  }
+  .manifest-panel.open .chevron{transform:rotate(180deg);}
+  .manifest-body{
+    max-height:0;
+    overflow:hidden;
+    transition:max-height .22s ease;
+    border-top:1px solid transparent;
+  }
+  .manifest-panel.open .manifest-body{
+    max-height:900px;
+    border-top:1px solid var(--line);
+  }
+  .flag-list{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:14px;
+    padding:18px 20px 20px;
+  }
+  @media (max-width:760px){ .flag-list{grid-template-columns:1fr;} }
+  .flag-item{
+    padding:14px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    background:var(--paper);
+  }
+  .flag-item .flag-num{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    color:var(--signal-text);
+    font-weight:600;
+  }
+  .flag-item h4{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:13.5px;
+    margin:4px 0 5px;
+  }
+  .flag-item p{
+    margin:0 0 8px;
+    font-size:12.8px;
+    color:var(--ink-soft);
+  }
+  .flag-item a{
+    font-size:12px;
+    font-weight:600;
+    text-decoration:none;
+  }
+  .flag-item a:hover{text-decoration:underline;}
+  .flag-item.resolved{background:var(--success-soft); border-color:#BEE6CE;}
+  .flag-item.dismissed{background:var(--slate-soft); border-color:var(--line); opacity:.85;}
+  .flag-dismissed-badge{
+    display:inline-block;
+    font-size:9.5px;
+    font-weight:700;
+    background:var(--slate);
+    color:#fff;
+    padding:2px 7px;
+    border-radius:999px;
+    margin-left:6px;
+    vertical-align:middle;
+  }
+  .flag-resolved-badge{
+    display:inline-block;
+    font-size:9.5px;
+    font-weight:700;
+    background:var(--success);
+    color:#fff;
+    padding:2px 7px;
+    border-radius:999px;
+    margin-left:6px;
+    vertical-align:middle;
+  }
+  .flash{
+    animation:flashHi 1.4s ease;
+  }
+  @keyframes flashHi{
+    0%{box-shadow:0 0 0 3px var(--signal-soft);}
+    100%{box-shadow:0 0 0 0 transparent;}
+  }
+
+  /* ---------- SECTIONS GENERIC ---------- */
+  section{margin-top:44px;}
+  .section-head{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:16px;
+    flex-wrap:wrap;
+  }
+  .section-head h2{font-size:20px;}
+  .section-note{font-size:12.5px; color:var(--ink-soft);}
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+  }
+
+  /* ---------- KPI STRIP ---------- */
+  .kpi-strip{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:14px;
+  }
+  @media (max-width:900px){ .kpi-strip{grid-template-columns:repeat(2,1fr);} }
+  @media (max-width:520px){ .kpi-strip{grid-template-columns:1fr;} }
+  .kpi{
+    padding:18px 18px 16px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    text-decoration:none;
+    color:inherit;
+  }
+  .kpi-label{
+    font-size:11.5px;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    color:var(--ink-soft);
+    font-weight:600;
+  }
+  .kpi-value{font-size:24px; font-weight:700; font-family:'IBM Plex Mono',monospace;}
+  .range-track{
+    height:6px;
+    border-radius:4px;
+    background:var(--brand-soft);
+    position:relative;
+    margin-top:2px;
+  }
+  .range-fill{
+    position:absolute; top:0; left:14%; right:8%;
+    height:100%;
+    border-radius:4px;
+    background:var(--brand);
+  }
+  .range-labels{
+    display:flex;
+    justify-content:space-between;
+    font-size:11px;
+    color:var(--ink-soft);
+    font-family:'IBM Plex Mono',monospace;
+  }
+
+  .rail{display:flex; gap:6px; margin-top:2px;}
+  .rail-step{flex:1; display:flex; flex-direction:column; gap:5px;}
+  .rail-bar{height:6px; border-radius:4px; background:var(--slate-soft);}
+  .rail-bar.done{background:var(--success);}
+  .rail-bar.progress{background:var(--amber);}
+  .rail-step small{font-size:10.5px; color:var(--ink-soft); line-height:1.3;}
+
+  .funnel-mini{display:flex; height:8px; border-radius:4px; overflow:hidden; margin-top:2px;}
+  .funnel-mini span{height:100%;}
+
+  .status-chip-inline{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-size:12px;
+    font-weight:600;
+    padding:5px 10px;
+    border-radius:999px;
+    width:fit-content;
+  }
+  .status-chip-inline.warn{background:var(--signal-soft); color:var(--signal-text);}
+
+  /* ---------- WHY GRID ---------- */
+  .why-layout{
+    display:grid;
+    grid-template-columns:1.6fr 1fr;
+    gap:20px;
+    align-items:start;
+  }
+  @media (max-width:900px){ .why-layout{grid-template-columns:1fr;} }
+
+  .reason-cards{
+    display:grid;
+    gap:12px;
+  }
+  .reason{
+    padding:16px 18px;
+    display:grid;
+    grid-template-columns:auto 1fr;
+    gap:14px;
+    align-items:flex-start;
+  }
+  .reason .num{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:var(--brand-text);
+    background:var(--brand-soft);
+    border-radius:6px;
+    padding:3px 8px;
+    font-weight:600;
+  }
+  .reason h3{font-size:14.5px; margin-bottom:4px;}
+  .reason p{margin:0 0 6px; font-size:13px; color:var(--ink-soft);}
+  .reason .fig{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13px;
+    font-weight:600;
+    color:var(--ink);
+  }
+
+  .side-stack{display:flex; flex-direction:column; gap:14px;}
+  .side-card{padding:16px 18px;}
+  .side-card h3{font-size:13px; margin-bottom:10px;}
+  .meeting-field{margin-bottom:10px;}
+  .meeting-field:last-child{margin-bottom:0;}
+  .meeting-field-label{display:block; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--ink); margin-bottom:3px;}
+  .meeting-field-value{display:block; font-size:13px; font-family:'IBM Plex Mono',monospace; color:var(--ink-soft); line-height:1.35;}
+
+  .video-stub{
+    margin-top:10px;
+    border-radius:8px;
+    background:var(--ink);
+    color:#fff;
+    padding:16px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    font-size:12.5px;
+  }
+  .play-btn{
+    flex:0 0 auto;
+    width:30px;height:30px;
+    border-radius:50%;
+    background:var(--signal);
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  .reading-list{list-style:none; margin:8px 0 0; padding:0; display:flex; flex-direction:column; gap:7px;}
+  .reading-list li{font-size:12.5px;}
+  .reading-list a{text-decoration:none; font-weight:500;}
+  .reading-list a:hover{text-decoration:underline;}
+
+  .origin-line{font-size:12.5px; margin:0 0 6px; color:var(--ink-soft);}
+  .origin-line strong{color:var(--ink); font-weight:600;}
+
+  /* ---------- ROADMAP TABS ---------- */
+  .roadmap-intro{font-size:13.5px; color:var(--ink-soft); max-width:760px; margin-bottom:18px;}
+  .tab-row{
+    display:flex;
+    gap:6px;
+    flex-wrap:wrap;
+    border-bottom:1px solid var(--line);
+    margin-bottom:20px;
+  }
+  .tab-btn{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:13.5px;
+    font-weight:600;
+    background:none;
+    border:none;
+    cursor:pointer;
+    padding:10px 16px;
+    color:var(--ink-soft);
+    border-bottom:2.5px solid transparent;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    margin-bottom:-1px;
+  }
+  .tab-btn[aria-selected="true"]{
+    color:var(--ink);
+    border-bottom-color:var(--brand);
+  }
+  .tab-flag{
+    font-size:9.5px;
+    background:var(--signal-soft);
+    color:var(--signal-text);
+    padding:2px 6px;
+    border-radius:999px;
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:600;
+  }
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;}
+
+  .lane-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr 1.4fr;
+    gap:18px;
+  }
+  @media (max-width:900px){ .lane-grid{grid-template-columns:1fr;} }
+  .lane-block h4{
+    font-size:11.5px;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    color:var(--ink-soft);
+    margin-bottom:10px;
+  }
+  .lane-block ul{margin:0; padding-left:18px; font-size:13.5px;}
+  .lane-block li{margin-bottom:6px;}
+  .inferred-note{
+    font-size:11.5px;
+    color:var(--signal-text);
+    background:var(--signal-soft);
+    padding:8px 10px;
+    border-radius:6px;
+    margin-bottom:10px;
+    display:flex;
+    gap:6px;
+  }
+  .empty-note{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    font-style:italic;
+  }
+
+  table{width:100%; border-collapse:collapse; font-size:13px;}
+  th{
+    text-align:left;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    color:var(--ink-soft);
+    padding:8px 10px;
+    border-bottom:1px solid var(--line);
+  }
+  td{padding:9px 10px; border-bottom:1px solid var(--line); vertical-align:top;}
+  tr:last-child td{border-bottom:none;}
+
+  .status-chip{
+    display:inline-block;
+    font-size:11px;
+    font-weight:600;
+    padding:3px 9px;
+    border-radius:999px;
+    white-space:nowrap;
+  }
+  .status-chip.not-started{background:var(--slate-soft); color:var(--slate-text);}
+  .status-chip.in-progress{background:var(--brand-soft); color:var(--brand-text);}
+  .status-chip.blocked{background:var(--signal-soft); color:var(--signal-text);}
+  .status-chip.done{background:var(--success-soft); color:var(--success-text);}
+  .status-chip.complete{background:var(--success-soft); color:var(--success-text);}
+  .status-chip.planned{background:var(--brand-soft); color:var(--brand-text);}
+  .status-chip.piloted{background:var(--amber-soft); color:var(--amber-text);}
+  .status-chip.in-use{background:var(--success-soft); color:var(--success-text);}
+  .done-task{text-decoration:line-through; color:var(--ink-soft);}
+
+  /* ---------- STAKEHOLDERS ---------- */
+  .stake-layout{
+    display:grid;
+    grid-template-columns:1.1fr 1fr;
+    gap:18px;
+    margin-bottom:20px;
+  }
+  @media (max-width:900px){ .stake-layout{grid-template-columns:1fr;} }
+  .stake-card{padding:18px;}
+  .stake-card h3{font-size:14px; margin-bottom:12px;}
+  .crit-star{color:var(--amber-text); font-weight:700;}
+  .crit-select{
+    font-family:inherit; font-size:13px; font-weight:600; color:var(--slate-text);
+    border:1px solid transparent; background:transparent; cursor:pointer;
+    padding:3px 8px; border-radius:6px;
+  }
+  .crit-select.is-star{color:var(--amber-text); font-weight:700;}
+  .crit-select:hover{background:var(--slate-soft); border-color:var(--slate);}
+  .crit-select.is-star:hover{background:var(--brand-soft); border-color:var(--brand);}
+  .crit-select:focus{outline:none; background:#fff; border-color:var(--brand); box-shadow:0 0 0 2px var(--brand);}
+  .role-select{
+    font-family:inherit; font-size:13px; font-weight:600; color:var(--ink);
+    border:1px solid transparent; background:transparent; cursor:pointer;
+    padding:3px 8px; border-radius:6px;
+  }
+  .role-select:hover{background:var(--brand-soft); border-color:var(--brand);}
+  .role-select:focus{outline:none; background:#fff; border-color:var(--brand); box-shadow:0 0 0 2px var(--brand);}
+  .type-select{
+    font-family:inherit; font-size:11px; font-weight:600; color:var(--ink);
+    border:1px solid transparent; background:transparent; cursor:pointer;
+    padding:3px 6px; border-radius:6px; max-width:100%;
+  }
+  .type-select:hover{background:var(--brand-soft); border-color:var(--brand);}
+  .type-select:focus{outline:none; background:#fff; border-color:var(--brand); box-shadow:0 0 0 2px var(--brand);}
+  .type-input{
+    font-family:inherit; font-size:11px; border:1px solid transparent; background:transparent;
+    padding:3px 5px; border-radius:4px; width:100%; max-width:100%; box-sizing:border-box; cursor:text; color:var(--ink);
+  }
+  .type-input:hover{background:var(--brand-soft); border-color:var(--line);}
+  .type-input:focus{background:#fff; border-color:var(--brand); outline:none; box-shadow:0 0 0 2px var(--brand);}
+
+  .funnel-row{margin-bottom:14px;}
+  .funnel-row-top{display:flex; justify-content:space-between; font-size:12.5px; margin-bottom:6px;}
+  .funnel-row-top span:first-child{font-weight:600;}
+  .funnel-row-top span:last-child{color:var(--ink-soft); font-family:'IBM Plex Mono',monospace; font-size:11.5px;}
+
+  select.status-select{
+    font-family:'Inter',sans-serif;
+    font-size:11px;
+    font-weight:600;
+    padding:4px 8px;
+    border-radius:999px;
+    border:1.5px solid transparent;
+    cursor:pointer;
+  }
+  select.status-select:hover{border-color:currentColor;}
+  select.status-select.not-started{background:var(--slate-soft); color:var(--slate-text);}
+  select.status-select.planned{background:var(--brand-soft); color:var(--brand-text);}
+  select.status-select.piloted{background:var(--amber-soft); color:var(--amber-text);}
+  select.status-select.in-use{background:var(--success-soft); color:var(--success-text);}
+  select.status-select.in-progress{background:var(--brand-soft); color:var(--brand-text);}
+  select.status-select.blocked{background:var(--signal-soft); color:var(--signal-text);}
+  select.status-select.complete{background:var(--success-soft); color:var(--success-text);}
+
+  .contact-block{display:flex; flex-direction:column; gap:2px; min-width:150px;}
+  .contact-name{font-weight:600;}
+
+  /* ---------- GENERIC EDITABLE FIELDS ---------- */
+  [contenteditable="true"]{
+    outline: none;
+    border-radius: 4px;
+    padding: 1px 4px;
+    margin: -1px -4px;
+    cursor: text;
+  }
+  [contenteditable="true"]:hover{
+    background: var(--brand-soft);
+    box-shadow: 0 0 0 1px var(--line);
+  }
+  [contenteditable="true"]:focus{
+    background: #fff;
+    box-shadow: 0 0 0 2px var(--brand);
+  }
+  [contenteditable="true"]:empty:before{
+    content: attr(data-placeholder);
+    color: var(--slate-text);
+    font-style: italic;
+  }
+  .ics-download-btn{
+    margin-top:12px; width:100%;
+    font-family:inherit; font-size:12.5px; font-weight:600;
+    color:#fff; background:var(--brand); border:none; border-radius:8px;
+    padding:9px 12px; cursor:pointer;
+  }
+  .ics-download-btn:hover{background:var(--brand-text);}
+  .deliv-date-input{
+    font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink);
+    border:1px solid transparent; background:transparent; padding:3px 4px;
+    border-radius:4px; cursor:pointer; width:100%;
+  }
+  .deliv-date-input:hover{background:var(--brand-soft); border-color:var(--line);}
+  .deliv-date-input:focus{background:#fff; border-color:var(--brand); outline:none;}
+  .deliv-date-wrap{display:flex; flex-direction:column; gap:2px;}
+  .deliv-date-label{font-size:9px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-soft); font-weight:700;}
+  select.deliv-pill{border:none; appearance:auto; -webkit-appearance:auto;}
+  .pill-goal[contenteditable="true"], .pill-block[contenteditable="true"]{
+    padding: 5px 11px; margin: 0;
+  }
+  .pill-remove{
+    background:none; border:none; cursor:pointer; color:var(--ink-soft); opacity:.6;
+    font-size:13px; margin:0 8px 0 -4px; padding:0 2px; vertical-align:middle; line-height:1;
+  }
+  .pill-remove:hover{opacity:1; color:var(--signal-text);}
+  .pill-add-btn{
+    display:inline-flex; align-items:center; font-size:12px; font-weight:600;
+    color:var(--brand-text); background:none; border:1px dashed var(--line);
+    border-radius:999px; padding:5px 11px; cursor:pointer; font-family:inherit;
+  }
+  .pill-add-btn:hover{border-color:var(--brand); background:var(--brand-soft);}
+  .contact-name.placeholder{font-weight:500; font-style:italic; color:var(--slate-text);}
+  .contact-sub{font-size:11.5px; color:var(--ink-soft);}
+  .contact-sub.placeholder{font-style:italic; color:var(--slate-text);}
+  .contact-sub a{color:var(--brand-text); text-decoration:none;}
+  .contact-sub a:hover{text-decoration:underline;}
+  .contact-edit-btn{
+    align-self:flex-start;
+    margin-top:5px;
+    font-size:11px;
+    font-weight:600;
+    color:var(--brand-text);
+    background:none;
+    border:none;
+    cursor:pointer;
+    padding:0;
+    font-family:inherit;
+  }
+  .contact-edit-btn:hover{text-decoration:underline;}
+  .contact-edit-form{display:flex; flex-direction:column; gap:5px; min-width:170px;}
+  .contact-input{
+    font-family:inherit;
+    font-size:12px;
+    padding:5px 8px;
+    border:1px solid var(--line);
+    border-radius:6px;
+    width:100%;
+  }
+  .contact-edit-actions{display:flex; gap:6px; margin-top:2px;}
+  .contact-save-btn{
+    font-size:11px; font-weight:700; padding:5px 10px; border-radius:6px; border:none;
+    background:var(--brand); color:#fff; cursor:pointer; font-family:inherit;
+  }
+  .contact-cancel-btn{
+    font-size:11px; font-weight:600; padding:5px 10px; border-radius:6px; border:1px solid var(--line);
+    background:var(--card); color:var(--ink-soft); cursor:pointer; font-family:inherit;
+  }
+  .kanban-card select.status-select{margin-top:8px; width:100%; font-size:10.5px; padding:4px 8px;}
+
+  .task-icons{display:flex; gap:4px; justify-content:flex-end;}
+  .icon-btn{background:none; border:none; cursor:pointer; padding:3px 5px; font-size:13px; color:var(--ink-soft); border-radius:4px; line-height:1; font-family:inherit;}
+  .icon-btn:hover{color:var(--ink); background:var(--paper);}
+  .add-task-btn{
+    margin-top:12px;
+    font-size:12.5px; font-weight:600; color:var(--brand-text);
+    background:none; border:1px dashed var(--line); border-radius:8px;
+    padding:9px 14px; cursor:pointer; width:100%; text-align:center; font-family:inherit;
+  }
+  .add-task-btn:hover{border-color:var(--brand); background:var(--brand-soft);}
+  .task-edit-container td{background:var(--paper); padding-top:8px; padding-bottom:8px;}
+  .kanban-card-edit{
+    background:var(--card); border:1.5px solid var(--brand); border-radius:6px; padding:10px;
+    margin-bottom:8px; display:flex; flex-direction:column; gap:6px;
+  }
+  .kanban-add-wrap{margin-bottom:14px;}
+  .kanban-card-actions{display:flex; gap:4px; justify-content:flex-end; margin-top:6px;}
+  .empty-lane-note{font-size:13px; color:var(--ink-soft); font-style:italic; padding:18px 0; text-align:center; margin:0;}
+  .primary-contact{vertical-align:top;}
+  .funnel-bar{display:flex; height:14px; border-radius:4px; overflow:hidden; background:var(--paper);}
+  .funnel-bar span{height:100%;}
+  .funnel-bar.empty{border:1px dashed var(--line); background:none;}
+  .funnel-empty-label{font-size:11px; color:var(--ink-soft); padding:2px 0 0; font-style:italic;}
+  .funnel-legend{display:flex; gap:14px; margin-top:12px; flex-wrap:wrap;}
+  .funnel-legend-item{display:flex; align-items:center; gap:6px; font-size:11.5px; color:var(--ink-soft);}
+  .legend-dot{width:9px; height:9px; border-radius:2px; display:inline-block;}
+
+  .roster-controls{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+    margin-bottom:14px;
+  }
+  .chip-btn{
+    font-family:'Inter',sans-serif;
+    font-size:12px;
+    font-weight:600;
+    padding:6px 12px;
+    border-radius:999px;
+    border:1px solid var(--line);
+    background:var(--card);
+    color:var(--ink-soft);
+    cursor:pointer;
+  }
+  .chip-btn[aria-pressed="true"]{
+    background:var(--ink);
+    border-color:var(--ink);
+    color:#fff;
+  }
+  .search-input{
+    margin-left:auto;
+    font-family:inherit;
+    font-size:12.5px;
+    padding:7px 12px;
+    border-radius:8px;
+    border:1px solid var(--line);
+    min-width:200px;
+  }
+  .highlight-row{background:var(--signal-soft) !important;}
+
+  /* ---------- GOVERNANCE ---------- */
+  .gov-layout{
+    display:grid;
+    grid-template-columns:1.5fr 1fr;
+    gap:18px;
+  }
+  @media (max-width:900px){ .gov-layout{grid-template-columns:1fr;} }
+  .gov-card{padding:18px;}
+  .leaderboard-row{
+    display:grid;
+    grid-template-columns:110px 1fr 46px;
+    align-items:center;
+    gap:10px;
+    font-size:12px;
+    padding:5px 0;
+  }
+  .leaderboard-row .who{font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .leaderboard-track{background:var(--paper); border-radius:4px; height:9px;}
+  .leaderboard-fill{background:var(--brand); height:100%; border-radius:4px;}
+  .leaderboard-val{text-align:right; font-family:'IBM Plex Mono',monospace; color:var(--ink-soft);}
+
+  .fac-hours{
+    text-align:center;
+    padding:24px 10px 14px;
+  }
+  .fac-hours .kpi-value{font-size:38px;}
+  .recon-note{
+    margin-top:14px;
+    font-size:11.8px;
+    color:var(--signal-text);
+    background:var(--signal-soft);
+    padding:10px 12px;
+    border-radius:8px;
+    text-align:left;
+  }
+  .updated-line{font-size:11.5px; color:var(--ink-soft); margin-top:10px;}
+
+  /* ---------- WORK PRODUCT OVERVIEW (true-look styling) ---------- */
+  .overview-shell{
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    overflow:hidden;
+    box-shadow:var(--shadow);
+    background:var(--paper);
+  }
+  .overview-bar{
+    background:var(--ink);
+    color:#fff;
+    text-align:center;
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:600;
+    font-size:15px;
+    letter-spacing:.02em;
+    padding:13px 16px;
+  }
+  .overview-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+    padding:18px;
+  }
+  @media (max-width:900px){ .overview-grid{grid-template-columns:1fr;} }
+  .overview-col{display:flex; flex-direction:column; gap:14px;}
+  .overview-card{
+    background:var(--brand-soft);
+    border:1px solid #C7D6F7;
+    border-radius:8px;
+    padding:16px 18px;
+    box-shadow:none;
+  }
+  .overview-head{
+    font-size:14px;
+    font-weight:700;
+    color:var(--brand-text);
+    text-decoration:underline;
+    margin:0 0 10px;
+    display:inline-block;
+  }
+  .overview-card p{font-size:13px; color:var(--ink); margin:0 0 8px;}
+  .overview-card p:last-child{margin-bottom:0;}
+
+  .why-list{margin:0; padding-left:19px; font-size:13px;}
+  .why-list li{margin-bottom:10px;}
+  .why-list li:last-child{margin-bottom:0;}
+
+  .overview-pair{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  @media (max-width:560px){ .overview-pair{grid-template-columns:1fr;} }
+
+  .video-card{padding:0; overflow:hidden; background:var(--ink); border-color:var(--ink);}
+  .video-card-inner{
+    position:relative;
+    padding:20px 16px;
+    min-height:140px;
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    gap:8px;
+    background:linear-gradient(135deg, #16234a 0%, var(--ink) 65%);
+  }
+  .play-btn-lg{
+    width:36px;height:36px;
+    border-radius:50%;
+    background:var(--signal);
+    display:flex; align-items:center; justify-content:center;
+    position:absolute;
+    top:14px; right:14px;
+  }
+  .video-title{color:#fff; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:16.5px; line-height:1.25;}
+  .video-cta{color:var(--amber); font-size:11.5px; font-weight:600;}
+
+  .savings-value-row{display:flex; justify-content:space-between; font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:18px; margin-bottom:10px;}
+  .savings-track{height:6px; background:#C7D6F7; border-radius:4px; position:relative; margin:0 6px 16px;}
+  .savings-fill{position:absolute; left:14%; right:8%; top:0; height:100%; background:var(--brand); border-radius:4px;}
+  .savings-handle{position:absolute; top:50%; width:14px; height:14px; background:var(--brand); border:2px solid #fff; border-radius:50%; transform:translate(-50%,-50%); box-shadow:0 0 0 1px var(--brand);}
+  .savings-btn{
+    display:inline-block;
+    background:var(--brand);
+    color:#fff;
+    font-size:12.5px;
+    font-weight:600;
+    padding:8px 14px;
+    border-radius:999px;
+    text-decoration:none;
+  }
+  .savings-btn:hover{background:var(--brand-text);}
+
+  .deliverables-table{font-size:12.5px; width:100%;}
+  .deliverables-table th{font-size:10px; padding:6px 8px;}
+  .deliverables-table td{padding:8px 8px; border-bottom:1px solid #DDE6FA;}
+  .prog-track{width:64px; height:6px; background:#DDE6FA; border-radius:4px;}
+  .prog-fill{height:100%; border-radius:4px;}
+  .deliv-pill{display:inline-block; font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:5px; color:#fff; white-space:nowrap;}
+  .deliv-pill.done{background:var(--success);}
+  .deliv-pill.progress{background:var(--amber); color:#4A3300;}
+  .deliv-pill.notstarted{background:var(--signal);}
+
+  .link-ico{color:var(--ink-soft); margin-right:4px; font-size:11px;}
+
+  /* ---------- ROADMAP: goal strip + compact/kanban views ---------- */
+  .view-toggle{display:flex; gap:4px; background:var(--slate-soft); padding:3px; border-radius:8px;}
+  .view-btn{font-family:'Inter',sans-serif; font-size:12px; font-weight:600; padding:6px 13px; border-radius:6px; border:none; background:none; color:var(--ink-soft); cursor:pointer;}
+  .view-btn[aria-pressed="true"]{background:var(--card); color:var(--ink); box-shadow:var(--shadow);}
+
+  .goal-strip{display:flex; gap:26px; flex-wrap:wrap; padding:14px 2px 18px; border-bottom:1px solid var(--line); margin-bottom:16px;}
+  .goal-strip-group{flex:1; min-width:220px;}
+  .strip-label{display:block; font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-soft); font-weight:600; margin-bottom:8px;}
+  .pill-row{display:flex; flex-wrap:wrap; gap:6px;}
+  .pill-goal{background:var(--brand-soft); color:var(--brand-text); font-size:12px; font-weight:500; padding:5px 11px; border-radius:999px;}
+  .pill-block{background:var(--signal-soft); color:var(--signal-text); font-size:12px; font-weight:500; padding:5px 11px; border-radius:999px;}
+
+  .action-table-full{width:100%;}
+
+  .kanban-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:12px;}
+  @media (max-width:800px){ .kanban-grid{grid-template-columns:repeat(2,1fr);} }
+  .kanban-col{background:var(--paper); border-radius:8px; padding:10px; min-height:80px;}
+  .kanban-col-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;}
+  .kanban-count{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink-soft);}
+  .kanban-card{background:var(--card); border:1px solid var(--line); border-radius:6px; padding:8px 10px; margin-bottom:8px; font-size:12px; box-shadow:var(--shadow);}
+  .kanban-card:last-child{margin-bottom:0;}
+  .kanban-task{font-weight:600; margin-bottom:3px;}
+  .kanban-owner{color:var(--ink-soft); font-size:11px;}
+  .kanban-empty{font-size:11.5px; color:var(--ink-soft); font-style:italic; text-align:center; padding:14px 0;}
+
+  footer{
+    max-width:1180px;
+    margin:50px auto 0;
+    padding:20px 24px 0;
+    border-top:1px solid var(--line);
+    font-size:11.5px;
+    color:var(--ink-soft);
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="masthead-inner">
+    <div>
+      <div class="eyebrow-row">
+        <span class="sponsor-mark">MISMO</span>
+        <span class="workgroup-tag" contenteditable="true">Mortgage Compliance Dataset DWG</span>
+        <span class="eyebrow" contenteditable="true">Compliance · Workgroup Dashboard</span>
+      </div>
+      <div class="title-row">
+        <h1 contenteditable="true">Mortgage Compliance Dataset<span class="segment-tag" contenteditable="true">(MCD)</span></h1>
+      </div>
+      <div class="leadership">
+        <div class="lead-chip"><span class="role">Facilitator</span><span class="name" contenteditable="true">Erin Bittenbender</span></div>
+        <div class="lead-chip"><span class="role">Workgroup Leader</span><span class="name" contenteditable="true">Sonya McCumber</span></div>
+        <div class="lead-chip"><span class="role">Workgroup Leader</span><span class="name" contenteditable="true">Michael Jackman</span></div>
+      </div>
+    </div>
+    <div class="masthead-right">
+      <a class="back-to-hub" href="index.html">← Back to Initiative Hub</a>
+      <span class="section-note mono">Draft v1 · not affiliated with Smartsheet</span>
+    </div>
+  </div>
+</div>
+
+<!-- MANIFEST CHECK -->
+<div class="manifest">
+  <div class="manifest-panel" id="manifestPanel">
+    <button class="manifest-toggle" id="manifestToggle" aria-expanded="false" aria-controls="manifestBody">
+      <div class="manifest-toggle-left">
+        <span class="stamp" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <div>
+          <div class="manifest-title">Manifest check</div>
+          <div class="manifest-sub">Automated pass over this record before an examiner would — the same instinct the MCD itself is built on.</div>
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <span class="manifest-count">0 open · 4 dismissed</span>
+        <span class="chevron" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+      </div>
+    </button>
+    <div class="manifest-body" id="manifestBody">
+      <div class="flag-list">
+        <div class="flag-item dismissed">
+          <span class="flag-num">FLAG 01 · RISK<span class="flag-dismissed-badge">OUT OF SCOPE</span></span>
+          <h4>Single point of failure on one architect</h4>
+          <p>The workgroup's own Call to Action states it "remains completely reliant on Lynn Calahan as the architect of the MCD," and is weighing whether to convert from a DWG to a Community of Practice. A genuine organizational finding, but marked out of scope — not something this dashboard needs to track further.</p>
+          <a href="#why-card" data-jump>Jump to overview →</a>
+        </div>
+        <div class="flag-item dismissed">
+          <span class="flag-num">FLAG 02 · DATA<span class="flag-dismissed-badge">OUT OF SCOPE</span></span>
+          <h4>Same architect split across two roster rows</h4>
+          <p>Lynn Calahan appears twice in the meeting tracker — once as "Self-employed" and again as "Lynn Calahan (Alpha7X)" — almost certainly the same person after an affiliation change. Left as-is in the roster below; marked out of scope for this exercise.</p>
+          <a href="#roster" data-jump data-highlight="lynncalahan">Jump to roster →</a>
+        </div>
+        <div class="flag-item dismissed">
+          <span class="flag-num">FLAG 03 · CONTENT<span class="flag-dismissed-badge">OUT OF SCOPE</span></span>
+          <h4>Duplicate work request number</h4>
+          <p>The source Work Request table uses "WR2022_12" for two different published items. Left as-is in the deliverables table below; marked out of scope for this exercise.</p>
+          <a href="#deliverables-card" data-jump>Jump to deliverables →</a>
+        </div>
+        <div class="flag-item dismissed">
+          <span class="flag-num">FLAG 04 · METRIC<span class="flag-dismissed-badge">OUT OF SCOPE</span></span>
+          <h4>Meeting-tracker leaderboard looks reused, not workgroup-specific</h4>
+          <p>This tracker's top names and figures are identical to a different workgroup's tracker (Servicing Transfers DWG). Left as-is in the Governance section below; marked out of scope for this exercise.</p>
+          <a href="#governance" data-jump>Jump to governance →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- WORK PRODUCT OVERVIEW -->
+  <section id="overview">
+    <div class="overview-shell">
+      <div class="overview-bar">Work Product Overview</div>
+      <div class="overview-grid">
+
+        <div class="overview-col">
+          <div class="overview-card">
+            <h3 class="overview-head">What is the Mortgage Compliance Dataset?</h3>
+            <p contenteditable="true">The MCD is a standard set of loan data fields and delivery file format that mortgage lenders and independent mortgage banks provide to regulators for the loan-level review portion of regulatory compliance examinations. It's designed to replace the Loan Examination File (LEF).</p>
+            <p contenteditable="true">Lenders and regulators can test a single loan or an entire portfolio against the MCD — lenders to cure defects before an exam, regulators to run the exam itself.</p>
+          </div>
+
+          <div class="overview-card" id="why-card">
+            <h3 class="overview-head">Why is MISMO working on this?</h3>
+            <ol class="why-list">
+              <li contenteditable="true"><strong>Manual, inconsistent reviews slow examinations down.</strong> Regulators examine individual loans against consumer-protection rules (disclosures, ability-to-repay, points and fees, high-cost mortgages, and more) largely by hand, without a standard format to run technology against.</li>
+              <li contenteditable="true"><strong>Inconsistent formats break compliance technology.</strong> For automated review to work across the industry, data submissions need one common structure, fields, names, and enumerations — a shared language for regulators, lenders, and vendors.</li>
+              <li contenteditable="true"><strong>Lenders want to catch issues before the exam.</strong> The same standard that lets regulators run risk-based reviews lets lenders test their own portfolios and cure defects ahead of time.</li>
+            </ol>
+          </div>
+
+          <div class="overview-pair">
+            <div class="overview-card">
+              <h3 class="overview-head">Meeting schedule</h3>
+              <div class="meeting-field">
+                <span class="meeting-field-label">Workgroup</span>
+                <span class="meeting-field-value" contenteditable="true">Mortgage Compliance Dataset DWG</span>
+              </div>
+              <div class="meeting-field">
+                <span class="meeting-field-label">Time</span>
+                <span class="meeting-field-value" contenteditable="true">3–4 PM ET</span>
+              </div>
+              <div class="meeting-field">
+                <span class="meeting-field-label">Cadence</span>
+                <span class="meeting-field-value" contenteditable="true">1st &amp; 3rd Thursday of the month</span>
+              </div>
+              <div class="meeting-field">
+                <span class="meeting-field-label">Zoom link</span>
+                <span class="meeting-field-value" contenteditable="true" data-placeholder="Add Zoom link"></span>
+              </div>
+              <button type="button" class="ics-download-btn" id="icsDownloadBtn">📅 Download calendar invite</button>
+            </div>
+            <div class="overview-card video-card">
+              <div class="video-card-inner">
+                <span class="play-btn-lg" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg></span>
+                <div class="video-title" contenteditable="true">MCD Specification<br>Walkthrough</div>
+                <div class="video-cta" contenteditable="true">Lynn Calahan, Alpha7X ▷</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="overview-col">
+          <div class="overview-card">
+            <h3 class="overview-head">Who brought this to MISMO?</h3>
+            <p class="origin-line"><strong>Brought by:</strong> <span contenteditable="true">MISMO, in partnership with the Conference of State Bank Supervisors (CSBS) · sponsored by Asurity</span></p>
+            <p class="origin-line"><strong>Date started:</strong> <span contenteditable="true">Not specified in source materials</span></p>
+            <p class="origin-line"><strong>Why:</strong> <span contenteditable="true">To replace the inconsistent Loan Examination File (LEF) format with a standardized compliance dataset that lenders and regulators could test loans against consistently.</span></p>
+            <p class="origin-line" style="margin-bottom:0; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <strong>Status:</strong>
+              <span class="status-chip-inline" style="background:var(--success-soft); color:var(--success-text);" contenteditable="true">Published — Version 2.0</span>
+            </p>
+          </div>
+
+          <div class="overview-card" id="deliverables-card">
+            <h3 class="overview-head">Work product deliverables</h3>
+            <table class="deliverables-table">
+              <tr><th>Work Request</th><th>Progress</th><th>Status</th><th>Date</th></tr>
+              <tr><td contenteditable="true">MCD Enhancements <span class="mono" style="font-size:10px; color:var(--ink-soft);">WR2025_01</span></td><td><div class="prog-track"><div class="prog-fill deliv-progress-fill" style="width:100%; background:var(--success);"></div></div></td><td><select class="deliv-pill done deliv-status-select"><option value="notstarted">Not Started</option><option value="progress">In Progress</option><option value="done" selected>Published</option></select></td><td><div class="deliv-date-wrap"><span class="deliv-date-label">Published</span><input type="date" class="deliv-date-input" value="2025-12-11"></div></td></tr>
+              <tr><td contenteditable="true">Reference Model Changes – Part A <span class="mono" style="font-size:10px; color:var(--signal-text);">⚑ WR2022_12</span></td><td><div class="prog-track"><div class="prog-fill deliv-progress-fill" style="width:100%; background:var(--success);"></div></div></td><td><select class="deliv-pill done deliv-status-select"><option value="notstarted">Not Started</option><option value="progress">In Progress</option><option value="done" selected>Published</option></select></td><td><div class="deliv-date-wrap"><span class="deliv-date-label">Published</span><input type="date" class="deliv-date-input" value="2025-05-29"></div></td></tr>
+              <tr><td contenteditable="true">MCD – Part B <span class="mono" style="font-size:10px; color:var(--signal-text);">⚑ WR2022_12</span></td><td><div class="prog-track"><div class="prog-fill deliv-progress-fill" style="width:100%; background:var(--success);"></div></div></td><td><select class="deliv-pill done deliv-status-select"><option value="notstarted">Not Started</option><option value="progress">In Progress</option><option value="done" selected>Published</option></select></td><td><div class="deliv-date-wrap"><span class="deliv-date-label">Published</span><input type="date" class="deliv-date-input" value="2024-10-17"></div></td></tr>
+            </table>
+            <p class="section-note" style="margin-top:10px;" contenteditable="true">⚑ Both flagged rows share work request number WR2022_12 in the source — see Manifest Check. Separately, the FAQ lists 3 known errata in v2.0 (unique IDs 1.000, 10.000, 291.00) slated for a future release.</p>
+          </div>
+
+          <div class="overview-card">
+            <h3 class="overview-head">Relevant industry resources</h3>
+            <ul class="reading-list">
+              <li><span class="link-ico">⌁</span><a href="https://www.mismo.org/MCD" target="_blank" rel="noopener">MCD educational hub — mismo.org/MCD</a></li>
+              <li><span class="link-ico">⌁</span><a href="https://www.mismo.org/docs/mismolibraries/default-document-library/mismo-mortgage-compliance-dataset-backgrounder.pdf?sfvrsn=6ac58a03_3" target="_blank" rel="noopener">MCD backgrounder (one-pager)</a></li>
+              <li><span class="link-ico">⌁</span><a href="https://www.mismo.org/docs/mismolibraries/default-document-library/mismo-mortgage-compliance-dataset-faq-may-2026.pdf?sfvrsn=dec520d3_1" target="_blank" rel="noopener">MCD FAQ — May 2026</a></li>
+              <li><span class="link-ico">⌁</span><a href="https://www.mismo.org/about-MISMO/news/2024/10/10/mismo-publishes-mortgage-compliance-dataset" target="_blank" rel="noopener">News: MCD reaches Candidate Recommendation (Oct 2024)</a></li>
+              <li><span class="link-ico">⌁</span><a href="https://www.mismo.org/about-MISMO/news/2025/12/11/mismo-publishes-mortgage-compliance-dataset-with-support-of-csbs--regulators--and-technology-providers" target="_blank" rel="noopener">News: MCD v2.0 published with CSBS (Dec 2025)</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROADMAP -->
+  <section id="roadmap">
+    <div class="section-head">
+      <h2>Roadmap to broad adoption</h2>
+      <div class="view-toggle" role="group" aria-label="Layout format">
+        <button class="view-btn" data-view="compact" aria-pressed="true">Compact</button>
+        <button class="view-btn" data-view="kanban" aria-pressed="false">Kanban</button>
+      </div>
+    </div>
+    <p class="roadmap-intro">Tasks are organized by stakeholder group so each side of the workgroup — regulators, lenders, LOS providers, compliance vendors, and third-party reviewers — can see and manage its own to-dos. Add, edit, or change the status of any task as work progresses.</p>
+
+    <div class="card" style="padding:8px 20px 20px;">
+      <div class="tab-row" role="tablist" aria-label="Stakeholder groups">
+        <button class="tab-btn" role="tab" aria-selected="true" data-tab="regulator">Regulator</button>
+        <button class="tab-btn" role="tab" aria-selected="false" data-tab="lender">Lender</button>
+        <button class="tab-btn" role="tab" aria-selected="false" data-tab="los">LOS Provider</button>
+        <button class="tab-btn" role="tab" aria-selected="false" data-tab="compliance">Compliance Vendor</button>
+        <button class="tab-btn" role="tab" aria-selected="false" data-tab="reviewer">Third-Party Reviewer</button>
+      </div>
+      <div id="laneRoot"></div>
+    </div>
+  </section>
+
+  <!-- STAKEHOLDERS -->
+  <section id="stakeholders">
+    <div class="section-head">
+      <h2>Stakeholder participation &amp; implementation</h2>
+      <span class="section-note" id="adoptionNote">11 of 19 tracked orgs are piloting or live · funnel computed live from the roster</span>
+    </div>
+
+    <div class="stake-layout">
+      <div class="card stake-card">
+        <h3>Stakeholder groups</h3>
+        <table>
+          <tr><th>Type</th><th>Benefit</th><th>Critical?</th><th>Role</th></tr>
+          <tr><td><select class="type-select"><option value="Regulator" selected>Regulator</option><option value="Lender (3rd Party LOS)">Lender (3rd Party LOS)</option><option value="Lender (Proprietary LOS)">Lender (Proprietary LOS)</option><option value="LOS Provider">LOS Provider</option><option value="Compliance Vendor">Compliance Vendor</option><option value="Third-Party Reviewer">Third-Party Reviewer</option></select></td><td contenteditable="true">Automated compliance testing to review a lender's loan portfolio and get accurate test results</td><td><select class="crit-select is-star"><option value="star" selected>★</option><option value="line">—</option></select></td><td><select class="role-select"><option value="Driver" selected>Driver</option><option value="Implementer">Implementer</option></select></td></tr>
+          <tr><td><select class="type-select"><option value="Regulator">Regulator</option><option value="Lender (3rd Party LOS)" selected>Lender (3rd Party LOS)</option><option value="Lender (Proprietary LOS)">Lender (Proprietary LOS)</option><option value="LOS Provider">LOS Provider</option><option value="Compliance Vendor">Compliance Vendor</option><option value="Third-Party Reviewer">Third-Party Reviewer</option></select></td><td contenteditable="true">Spend less time preparing for and responding to exam requests</td><td><select class="crit-select is-star"><option value="star" selected>★</option><option value="line">—</option></select></td><td><select class="role-select"><option value="Driver" selected>Driver</option><option value="Implementer">Implementer</option></select></td></tr>
+          <tr><td><select class="type-select"><option value="Regulator">Regulator</option><option value="Lender (3rd Party LOS)">Lender (3rd Party LOS)</option><option value="Lender (Proprietary LOS)" selected>Lender (Proprietary LOS)</option><option value="LOS Provider">LOS Provider</option><option value="Compliance Vendor">Compliance Vendor</option><option value="Third-Party Reviewer">Third-Party Reviewer</option></select></td><td contenteditable="true">Same benefit, plus direct control over building MCD export capability</td><td><select class="crit-select is-star"><option value="star" selected>★</option><option value="line">—</option></select></td><td><select class="role-select"><option value="Driver" selected>Driver</option><option value="Implementer">Implementer</option></select></td></tr>
+          <tr><td><select class="type-select"><option value="Regulator">Regulator</option><option value="Lender (3rd Party LOS)">Lender (3rd Party LOS)</option><option value="Lender (Proprietary LOS)">Lender (Proprietary LOS)</option><option value="LOS Provider" selected>LOS Provider</option><option value="Compliance Vendor">Compliance Vendor</option><option value="Third-Party Reviewer">Third-Party Reviewer</option></select></td><td contenteditable="true">Single integration point for lender clients' MCD export needs</td><td><select class="crit-select"><option value="star">★</option><option value="line" selected>—</option></select></td><td><select class="role-select"><option value="Driver">Driver</option><option value="Implementer" selected>Implementer</option></select></td></tr>
+          <tr><td><select class="type-select"><option value="Regulator">Regulator</option><option value="Lender (3rd Party LOS)">Lender (3rd Party LOS)</option><option value="Lender (Proprietary LOS)">Lender (Proprietary LOS)</option><option value="LOS Provider">LOS Provider</option><option value="Compliance Vendor" selected>Compliance Vendor</option><option value="Third-Party Reviewer">Third-Party Reviewer</option></select></td><td contenteditable="true">Evaluate the MCD and generate consistent testing results across lenders</td><td><select class="crit-select is-star"><option value="star" selected>★</option><option value="line">—</option></select></td><td><select class="role-select"><option value="Driver">Driver</option><option value="Implementer" selected>Implementer</option></select></td></tr>
+          <tr><td><select class="type-select"><option value="Regulator">Regulator</option><option value="Lender (3rd Party LOS)">Lender (3rd Party LOS)</option><option value="Lender (Proprietary LOS)">Lender (Proprietary LOS)</option><option value="LOS Provider">LOS Provider</option><option value="Compliance Vendor">Compliance Vendor</option><option value="Third-Party Reviewer" selected>Third-Party Reviewer</option></select></td><td contenteditable="true">Standardized file review across regulator and lender engagements</td><td><select class="crit-select"><option value="star">★</option><option value="line" selected>—</option></select></td><td><select class="role-select"><option value="Driver">Driver</option><option value="Implementer" selected>Implementer</option></select></td></tr>
+        </table>
+      </div>
+
+      <div class="card stake-card">
+        <h3>Stakeholder use (by organization count)</h3>
+        <p class="section-note" style="margin:-4px 0 12px;">Change any status in the roster below — the bars update to match.</p>
+        <div id="funnelRoot"></div>
+
+        <div class="funnel-legend">
+          <div class="funnel-legend-item"><span class="legend-dot" style="background:var(--slate);"></span>Not started</div>
+          <div class="funnel-legend-item"><span class="legend-dot" style="background:var(--brand);"></span>Planned</div>
+          <div class="funnel-legend-item"><span class="legend-dot" style="background:var(--amber);"></span>Piloted</div>
+          <div class="funnel-legend-item"><span class="legend-dot" style="background:var(--success);"></span>In use</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="padding:18px;" id="roster">
+      <h3 style="font-size:14px; margin-bottom:4px;">Stakeholder engagement roster</h3>
+      <p class="section-note" style="margin:0 0 12px;">"Active participants" = attended at least 1/3 of the 21 workgroup meetings held in the past year (Aug 2025–Aug 2026), per the uploaded meeting tracker.</p>
+      <div class="roster-controls">
+        <button class="chip-btn" data-type-filter="all" aria-pressed="true">All types</button>
+        <button class="chip-btn" data-type-filter="Regulator" aria-pressed="false">Regulator</button>
+        <button class="chip-btn" data-type-filter="Lender (3rd Party LOS)" aria-pressed="false">Lender (3rd Party LOS)</button>
+        <button class="chip-btn" data-type-filter="Lender (Proprietary LOS)" aria-pressed="false">Lender (Proprietary LOS)</button>
+        <button class="chip-btn" data-type-filter="LOS Provider" aria-pressed="false">LOS Provider</button>
+        <button class="chip-btn" data-type-filter="Compliance Vendor" aria-pressed="false">Compliance Vendor</button>
+        <button class="chip-btn" data-type-filter="Third-Party Reviewer" aria-pressed="false">3rd-Party Reviewer</button>
+        <input class="search-input" id="rosterSearch" type="text" placeholder="Search org or participant…">
+      </div>
+      <table id="rosterTable">
+        <thead>
+          <tr><th>Type</th><th>Organization</th><th>Primary Contact</th><th>Status</th><th>Active participants</th><th>Notes</th></tr>
+        </thead>
+        <tbody id="rosterBody"></tbody>
+      </table>
+      <p class="section-note" id="rosterEmpty" style="display:none; padding:14px 0 0;">No rows match this filter.</p>
+      <datalist id="stakeholderTypeOptions">
+        <option value="Regulator">
+        <option value="Lender (3rd Party LOS)">
+        <option value="Lender (Proprietary LOS)">
+        <option value="LOS Provider">
+        <option value="Compliance Vendor">
+        <option value="Third-Party Reviewer">
+      </datalist>
+    </div>
+  </section>
+
+  <!-- GOVERNANCE -->
+  <section id="governance">
+    <div class="section-head">
+      <h2>Governance, effort &amp; technical signals</h2>
+      <span class="section-note">Meeting tracker · 160 people on file</span>
+    </div>
+
+    <div class="gov-layout">
+      <div class="card gov-card">
+        <h3 style="font-size:13px; margin-bottom:10px;">Meeting tracker <span class="section-note" style="font-weight:400;">— engagement score, all-time (unit not specified in source)</span></h3>
+        <div id="leaderboard"></div>
+      </div>
+      <div class="card gov-card fac-hours">
+        <span class="kpi-label">All-time tracker total</span>
+        <div class="kpi-value">1,670</div>
+        <div class="recon-note" style="color:var(--slate-text); background:var(--slate-soft);">This total, and the leaderboard beside it, match another MISMO workgroup's tracker exactly — dismissed as out of scope per Manifest Check Flag 04, not treated as an active data-quality concern here.</div>
+        <div class="updated-line">160 people on file · 21 qualifying meetings in the past year</div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  Draft dashboard built from the Mortgage Compliance Dataset DWG Smartsheet export and meeting tracker, plus published MISMO/CSBS materials linked above · data-quality flags surfaced above rather than silently corrected · not affiliated with or hosted by Smartsheet or MISMO.
+</footer>
+
+<script>
+  // Manifest check toggle
+  const panel = document.getElementById('manifestPanel');
+  const toggle = document.getElementById('manifestToggle');
+  toggle.addEventListener('click', () => {
+    const isOpen = panel.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  });
+
+  // Jump links: open manifest target section context + flash highlight
+  document.querySelectorAll('[data-jump]').forEach(link => {
+    link.addEventListener('click', (e) => {
+      const highlightId = link.getAttribute('data-highlight');
+      if (highlightId === 'lynncalahan') {
+        setTimeout(() => {
+          const row = document.getElementById('lynncalahan');
+          if (row) {
+            row.classList.add('flash');
+            setTimeout(() => row.classList.remove('flash'), 1500);
+          }
+        }, 300);
+      }
+    });
+  });
+
+  // Roadmap: lane data + compact/kanban renderer
+  let laneData = {
+    regulator: {
+      flagged: false,
+      goals: ['Coordinate multi-state testing and validate pass/fail consistency across compliance vendors'],
+      roadblocks: [],
+      actions: [
+        {task:'Lead multi-state MCD testing across 12 states', owner:'Jeremy Windham', status:'in-progress', label:'In Progress'}
+      ]
+    },
+    lender: {
+      flagged: false,
+      goals: ['Confirm MCD readiness with LOS and compliance vendor ahead of state mandates'],
+      roadblocks: [],
+      actions: [
+        {task:'Provide awareness that MCD will be mandated by select states', owner:'Jeremy Windham', status:'complete', label:'Complete'}
+      ]
+    },
+    los: {
+      flagged: false,
+      goals: ['Build and certify MCD export capability across LOS platforms'],
+      roadblocks: [],
+      actions: [
+        {task:'Develop MCD export beta for Encompass 26.2 release', owner:'Brian Early', status:'in-progress', label:'In Progress'}
+      ]
+    },
+    compliance: {
+      flagged: false,
+      goals: ['Validate consistent MCD test results across compliance platforms'],
+      roadblocks: [],
+      actions: [
+        {task:'Generate test results from sample MCD files', owner:'Karol Villavicencio', status:'in-progress', label:'In Progress'}
+      ]
+    },
+    reviewer: {
+      flagged: false,
+      goals: [],
+      roadblocks: [],
+      actions: []
+    }
+  };
+
+  let currentLane = 'regulator';
+  let currentView = 'compact';
+  let editingTaskIdx = null; // null = none, 'new' = adding, number = editing that index
+  const laneRoot = document.getElementById('laneRoot');
+
+  const actionStatusOptions = [
+    ['not-started', 'Not Started'],
+    ['in-progress', 'In Progress'],
+    ['blocked', 'Blocked'],
+    ['complete', 'Complete']
+  ];
+  const actionStatusLabels = Object.fromEntries(actionStatusOptions);
+
+  function escapeAttr(str){
+    return (str || '').replace(/"/g, '&quot;');
+  }
+
+  function renderActionStatusSelect(laneKey, idx, status){
+    const opts = actionStatusOptions.map(([key, label]) =>
+      `<option value="${key}" ${key === status ? 'selected' : ''}>${label}</option>`
+    ).join('');
+    return `<select class="status-select ${status}" data-lane="${laneKey}" data-action-idx="${idx}" aria-label="Task status">${opts}</select>`;
+  }
+
+  function taskStatusOptionsHtml(status){
+    return actionStatusOptions.map(([key, label]) =>
+      `<option value="${key}" ${key === status ? 'selected' : ''}>${label}</option>`
+    ).join('');
+  }
+
+  function taskEditRowHtml(idx, action){
+    return `<tr class="task-edit-container">
+      <td><input class="contact-input" type="text" data-task-field="task" placeholder="Task" value="${escapeAttr(action.task)}"></td>
+      <td><input class="contact-input" type="text" data-task-field="owner" placeholder="Owner" value="${escapeAttr(action.owner)}"></td>
+      <td><select class="contact-input" data-task-field="status">${taskStatusOptionsHtml(action.status)}</select></td>
+      <td class="task-icons"><button type="button" class="contact-save-btn" data-save-task="${idx}">Save</button><button type="button" class="contact-cancel-btn" data-cancel-task="${idx}">Cancel</button></td>
+    </tr>`;
+  }
+
+  function taskEditCardHtml(idx, action){
+    return `<div class="kanban-card-edit task-edit-container">
+      <input class="contact-input task-input" type="text" data-task-field="task" placeholder="Task" value="${escapeAttr(action.task)}">
+      <input class="contact-input task-input" type="text" data-task-field="owner" placeholder="Owner" value="${escapeAttr(action.owner)}">
+      <select class="contact-input task-input" data-task-field="status">${taskStatusOptionsHtml(action.status)}</select>
+      <div class="contact-edit-actions">
+        <button type="button" class="contact-save-btn" data-save-task="${idx}">Save</button>
+        <button type="button" class="contact-cancel-btn" data-cancel-task="${idx}">Cancel</button>
+      </div>
+    </div>`;
+  }
+
+  function renderPillGroup(label, items, kind){
+    const pillClass = kind === 'goal' ? 'pill-goal' : 'pill-block';
+    let inner = items.map((text, i) =>
+      `<span class="${pillClass}" contenteditable="true" data-pill-kind="${kind}" data-pill-idx="${i}">${text}</span><button type="button" class="pill-remove" data-pill-remove="${kind}:${i}" title="Remove">×</button>`
+    ).join('');
+    inner += `<button type="button" class="pill-add-btn" data-pill-add="${kind}">+ Add</button>`;
+    return `<div class="goal-strip-group"><span class="strip-label">${label}</span><div class="pill-row">${inner}</div></div>`;
+  }
+
+  // --- Shared persistent storage (test build) ---
+  // Keys are namespaced per-dashboard as cheap insurance against any cross-artifact collision.
+  const ROSTER_STORAGE_KEY = 'mcd-roster-data-v1';
+  const LANE_STORAGE_KEY = 'mcd-lane-data-v1';
+  let hasLoadedFromStorage = false; // guards against saving default data over real stored data before the initial load finishes
+
+  async function saveRosterData(){
+    if (!window.storage || !hasLoadedFromStorage) return;
+    try {
+      await window.storage.set(ROSTER_STORAGE_KEY, JSON.stringify(rosterData), true);
+    } catch (err) {
+      console.error('Could not save roster data to shared storage:', err);
+    }
+  }
+
+  async function saveLaneData(){
+    if (!window.storage || !hasLoadedFromStorage) return;
+    try {
+      await window.storage.set(LANE_STORAGE_KEY, JSON.stringify(laneData), true);
+    } catch (err) {
+      console.error('Could not save roadmap data to shared storage:', err);
+    }
+  }
+
+  async function loadSharedData(){
+    if (!window.storage) return { rosterFound: false, laneFound: false };
+    let rosterFound = false;
+    let laneFound = false;
+    try {
+      const r = await window.storage.get(ROSTER_STORAGE_KEY, true);
+      if (r && r.value) {
+        rosterData = JSON.parse(r.value);
+        rosterFound = true;
+      }
+    } catch (err) {
+      // No stored roster yet — this throws rather than returning null, per the storage API.
+    }
+    try {
+      const l = await window.storage.get(LANE_STORAGE_KEY, true);
+      if (l && l.value) {
+        laneData = JSON.parse(l.value);
+        laneFound = true;
+      }
+    } catch (err) {
+      // No stored roadmap data yet.
+    }
+    return { rosterFound, laneFound };
+  }
+
+  function renderLane(){
+    const lane = laneData[currentLane];
+    let html = '';
+
+    if (lane.flagged){
+      html += `<div class="inferred-note">⚑ Source repeated the Servicer lane's goals here. Goals below are inferred from this lane's own action items, pending owner confirmation.</div>`;
+    }
+
+    html += `<div class="goal-strip">`;
+    html += renderPillGroup('Goals', lane.goals, 'goal');
+    html += renderPillGroup('Roadblocks', lane.roadblocks, 'roadblock');
+    html += `</div>`;
+
+    if (currentView === 'compact'){
+      if (lane.actions.length === 0 && editingTaskIdx !== 'new'){
+        html += `<p class="empty-lane-note">No tasks yet for this stakeholder group.</p>`;
+      } else {
+        html += `<table class="action-table-full"><tr><th>Task</th><th>Owner</th><th>Status</th><th></th></tr>`;
+        lane.actions.forEach((a, i) => {
+          if (i === editingTaskIdx){
+            html += taskEditRowHtml(i, a);
+          } else {
+            const doneClass = a.status === 'complete' ? 'done-task' : '';
+            html += `<tr><td class="${doneClass}">${a.task}</td><td>${a.owner}</td><td>${renderActionStatusSelect(currentLane, i, a.status)}</td><td class="task-icons"><button type="button" class="icon-btn" data-edit-task="${i}" title="Edit">✎</button><button type="button" class="icon-btn" data-remove-task="${i}" title="Remove">🗑</button></td></tr>`;
+          }
+        });
+        if (editingTaskIdx === 'new'){
+          html += taskEditRowHtml('new', {task:'', owner:'', status:'not-started'});
+        }
+        html += `</table>`;
+      }
+      if (editingTaskIdx === null){
+        html += `<button type="button" class="add-task-btn" data-add-task>+ Add task</button>`;
+      }
+    } else {
+      const cols = [
+        {key:'not-started', label:'Not Started'},
+        {key:'in-progress', label:'In Progress'},
+        {key:'blocked', label:'Blocked'},
+        {key:'complete', label:'Complete'}
+      ];
+      if (editingTaskIdx === null){
+        html += `<button type="button" class="add-task-btn" data-add-task style="margin-bottom:14px;">+ Add task</button>`;
+      } else if (editingTaskIdx === 'new'){
+        html += `<div class="kanban-add-wrap">${taskEditCardHtml('new', {task:'', owner:'', status:'not-started'})}</div>`;
+      }
+      html += `<div class="kanban-grid">`;
+      cols.forEach(col => {
+        const items = lane.actions.filter(a => a.status === col.key);
+        html += `<div class="kanban-col"><div class="kanban-col-head"><span class="status-chip ${col.key}">${col.label}</span><span class="kanban-count">${items.length}</span></div>`;
+        if (items.length === 0){
+          html += `<div class="kanban-empty">—</div>`;
+        } else {
+          items.forEach(a => {
+            const idx = lane.actions.indexOf(a);
+            if (idx === editingTaskIdx){
+              html += taskEditCardHtml(idx, a);
+            } else {
+              html += `<div class="kanban-card${a.status === 'complete' ? ' done-task' : ''}">
+                <div class="kanban-task">${a.task}</div>
+                <div class="kanban-owner">${a.owner}</div>
+                ${renderActionStatusSelect(currentLane, idx, a.status)}
+                <div class="kanban-card-actions"><button type="button" class="icon-btn" data-edit-task="${idx}" title="Edit">✎</button><button type="button" class="icon-btn" data-remove-task="${idx}" title="Remove">🗑</button></div>
+              </div>`;
+            }
+          });
+        }
+        html += `</div>`;
+      });
+      html += `</div>`;
+    }
+
+    laneRoot.innerHTML = html;
+    saveLaneData();
+  }
+
+  const tabButtons = document.querySelectorAll('.tab-btn');
+  tabButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabButtons.forEach(b => b.setAttribute('aria-selected', 'false'));
+      btn.setAttribute('aria-selected', 'true');
+      currentLane = btn.getAttribute('data-tab');
+      editingTaskIdx = null;
+      renderLane();
+    });
+  });
+
+  const viewButtons = document.querySelectorAll('.view-btn');
+  viewButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      viewButtons.forEach(b => b.setAttribute('aria-pressed', 'false'));
+      btn.setAttribute('aria-pressed', 'true');
+      currentView = btn.getAttribute('data-view');
+      editingTaskIdx = null;
+      renderLane();
+    });
+  });
+
+  renderLane();
+
+  // Quick status changes on non-edit rows: update the data model and re-render
+  laneRoot.addEventListener('change', async (e) => {
+    if (!e.target.matches('select.status-select')) return;
+    const laneKey = e.target.getAttribute('data-lane');
+    const idx = parseInt(e.target.getAttribute('data-action-idx'), 10);
+    const newStatus = e.target.value;
+    await ensureLoaded();
+    laneData[laneKey].actions[idx].status = newStatus;
+    laneData[laneKey].actions[idx].label = actionStatusLabels[newStatus];
+    renderLane();
+  });
+
+  // Add / edit / remove tasks
+  laneRoot.addEventListener('click', async (e) => {
+    if (e.target.closest('[data-add-task]')){
+      editingTaskIdx = 'new';
+      renderLane();
+      return;
+    }
+    const editBtn = e.target.closest('[data-edit-task]');
+    if (editBtn){
+      editingTaskIdx = parseInt(editBtn.getAttribute('data-edit-task'), 10);
+      renderLane();
+      return;
+    }
+    const removeBtn = e.target.closest('[data-remove-task]');
+    if (removeBtn){
+      const idx = parseInt(removeBtn.getAttribute('data-remove-task'), 10);
+      await ensureLoaded();
+      laneData[currentLane].actions.splice(idx, 1);
+      editingTaskIdx = null;
+      renderLane();
+      return;
+    }
+    const saveBtn = e.target.closest('[data-save-task]');
+    if (saveBtn){
+      const container = saveBtn.closest('.task-edit-container');
+      const taskVal = container.querySelector('[data-task-field="task"]').value.trim();
+      const ownerVal = container.querySelector('[data-task-field="owner"]').value.trim();
+      const statusVal = container.querySelector('[data-task-field="status"]').value;
+      if (!taskVal){
+        alert('Task name is required.');
+        return;
+      }
+      const rawIdx = saveBtn.getAttribute('data-save-task');
+      await ensureLoaded();
+      const newAction = {task: taskVal, owner: ownerVal || 'Unassigned', status: statusVal, label: actionStatusLabels[statusVal]};
+      if (rawIdx === 'new'){
+        laneData[currentLane].actions.push(newAction);
+      } else {
+        laneData[currentLane].actions[parseInt(rawIdx, 10)] = newAction;
+      }
+      editingTaskIdx = null;
+      renderLane();
+      return;
+    }
+    if (e.target.closest('[data-cancel-task]')){
+      editingTaskIdx = null;
+      renderLane();
+    }
+
+    const pillAddBtn = e.target.closest('[data-pill-add]');
+    if (pillAddBtn){
+      const kind = pillAddBtn.getAttribute('data-pill-add');
+      await ensureLoaded();
+      const arr = kind === 'goal' ? laneData[currentLane].goals : laneData[currentLane].roadblocks;
+      arr.push(kind === 'goal' ? 'New goal' : 'New roadblock');
+      renderLane();
+      setTimeout(() => {
+        const pills = laneRoot.querySelectorAll(`[data-pill-kind="${kind}"]`);
+        const last = pills[pills.length - 1];
+        if (last){
+          last.focus();
+          const range = document.createRange();
+          range.selectNodeContents(last);
+          const sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+        }
+      }, 0);
+      return;
+    }
+    const pillRemoveBtn = e.target.closest('[data-pill-remove]');
+    if (pillRemoveBtn){
+      const [kind, idxStr] = pillRemoveBtn.getAttribute('data-pill-remove').split(':');
+      const idx = parseInt(idxStr, 10);
+      await ensureLoaded();
+      const arr = kind === 'goal' ? laneData[currentLane].goals : laneData[currentLane].roadblocks;
+      arr.splice(idx, 1);
+      renderLane();
+    }
+  });
+
+  // Goal/roadblock pill text: sync to the data model on blur (capture phase, since blur doesn't bubble)
+  laneRoot.addEventListener('blur', async (e) => {
+    const kind = e.target.getAttribute && e.target.getAttribute('data-pill-kind');
+    if (!kind) return;
+    const idx = parseInt(e.target.getAttribute('data-pill-idx'), 10);
+    const textVal = e.target.textContent.trim();
+    await ensureLoaded();
+    const arr = kind === 'goal' ? laneData[currentLane].goals : laneData[currentLane].roadblocks;
+    arr[idx] = textVal;
+    renderLane();
+  }, true);
+
+  // Shared roster data — drives both the engagement table and the funnel bars
+  let rosterData = [
+    {type:'Regulator', org:'CSBS Multistate Mortgage Committee (MMC) & CFPB', status:'piloted', primaryContact:'Kevin Byers', title:'', email:'', participants:'Kevin Byers (18/21)', notes:'Jeremy Windham (Alabama Banking Dept) is leading testing using loan data from 12 states to validate pass/fail scenarios and vendor consistency.'},
+    {type:'Regulator', org:'Alabama Banking Department', status:'piloted', primaryContact:'Jeremy Windham', title:'', email:'', participants:'Jeremy Windham (12/21)', notes:'Named as one of the states showing strong support and commitment to the MCD.'},
+    {type:'Regulator', org:'California Dept. of Financial Protection and Innovation', status:'piloted', primaryContact:'Sheila Oliver', title:'', email:'', participants:'No one met the 1/3 attendance threshold — closest: Sheila Oliver (2/21)', notes:'Named as a strong-support state, though the tracked contact has low meeting attendance.'},
+    {type:'Regulator', org:'D.C. Dept. of Insurance, Securities & Banking', status:'piloted', primaryContact:'Aaron Clifton', title:'', email:'', participants:'Aaron Clifton (7/21)', notes:'Named as one of the states showing strong support and commitment to the MCD.'},
+    {type:'Lender (3rd Party LOS)', org:'DHI Mortgage Company', status:'planned', primaryContact:'John van der Horst', title:'', email:'', participants:'John van der Horst (8/21)', notes:'Lenders are supportive of the MCD but remain reliant on LOS providers, compliance vendors, and regulators.'},
+    {type:'Lender (3rd Party LOS)', org:'Veterans United Home Loans', status:'planned', primaryContact:'Paul Daviess', title:'', email:'', participants:'No one met the 1/3 attendance threshold — closest: Paul Daviess (6/21)', notes:'Same shared note: supportive, but dependent on LOS/compliance vendor readiness.'},
+    {type:'Lender (Proprietary LOS)', org:'Rocket Mortgage, LLC', status:'planned', primaryContact:'Amy Grodin', title:'', email:'', participants:'Amy Grodin (19/21), Nicholas Laudan (10/21)', notes:'Remains a committed supporter and is planning to implement.'},
+    {type:'Lender (Proprietary LOS)', org:'United Wholesale Mortgage', status:'planned', primaryContact:'Richard Collins', title:'', email:'', participants:'Richard Collins (15/21)', notes:'Not named in the source stakeholder table — added here from real meeting-tracker engagement.'},
+    {type:'LOS Provider', org:'ICE Mortgage Technology', status:'piloted', primaryContact:'Brian Early', title:'', email:'', participants:'Brian Early (19/21)', notes:'Developing an initial beta MCD export for the Encompass 26.2 release (mid-July); first release supports a single closed-loan export.'},
+    {type:'LOS Provider', org:'Wilqo', status:'planned', primaryContact:'John Haring', title:'', email:'', participants:'John Haring (12/21)', notes:'Committed to supporting the MCD; developing a single-loan workflow and evaluating bulk vs. individual request support.'},
+    {type:'LOS Provider', org:'Vesta', status:'not-started', primaryContact:'Derek Steele-Wass', title:'', email:'', participants:'No one met the 1/3 attendance threshold — closest: Derek Steele-Wass (0/21)', notes:'Has not participated in discussions or committed to development, though has indicated the MCD would be easy to build.'},
+    {type:'LOS Provider', org:'Byte', status:'not-started', primaryContact:'', title:'', email:'', participants:'No roster data on file', notes:'Lacks commitment to implement; believes ComplianceEase will continue to cover what is needed to support the MCD.'},
+    {type:'Compliance Vendor', org:'Asurity', status:'in-use', primaryContact:'Michael Jackman', title:'Workgroup Leader, MCD DWG', email:'', participants:'Michael Jackman (19/21), Karol Villavicencio (18/21)', notes:'Actively implementing. Asurity also sponsors the MCD DWG.'},
+    {type:'Compliance Vendor', org:'LendingPad', status:'in-use', primaryContact:'Frank Tuttle', title:'', email:'', participants:'Frank Tuttle (17/21)', notes:'Actively implementing.'},
+    {type:'Compliance Vendor', org:'Evolve Mortgage Services', status:'in-use', primaryContact:'Dan Netzer', title:'', email:'', participants:'Dan Netzer (14/21), Cathy Hunt (9/21)', notes:'Actively implementing.'},
+    {type:'Compliance Vendor', org:'ComplianceEase', status:'in-use', primaryContact:'', title:'', email:'', participants:'No roster data on file', notes:'Actively implementing; also continues to support the legacy LEF format until regulators stop accepting it.'},
+    {type:'Compliance Vendor', org:'Mavent (ICE)', status:'planned', primaryContact:'', title:'', email:'', participants:'No roster data on file', notes:'Confirmed plans to build ingestion and testing capability, but has not started due to other priorities.'},
+    {type:'Compliance Vendor', org:'Alpha7X', status:'in-use', primaryContact:'Lynn Calahan', title:'Chief Data Officer', email:'', participants:'Lynn Calahan (11/21 under Alpha7X — plus 1/21 under a separate "Self-employed" entry, see Manifest Check)', notes:'Sole architect of the MCD specification.', rowId:'lynncalahan'},
+    {type:'Third-Party Reviewer', org:'SitusAMC', status:'in-use', primaryContact:'Sonya McCumber', title:'Workgroup Leader, MCD DWG', email:'', participants:'Sonya McCumber (20/21), Genny Dillon (16/21)', notes:'Serves as third-party loan file reviewer.'}
+  ];
+
+  const statusOptions = [
+    ['not-started', 'Not Started'],
+    ['planned', 'Planned'],
+    ['piloted', 'Piloted'],
+    ['in-use', 'In Use']
+  ];
+
+  const funnelCategories = ['Regulator', 'Lender (3rd Party LOS)', 'Lender (Proprietary LOS)', 'LOS Provider', 'Compliance Vendor', 'Third-Party Reviewer'];
+  function funnelCategoryFor(type){
+    return type;
+  }
+
+  function renderStatusSelect(idx, status){
+    const opts = statusOptions.map(([key, label]) =>
+      `<option value="${key}" ${key === status ? 'selected' : ''}>${label}</option>`
+    ).join('');
+    return `<select class="status-select ${status}" data-idx="${idx}" aria-label="Adoption status">${opts}</select>`;
+  }
+
+  let editingContactIdx = null;
+
+  function renderContactCell(idx, row){
+    if (idx === editingContactIdx){
+      return `<div class="contact-edit-form">
+        <input class="contact-input" type="text" data-field="name" placeholder="Name" value="${row.primaryContact.replace(/"/g,'&quot;')}">
+        <input class="contact-input" type="text" data-field="title" placeholder="Title" value="${(row.title||'').replace(/"/g,'&quot;')}">
+        <input class="contact-input" type="email" data-field="email" placeholder="Email" value="${(row.email||'').replace(/"/g,'&quot;')}">
+        <div class="contact-edit-actions">
+          <button type="button" class="contact-save-btn" data-save-idx="${idx}">Save</button>
+          <button type="button" class="contact-cancel-btn" data-cancel-idx="${idx}">Cancel</button>
+        </div>
+      </div>`;
+    }
+    const titleHtml = row.title ? `<div class="contact-sub">${row.title}</div>` : `<div class="contact-sub placeholder">Add title</div>`;
+    const emailHtml = row.email ? `<div class="contact-sub"><a href="mailto:${row.email}">${row.email}</a></div>` : `<div class="contact-sub placeholder">Add email</div>`;
+    const nameHtml = row.primaryContact ? `<div class="contact-name">${row.primaryContact}</div>` : `<div class="contact-name placeholder">Add primary contact</div>`;
+    return `<div class="contact-block">
+      ${nameHtml}
+      ${titleHtml}
+      ${emailHtml}
+      <button type="button" class="contact-edit-btn" data-edit-idx="${idx}">✎ Edit</button>
+    </div>`;
+  }
+
+  function renderRosterTable(){
+    const tbody = document.getElementById('rosterBody');
+    const q = searchInput.value.trim().toLowerCase();
+    let html = '';
+    let visibleCount = 0;
+    rosterData.forEach((row, idx) => {
+      const typeMatch = activeType === 'all' || row.type === activeType;
+      const haystack = `${row.type} ${row.org} ${row.primaryContact} ${row.title||''} ${row.email||''} ${row.participants} ${row.notes}`.toLowerCase();
+      const textMatch = q === '' || haystack.includes(q);
+      if (!(typeMatch && textMatch)) return;
+      visibleCount++;
+      const idAttr = row.rowId ? ` id="${row.rowId}"` : '';
+      html += `<tr data-type="${row.type}"${idAttr}>
+        <td><input class="type-input" list="stakeholderTypeOptions" data-roster-field="type" data-idx="${idx}" value="${row.type.replace(/"/g,'&quot;')}"></td>
+        <td contenteditable="true" data-roster-field="org" data-idx="${idx}">${row.org}</td>
+        <td class="primary-contact">${renderContactCell(idx, row)}</td>
+        <td>${renderStatusSelect(idx, row.status)}</td>
+        <td title="Attendance data — not editable">${row.participants}</td>
+        <td contenteditable="true" data-roster-field="notes" data-idx="${idx}">${row.notes}</td>
+      </tr>`;
+    });
+    tbody.innerHTML = html;
+    emptyMsg.style.display = visibleCount === 0 ? 'block' : 'none';
+    saveRosterData();
+  }
+
+  function renderFunnel(){
+    const counts = {};
+    funnelCategories.forEach(cat => counts[cat] = {'not-started':0, 'planned':0, 'piloted':0, 'in-use':0});
+    rosterData.forEach(row => {
+      const cat = funnelCategoryFor(row.type);
+      if (counts[cat]) counts[cat][row.status]++;
+    });
+
+    const order = [['not-started','--slate'], ['planned','--brand'], ['piloted','--amber'], ['in-use','--success']];
+    const root = document.getElementById('funnelRoot');
+    let html = '';
+    funnelCategories.forEach((cat, i) => {
+      const c = counts[cat];
+      const total = c['not-started'] + c['planned'] + c['piloted'] + c['in-use'];
+      const lastStyle = i === funnelCategories.length - 1 ? ' style="margin-bottom:0;"' : '';
+      html += `<div class="funnel-row"${lastStyle}>`;
+      html += `<div class="funnel-row-top"><span>${cat}</span><span>${total > 0 ? total + ' org' + (total > 1 ? 's' : '') + ' tracked' : 'no roster data yet'}</span></div>`;
+      if (total === 0){
+        html += `<div class="funnel-bar empty"></div>`;
+      } else {
+        html += `<div class="funnel-bar">`;
+        order.forEach(([key, cssVar]) => {
+          if (c[key] > 0){
+            html += `<span style="width:${(c[key] / total * 100).toFixed(1)}%; background:var(${cssVar});"></span>`;
+          }
+        });
+        html += `</div>`;
+      }
+      html += `</div>`;
+    });
+    root.innerHTML = html;
+  }
+
+  function updateAdoptionNote(){
+    const total = rosterData.length;
+    const pilotedOrLive = rosterData.filter(r => r.status === 'piloted' || r.status === 'in-use').length;
+    document.getElementById('adoptionNote').textContent =
+      `${pilotedOrLive} of ${total} tracked orgs are piloting or live · funnel computed live from the roster`;
+  }
+
+  // Roster filtering
+  const typeButtons = document.querySelectorAll('[data-type-filter]');
+  const searchInput = document.getElementById('rosterSearch');
+  const emptyMsg = document.getElementById('rosterEmpty');
+  let activeType = 'all';
+
+  typeButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      typeButtons.forEach(b => b.setAttribute('aria-pressed', 'false'));
+      btn.setAttribute('aria-pressed', 'true');
+      activeType = btn.getAttribute('data-type-filter');
+      renderRosterTable();
+    });
+  });
+  searchInput.addEventListener('input', renderRosterTable);
+
+  // Primary contact editing: click Edit to reveal name/title/email inputs for that row only
+  document.getElementById('rosterTable').addEventListener('click', async (e) => {
+    const editBtn = e.target.closest('.contact-edit-btn');
+    if (editBtn){
+      editingContactIdx = parseInt(editBtn.getAttribute('data-edit-idx'), 10);
+      renderRosterTable();
+      return;
+    }
+    const saveBtn = e.target.closest('.contact-save-btn');
+    if (saveBtn){
+      const idx = parseInt(saveBtn.getAttribute('data-save-idx'), 10);
+      const cell = saveBtn.closest('.contact-edit-form');
+      const nameVal = cell.querySelector('[data-field="name"]').value.trim();
+      const titleVal = cell.querySelector('[data-field="title"]').value.trim();
+      const emailVal = cell.querySelector('[data-field="email"]').value.trim();
+      await ensureLoaded();
+      if (nameVal) rosterData[idx].primaryContact = nameVal;
+      rosterData[idx].title = titleVal;
+      rosterData[idx].email = emailVal;
+      editingContactIdx = null;
+      renderRosterTable();
+      return;
+    }
+    const cancelBtn = e.target.closest('.contact-cancel-btn');
+    if (cancelBtn){
+      editingContactIdx = null;
+      renderRosterTable();
+    }
+  });
+
+  // Type / Organization / Notes are plain editable text — sync to the data model on blur
+  // so edits survive the next re-render (filtering, searching, contact save/cancel).
+  document.getElementById('rosterTable').addEventListener('blur', async (e) => {
+    const field = e.target.getAttribute && e.target.getAttribute('data-roster-field');
+    if (!field) return;
+    const idx = parseInt(e.target.getAttribute('data-idx'), 10);
+    const val = e.target.tagName === 'INPUT' ? e.target.value.trim() : e.target.textContent.trim();
+    await ensureLoaded();
+    rosterData[idx][field] = val;
+    renderRosterTable();
+  }, true);
+
+  // Status changes: update the data model, then re-render the table row's own
+  // select styling, the funnel bars, and the adoption stat — all from one source of truth.
+  document.getElementById('rosterTable').addEventListener('change', async (e) => {
+    if (!e.target.matches('select.status-select')) return;
+    const idx = parseInt(e.target.getAttribute('data-idx'), 10);
+    const newStatus = e.target.value;
+    await ensureLoaded();
+    rosterData[idx].status = newStatus;
+    renderFunnel();
+    updateAdoptionNote();
+    saveRosterData();
+    renderRosterTable();
+  });
+
+  // Pure viewing never touches window.storage — only the first actual edit does.
+  // This avoids the account-required prompt firing for people who are just looking.
+  async function ensureLoaded(){
+    if (hasLoadedFromStorage) return;
+    const { rosterFound, laneFound } = await loadSharedData();
+    hasLoadedFromStorage = true;
+    renderLane();
+    renderRosterTable();
+    renderFunnel();
+    updateAdoptionNote();
+    // If this is the very first edit ever made (nothing in shared storage yet), seed it
+    // with the current defaults so every subsequent viewer/editor starts from the same baseline.
+    if (!rosterFound) saveRosterData();
+    if (!laneFound) saveLaneData();
+  }
+
+  renderLane();
+  renderRosterTable();
+  renderFunnel();
+  updateAdoptionNote();
+
+  // Stakeholder Groups "Critical?" dropdown: keep the star gold-colored when selected
+  document.querySelectorAll('.crit-select').forEach(sel => {
+    sel.addEventListener('change', () => {
+      sel.classList.toggle('is-star', sel.value === 'star');
+    });
+  });
+
+  // Leaderboard render
+  const leaderboardData = [
+    ["Sonya McCumber", "SitusAMC", 114],
+    ["Karol Villavicencio", "Asurity", 108],
+    ["Genny Dillon", "SitusAMC", 104],
+    ["Erin Bittenbender", "PhoenixTeam", 102],
+    ["Frank Tuttle", "LendingPad", 98],
+    ["Michael Jackman", "Asurity", 95],
+    ["Kevin Byers", "Conference of State Bank Supervisors", 89],
+    ["Amy Grodin", "Rocket Mortgage, LLC", 84],
+    ["Nicholas Laudan", "Rocket Mortgage, LLC", 57],
+    ["Vasiliy Goncharenko", "SoftCreator, LLC", 56],
+    ["Lynn Calahan", "Self-employed", 53],
+    ["Jeremy Windham", "Alabama Banking Department", 50],
+    ["Paul Daviess", "Veterans United Home Loans", 38],
+    ["Kathryn Coon", "Homepoint", 31],
+    ["Brian Early", "ICE Mortgage Technology", 27],
+    ["Anya Tabb", "State of Washington", 20],
+    ["Shwetak Lade", "Rocket Mortgage, LLC", 20]
+  ];
+  const maxVal = Math.max(...leaderboardData.map(d => d[2]));
+  const lb = document.getElementById('leaderboard');
+  leaderboardData.forEach(([name, org, val]) => {
+    const row = document.createElement('div');
+    row.className = 'leaderboard-row';
+    row.innerHTML = `
+      <span class="who" title="${name}">${name}</span>
+      <span class="leaderboard-track"><span class="leaderboard-fill" style="width:${(val/maxVal*100).toFixed(1)}%"></span></span>
+      <span class="leaderboard-val">${val}</span>
+    `;
+    lb.appendChild(row);
+  });
+  // Calendar invite (.ics) download — computes the next 1st or 3rd Thursday, 3-4 PM
+  function pad2(n){ return String(n).padStart(2, '0'); }
+
+  function getNthWeekdayOfMonth(year, month, weekday, nth){
+    const first = new Date(year, month, 1);
+    const firstWeekday = first.getDay();
+    const dayOffset = (weekday - firstWeekday + 7) % 7;
+    const day = 1 + dayOffset + (nth - 1) * 7;
+    return new Date(year, month, day);
+  }
+
+  function findNextMeetingDate(){
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    let year = today.getFullYear();
+    let month = today.getMonth();
+    for (let i = 0; i < 6; i++){
+      const first = getNthWeekdayOfMonth(year, month, 4, 1);
+      const third = getNthWeekdayOfMonth(year, month, 4, 3);
+      const candidates = [first, third].filter(d => d >= today).sort((a, b) => a - b);
+      if (candidates.length) return candidates[0];
+      month++;
+      if (month > 11){ month = 0; year++; }
+    }
+    return today;
+  }
+
+  function icsLocalDateTime(date, hour, minute){
+    return date.getFullYear() + pad2(date.getMonth() + 1) + pad2(date.getDate()) + 'T' + pad2(hour) + pad2(minute) + '00';
+  }
+
+  function icsUTCNow(){
+    const d = new Date();
+    return d.getUTCFullYear() + pad2(d.getUTCMonth() + 1) + pad2(d.getUTCDate()) + 'T' + pad2(d.getUTCHours()) + pad2(d.getUTCMinutes()) + pad2(d.getUTCSeconds()) + 'Z';
+  }
+
+  const icsBtn = document.getElementById('icsDownloadBtn');
+  if (icsBtn){
+    icsBtn.addEventListener('click', () => {
+      const meetingDate = findNextMeetingDate();
+      const dtstart = icsLocalDateTime(meetingDate, 15, 0);
+      const dtend = icsLocalDateTime(meetingDate, 16, 0);
+      const workgroupName = document.querySelector('.workgroup-tag').textContent.trim();
+      const icsContent = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//MISMO Initiative Dashboard//EN',
+        'BEGIN:VEVENT',
+        'UID:' + Date.now() + '@initiative-dashboard',
+        'DTSTAMP:' + icsUTCNow(),
+        'DTSTART:' + dtstart,
+        'DTEND:' + dtend,
+        'RRULE:FREQ=MONTHLY;BYDAY=1TH,3TH',
+        'SUMMARY:' + workgroupName + ' Meeting',
+        'DESCRIPTION:Recurring workgroup meeting — 1st and 3rd Thursday of the month.',
+        'END:VEVENT',
+        'END:VCALENDAR'
+      ].join('\r\n');
+      const blob = new Blob([icsContent], { type: 'text/calendar' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = workgroupName.replace(/[^a-z0-9]+/gi, '-').toLowerCase() + '-meeting.ics';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+  }
+
+  // Work Product Deliverables: status dropdown drives the progress bar
+  const deliverableProgress = {
+    'notstarted': { width: '0%', color: 'transparent' },
+    'progress': { width: '55%', color: 'var(--amber)' },
+    'done': { width: '100%', color: 'var(--success)' }
+  };
+  document.querySelectorAll('.deliv-status-select').forEach(sel => {
+    sel.addEventListener('change', () => {
+      const val = sel.value;
+      sel.className = 'deliv-pill deliv-status-select ' + val;
+      const row = sel.closest('tr');
+      const fill = row.querySelector('.deliv-progress-fill');
+      if (fill && deliverableProgress[val]){
+        fill.style.width = deliverableProgress[val].width;
+        fill.style.background = deliverableProgress[val].color;
+      }
+      const dateLabel = row.querySelector('.deliv-date-label');
+      if (dateLabel){
+        dateLabel.textContent = val === 'done' ? 'Published' : 'ETA';
+      }
+    });
+  });
+</script>
+
+</body>
+</html>

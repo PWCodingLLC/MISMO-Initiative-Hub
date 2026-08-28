@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Initiative Dashboards — MISMO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#101B33;
+    --ink-soft:#4B5670;
+    --paper:#F1F3F9;
+    --card:#FFFFFF;
+    --line:#E1E4EC;
+
+    --brand:#2A4DFF;
+    --brand-soft:#EAF0FF;
+    --brand-text:#1E3ACC;
+
+    --success:#1D9A56;
+    --success-soft:#E7F7EE;
+    --success-text:#157A44;
+
+    --slate:#8B94A7;
+    --slate-soft:#EEF0F4;
+    --slate-text:#5B6478;
+
+    --teal:#0E9488;
+    --teal-soft:#E3F5F3;
+    --teal-text:#0B7A70;
+
+    --gold:#D97706;
+    --gold-soft:#FDF1E3;
+    --gold-text:#9A5B05;
+
+    --radius:10px;
+    --shadow:0 1px 2px rgba(16,27,51,.05), 0 10px 28px rgba(16,27,51,.06);
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    line-height:1.5;
+  }
+  h1,h2,h3{font-family:'Space Grotesk',system-ui,sans-serif; letter-spacing:-0.01em; margin:0;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  :focus-visible{outline:2.5px solid var(--brand); outline-offset:2px; border-radius:4px;}
+  @media (prefers-reduced-motion: reduce){ *{transition-duration:.001ms !important;} }
+
+  .wrap{max-width:1180px; margin:0 auto; padding:0 24px 80px;}
+
+  /* ---------- MASTHEAD ---------- */
+  .masthead{padding:40px 24px 26px; border-bottom:1px solid var(--line); background:var(--card);}
+  .masthead-inner{max-width:1180px; margin:0 auto;}
+  .eyebrow-row{display:flex; align-items:center; gap:10px; margin-bottom:12px;}
+  .sponsor-mark{
+    font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:11px; letter-spacing:.06em;
+    background:var(--ink); color:#fff; padding:3px 8px; border-radius:4px;
+  }
+  .eyebrow{font-size:12.5px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft);}
+  h1{font-size:32px; font-weight:700;}
+  .subtitle{font-size:14.5px; color:var(--ink-soft); max-width:560px; margin-top:8px;}
+
+  /* ---------- CONTROLS ---------- */
+  .controls{
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    margin:28px 0 22px;
+  }
+  .chip-btn{
+    font-family:'Inter',sans-serif; font-size:12.5px; font-weight:600;
+    padding:7px 14px; border-radius:999px; border:1px solid var(--line);
+    background:var(--card); color:var(--ink-soft); cursor:pointer;
+  }
+  .chip-btn[aria-pressed="true"]{background:var(--ink); border-color:var(--ink); color:#fff;}
+  .view-toggle{display:flex; gap:4px; background:var(--slate-soft); padding:3px; border-radius:8px;}
+  .view-btn{
+    font-family:'Inter',sans-serif; font-size:12.5px; font-weight:600;
+    padding:7px 14px; border-radius:6px; border:none; background:none; color:var(--ink-soft); cursor:pointer;
+  }
+  .view-btn[aria-pressed="true"]{background:var(--card); color:var(--ink); box-shadow:var(--shadow);}
+  .search-input{
+    margin-left:auto; font-family:inherit; font-size:13px; padding:8px 14px;
+    border-radius:8px; border:1px solid var(--line); min-width:220px; background:var(--card);
+  }
+
+  /* ---------- CARD GRID ---------- */
+  .grid{display:grid; grid-template-columns:repeat(2,1fr); gap:18px;}
+  @media (max-width:760px){ .grid{grid-template-columns:1fr;} }
+
+  .card{
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    background:var(--card);
+    box-shadow:var(--shadow);
+    padding:22px;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+  .card.planned{
+    border-style:dashed;
+    background:var(--paper);
+    box-shadow:none;
+  }
+
+  .card-top{display:flex; align-items:flex-start; justify-content:space-between; gap:10px;}
+  .domain-tag{
+    display:inline-block; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:11px;
+    letter-spacing:.03em; color:#fff; padding:3px 10px; border-radius:999px; white-space:nowrap;
+  }
+  .domain-tag.compliance{background:var(--teal);}
+  .domain-tag.emortgage{background:var(--gold);}
+  .domain-tag.servicing{background:var(--brand);}
+
+  .status-badge{
+    font-size:10.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
+    padding:3px 9px; border-radius:999px; white-space:nowrap;
+  }
+  .status-badge.live{background:var(--success-soft); color:var(--success-text);}
+  .status-badge.planned{background:var(--slate-soft); color:var(--slate-text);}
+
+  .card h3{font-size:18px; font-weight:700;}
+
+  .snapshot-stat{
+    display:inline-block; margin-top:2px; font-family:'IBM Plex Mono',monospace; font-size:11.5px;
+    font-weight:600; background:var(--brand-soft); color:var(--brand-text); padding:4px 10px; border-radius:999px;
+    width:fit-content;
+  }
+
+  .empty-note{font-size:12.5px; color:var(--ink-soft); font-style:italic; margin:0;}
+
+  .sample-badge{
+    font-size:10px; font-weight:700; letter-spacing:.03em; text-transform:uppercase;
+    padding:3px 8px; border-radius:999px; border:1px dashed var(--slate); color:var(--slate-text);
+    background:var(--card); white-space:nowrap;
+  }
+  .detail-block{display:flex; flex-direction:column; gap:3px;}
+  .detail-label{
+    font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-soft);
+  }
+  .detail-text{font-size:13px; color:var(--ink); margin:0;}
+
+  .card-cta{
+    margin-top:auto;
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:13px; font-weight:600; color:var(--brand-text); text-decoration:none;
+  }
+  .card-cta:hover{text-decoration:underline;}
+  .card-cta.disabled{color:var(--slate-text); pointer-events:none;}
+
+  footer{
+    max-width:1180px; margin:20px auto 0; padding:20px 24px 0;
+    border-top:1px solid var(--line); font-size:11.5px; color:var(--ink-soft);
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="masthead-inner">
+    <div class="eyebrow-row">
+      <span class="sponsor-mark">MISMO</span>
+      <span class="eyebrow">Initiative Library</span>
+    </div>
+    <h1>Initiative Dashboards</h1>
+    <p class="subtitle">Browse work-in-progress dashboards for MISMO workgroup initiatives. Each card links out to that initiative's own dashboard once it's been built.</p>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="controls">
+    <div class="view-toggle" role="group" aria-label="Card detail level">
+      <button class="view-btn" data-view="basic" aria-pressed="true">Basic</button>
+      <button class="view-btn" data-view="detailed" aria-pressed="false">Detailed</button>
+    </div>
+    <button class="chip-btn" data-domain-filter="all" aria-pressed="true">All domains</button>
+    <button class="chip-btn" data-domain-filter="Compliance" aria-pressed="false">Compliance</button>
+    <button class="chip-btn" data-domain-filter="eMortgage" aria-pressed="false">eMortgage</button>
+    <button class="chip-btn" data-domain-filter="Servicing" aria-pressed="false">Servicing</button>
+    <input class="search-input" id="searchInput" type="text" placeholder="Search initiatives…">
+  </div>
+
+  <div class="grid" id="cardGrid"></div>
+</div>
+
+<footer>
+  Initiative library draft — place this file in the same folder as individual dashboard files (e.g. <span class="mono">lbds-dashboard.html</span>) for the "View dashboard" links to work.
+</footer>
+
+<script>
+  const domainClass = {
+    'Compliance': 'compliance',
+    'eMortgage': 'emortgage',
+    'Servicing': 'servicing'
+  };
+
+  // NOTE: Mortgage Compliance Dataset and Loan Boarding Dataset now point to their real
+  // published artifact URLs. The other two initiatives are still "planned" (no dashboard
+  // yet), so their href stays null until they're built and published.
+  const initiatives = [
+    {
+      title: 'Mortgage Compliance Dataset',
+      domain: 'Compliance',
+      status: 'live',
+      href: 'mcd-dashboard.html',
+      sample: false,
+      whatIsIt: 'A standard set of loan data fields and delivery file format that mortgage lenders and independent mortgage banks provide to regulators for the loan-level review portion of regulatory compliance examinations — designed to replace the Loan Examination File (LEF).',
+      whoWorking: 'Mortgage Compliance Dataset DWG · Workgroup Leaders Sonya McCumber & Michael Jackman · Facilitator Erin Bittenbender',
+      whoBroughtIt: 'MISMO, in partnership with CSBS · sponsored by Asurity · Version 2.0 published Dec 11, 2025',
+      estimatedSavings: 'No published $ estimate yet'
+    },
+    {
+      title: 'Tri-Party eNote Bailee Agreement',
+      domain: 'eMortgage',
+      status: 'planned',
+      href: null,
+      sample: true,
+      whatIsIt: 'A standardized tri-party agreement structure between lender, custodian, and warehouse lender defining the data and terms needed to establish bailee custody of an eNote during interim funding.',
+      whoWorking: 'eMortgage Custody DWG · Co-Chairs Sarah Kwon & Tobias Reyes · Facilitator Emily Sato',
+      whoBroughtIt: 'Warehouse lenders & eClosing technology providers · Started July 2023',
+      estimatedSavings: '$15–$50 per loan in reduced manual agreement processing'
+    },
+    {
+      title: 'Investor Reporting Dataset',
+      domain: 'Servicing',
+      status: 'planned',
+      href: null,
+      sample: true,
+      whatIsIt: 'A standardized dataset defining what servicers report to investors — GSEs and private-label securitizers — on loan performance, remittance, and portfolio status each cycle.',
+      whoWorking: 'Investor Reporting DWG · Co-Chairs Nadia Brooks & Victor Alaniz · Facilitator Grace Lindqvist',
+      whoBroughtIt: 'GSEs & master servicers · Started January 2024',
+      estimatedSavings: '$3–$18 per loan per reporting cycle in reduced reconciliation effort'
+    },
+    {
+      title: 'Loan Boarding Dataset',
+      domain: 'Servicing',
+      status: 'live',
+      href: 'lbds-dashboard.html',
+      sample: false,
+      whatIsIt: 'A standardized, extensible dataset defining the core information needed to board newly originated loans into servicing systems consistently and reliably. First published piece of MISMO\'s broader Industry Transfer of Servicing Dataset (ITSD).',
+      whoWorking: 'Servicing Transfers DWG · Co-Chairs Joseph Prince & Rachael Macaulay · Facilitator Leeann Walker',
+      whoBroughtIt: 'GSEs, NewRez & Flagstar · Started February 2023',
+      estimatedSavings: '$17–$89 per loan'
+    }
+  ];
+
+  function renderCard(item){
+    const dClass = domainClass[item.domain] || 'servicing';
+    const isLive = item.status === 'live';
+    const cardClass = isLive ? 'card' : 'card planned';
+    const sampleBadge = (currentView === 'detailed' && item.sample) ? `<span class="sample-badge">Sample data</span>` : '';
+
+    let body = '';
+    if (currentView === 'basic'){
+      if (isLive){
+        body += `<a class="card-cta" href="${item.href}">View dashboard →</a>`;
+      } else {
+        body += `<p class="empty-note">No dashboard yet — this card will link out once one is built.</p>`;
+        body += `<span class="card-cta disabled">View dashboard →</span>`;
+      }
+    } else {
+      body += `<div class="detail-block"><span class="detail-label">What is it</span><p class="detail-text">${item.whatIsIt}</p></div>`;
+      body += `<div class="detail-block"><span class="detail-label">Who's working on it</span><p class="detail-text">${item.whoWorking}</p></div>`;
+      body += `<div class="detail-block"><span class="detail-label">Who brought it</span><p class="detail-text">${item.whoBroughtIt}</p></div>`;
+      body += `<div class="detail-block"><span class="detail-label">Estimated savings</span><span class="snapshot-stat">${item.estimatedSavings}</span></div>`;
+      if (isLive){
+        body += `<a class="card-cta" href="${item.href}">View dashboard →</a>`;
+      } else {
+        body += `<span class="card-cta disabled">View dashboard →</span>`;
+      }
+    }
+
+    return `<div class="${cardClass}" data-domain="${item.domain}" data-title="${item.title.toLowerCase()}">
+      <div class="card-top">
+        <span class="domain-tag ${dClass}">${item.domain}</span>
+        <div style="display:flex; align-items:center; gap:6px;">
+          ${sampleBadge}
+          <span class="status-badge ${item.status}">${isLive ? 'Live' : 'Planned'}</span>
+        </div>
+      </div>
+      <h3>${item.title}</h3>
+      ${body}
+    </div>`;
+  }
+
+  const grid = document.getElementById('cardGrid');
+  const searchInput = document.getElementById('searchInput');
+  const domainButtons = document.querySelectorAll('[data-domain-filter]');
+  const viewButtons = document.querySelectorAll('.view-btn');
+  let activeDomain = 'all';
+  let currentView = 'basic';
+
+  function renderGrid(){
+    const q = searchInput.value.trim().toLowerCase();
+    const filtered = initiatives.filter(item => {
+      const domainMatch = activeDomain === 'all' || item.domain === activeDomain;
+      const textMatch = q === '' || item.title.toLowerCase().includes(q);
+      return domainMatch && textMatch;
+    });
+    grid.innerHTML = filtered.map(renderCard).join('');
+  }
+
+  domainButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      domainButtons.forEach(b => b.setAttribute('aria-pressed', 'false'));
+      btn.setAttribute('aria-pressed', 'true');
+      activeDomain = btn.getAttribute('data-domain-filter');
+      renderGrid();
+    });
+  });
+  viewButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      viewButtons.forEach(b => b.setAttribute('aria-pressed', 'false'));
+      btn.setAttribute('aria-pressed', 'true');
+      currentView = btn.getAttribute('data-view');
+      renderGrid();
+    });
+  });
+  searchInput.addEventListener('input', renderGrid);
+
+  renderGrid();
+</script>
+
+</body>
+</html>

@@ -35,6 +35,22 @@
     --gold-soft:#FDF1E3;
     --gold-text:#9A5B05;
 
+    --rose:#C2255C;
+    --rose-soft:#FCE7EF;
+    --rose-text:#9E1C49;
+
+    --violet:#7C3AED;
+    --violet-soft:#F2EBFE;
+    --violet-text:#6423C4;
+
+    --fuchsia:#C026D3;
+    --fuchsia-soft:#FBE7FB;
+    --fuchsia-text:#9A1EA8;
+
+    --graphite:#475569;
+    --graphite-soft:#EAEDF1;
+    --graphite-text:#334155;
+
     --radius:10px;
     --shadow:0 1px 2px rgba(16,27,51,.05), 0 10px 28px rgba(16,27,51,.06);
   }
@@ -109,6 +125,7 @@
   }
 
   .card-top{display:flex; align-items:flex-start; justify-content:space-between; gap:10px;}
+  .domain-tag-row{display:flex; gap:6px; flex-wrap:wrap;}
   .domain-tag{
     display:inline-block; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:11px;
     letter-spacing:.03em; color:#fff; padding:3px 10px; border-radius:999px; white-space:nowrap;
@@ -116,6 +133,10 @@
   .domain-tag.compliance{background:var(--teal);}
   .domain-tag.emortgage{background:var(--gold);}
   .domain-tag.servicing{background:var(--brand);}
+  .domain-tag.originations{background:var(--rose);}
+  .domain-tag.valuation{background:var(--violet);}
+  .domain-tag.artificial-intelligence{background:var(--fuchsia);}
+  .domain-tag.governance{background:var(--graphite);}
 
   .status-badge{
     font-size:10.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
@@ -182,6 +203,10 @@
     <button class="chip-btn" data-domain-filter="Compliance" aria-pressed="false">Compliance</button>
     <button class="chip-btn" data-domain-filter="eMortgage" aria-pressed="false">eMortgage</button>
     <button class="chip-btn" data-domain-filter="Servicing" aria-pressed="false">Servicing</button>
+    <button class="chip-btn" data-domain-filter="Originations" aria-pressed="false">Originations</button>
+    <button class="chip-btn" data-domain-filter="Valuation" aria-pressed="false">Valuation</button>
+    <button class="chip-btn" data-domain-filter="Artificial Intelligence" aria-pressed="false">Artificial Intelligence</button>
+    <button class="chip-btn" data-domain-filter="Governance" aria-pressed="false">Governance</button>
     <input class="search-input" id="searchInput" type="text" placeholder="Search initiatives…">
   </div>
 
@@ -196,18 +221,25 @@
   const domainClass = {
     'Compliance': 'compliance',
     'eMortgage': 'emortgage',
-    'Servicing': 'servicing'
+    'Servicing': 'servicing',
+    'Originations': 'originations',
+    'Valuation': 'valuation',
+    'Artificial Intelligence': 'artificial-intelligence',
+    'Governance': 'governance'
   };
 
   // NOTE: Mortgage Compliance Dataset and Loan Boarding Dataset now point to their real
-  // published artifact URLs. The other two initiatives are still "planned" (no dashboard
-  // yet), so their href stays null until they're built and published.
+  // published artifact URLs. The other four initiatives are still "planned" (no dashboard
+  // yet). Common Confidence Score and MISMO FRAME have real, sourced detail content
+  // (sample: false) even though no dashboard has been built for them yet — that's a
+  // separate step. Tri-Party eNote Bailee and Investor Reporting are still fabricated
+  // placeholder content (sample: true), pending real source material.
   const initiatives = [
     {
       title: 'Mortgage Compliance Dataset',
-      domain: 'Compliance',
+      domains: ['Compliance'],
       status: 'live',
-      href: 'mcd-dashboard.html',
+      href: 'https://claude.ai/public/artifacts/72a99bc0-708d-484d-ae0c-40a5f61ec1f0',
       sample: false,
       whatIsIt: 'A standard set of loan data fields and delivery file format that mortgage lenders and independent mortgage banks provide to regulators for the loan-level review portion of regulatory compliance examinations — designed to replace the Loan Examination File (LEF).',
       whoWorking: 'Mortgage Compliance Dataset DWG · Workgroup Leaders Sonya McCumber & Michael Jackman · Facilitator Erin Bittenbender',
@@ -215,8 +247,30 @@
       estimatedSavings: 'No published $ estimate yet'
     },
     {
+      title: 'Common Confidence Score',
+      domains: ['Originations', 'Valuation'],
+      status: 'planned',
+      href: null,
+      sample: false,
+      whatIsIt: 'A standardized probability score — the estimated likelihood an AVM value falls within ±10% of market value — that lets lenders and investors compare valuation risk across different AVM providers on one common scale, replacing inconsistent provider-specific confidence formats.',
+      whoWorking: 'AVM Development Workgroup · Co-Chairs Erica Vigen (Clear Capital) & Carla Nott (JPMorganChase) · Vice Chair Reena Agrawal (Veros Real Estate Solutions)',
+      whoBroughtIt: 'AVM providers & the Mortgage Bankers Association, in response to the CFPB\'s AVM quality control rule — though that rule is not currently being enforced · Reached Recommendation status April 21, 2026',
+      estimatedSavings: 'No published $ figure — sources describe reduced QC costs and faster valuation decisions only'
+    },
+    {
+      title: 'MISMO FRAME',
+      domains: ['Artificial Intelligence', 'Governance'],
+      status: 'planned',
+      href: null,
+      sample: false,
+      whatIsIt: 'An AI governance toolkit — five practical artifacts (Governance Policy, AI System Inventory, and System Risk Assessment now available; Performance & Fairness Testing and an Incident & Change Management Log deferred) built on the NIST AI Risk Management Framework and tailored to mortgage-specific rules like ECOA, the Fair Housing Act, and SR 11-7.',
+      whoWorking: 'AI Community of Practice · Co-Chairs Brian Stucky (Decision-X) & Praveen Chandramohan (Cotality) · Co-Vice-Chairs Timothy Marlowe (Snapdocs) & Devin Caster (Cotality) · Facilitator Meghan Tidgewell (MISMO)',
+      whoBroughtIt: 'Industry participants seeking AI governance guidance — the idea originated with the MBA\'s Residential Board of Governors (RESBOG), which asked MISMO to lead · Released June 11, 2026 at MISMO\'s Spring Summit',
+      estimatedSavings: 'No published $ figure — framed as a risk-management and compliance tool, not a cost-savings initiative'
+    },
+    {
       title: 'Tri-Party eNote Bailee Agreement',
-      domain: 'eMortgage',
+      domains: ['eMortgage'],
       status: 'planned',
       href: null,
       sample: true,
@@ -227,7 +281,7 @@
     },
     {
       title: 'Investor Reporting Dataset',
-      domain: 'Servicing',
+      domains: ['Servicing'],
       status: 'planned',
       href: null,
       sample: true,
@@ -238,9 +292,9 @@
     },
     {
       title: 'Loan Boarding Dataset',
-      domain: 'Servicing',
+      domains: ['Servicing'],
       status: 'live',
-      href: 'lbds-dashboard.html',
+      href: 'https://claude.ai/public/artifacts/15d7ce49-d299-4646-b797-76f71c91b1cf',
       sample: false,
       whatIsIt: 'A standardized, extensible dataset defining the core information needed to board newly originated loans into servicing systems consistently and reliably. First published piece of MISMO\'s broader Industry Transfer of Servicing Dataset (ITSD).',
       whoWorking: 'Servicing Transfers DWG · Co-Chairs Joseph Prince & Rachael Macaulay · Facilitator Leeann Walker',
@@ -250,7 +304,10 @@
   ];
 
   function renderCard(item){
-    const dClass = domainClass[item.domain] || 'servicing';
+    const domainTags = item.domains.map(d => {
+      const dClass = domainClass[d] || 'servicing';
+      return `<span class="domain-tag ${dClass}">${d}</span>`;
+    }).join('');
     const isLive = item.status === 'live';
     const cardClass = isLive ? 'card' : 'card planned';
     const sampleBadge = (currentView === 'detailed' && item.sample) ? `<span class="sample-badge">Sample data</span>` : '';
@@ -275,9 +332,9 @@
       }
     }
 
-    return `<div class="${cardClass}" data-domain="${item.domain}" data-title="${item.title.toLowerCase()}">
+    return `<div class="${cardClass}" data-domains="${item.domains.join('|')}" data-title="${item.title.toLowerCase()}">
       <div class="card-top">
-        <span class="domain-tag ${dClass}">${item.domain}</span>
+        <div class="domain-tag-row">${domainTags}</div>
         <div style="display:flex; align-items:center; gap:6px;">
           ${sampleBadge}
           <span class="status-badge ${item.status}">${isLive ? 'Live' : 'Planned'}</span>
@@ -298,7 +355,7 @@
   function renderGrid(){
     const q = searchInput.value.trim().toLowerCase();
     const filtered = initiatives.filter(item => {
-      const domainMatch = activeDomain === 'all' || item.domain === activeDomain;
+      const domainMatch = activeDomain === 'all' || item.domains.includes(activeDomain);
       const textMatch = q === '' || item.title.toLowerCase().includes(q);
       return domainMatch && textMatch;
     });

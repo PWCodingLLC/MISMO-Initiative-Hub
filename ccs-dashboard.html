@@ -507,8 +507,15 @@
     gap:18px;
     margin-bottom:20px;
   }
-  .stake-card{padding:18px;}
+  .stake-card{padding:18px; overflow:hidden;}
   .stake-card h3{font-size:14px; margin-bottom:12px;}
+  .card-dark-bar{
+    margin:-18px -18px 12px -18px;
+    background:var(--ink); color:#fff;
+    padding:13px 20px;
+    border-radius:var(--radius) var(--radius) 0 0;
+    font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:14px; letter-spacing:.02em;
+  }
   .crit-star{color:var(--amber-text); font-weight:700;}
   .crit-select{
     font-family:inherit; font-size:13px; font-weight:600; color:var(--slate-text);
@@ -735,7 +742,7 @@
     gap:18px;
   }
   @media (max-width:900px){ .gov-layout{grid-template-columns:1fr;} }
-  .gov-card{padding:18px;}
+  .gov-card{padding:18px; overflow:hidden;}
   .leaderboard-row{
     display:grid;
     grid-template-columns:110px 1fr 46px;
@@ -1177,8 +1184,8 @@
       </div>
 
       <div class="card stake-card">
-        <h3>Stakeholder Implementation Status</h3>
-        <p class="section-note" style="margin:-4px 0 12px;">Change any status in the roster below — the charts update to match.</p>
+        <h3 class="card-dark-bar">Stakeholder Implementation Status</h3>
+        <p class="section-note" style="margin:0 0 12px;">Change any status in the roster below — the charts update to match.</p>
         <div id="funnelRoot"></div>
 
         <div class="funnel-legend">
@@ -1191,8 +1198,8 @@
       </div>
     </div>
 
-    <div class="card" style="padding:18px;" id="roster">
-      <h3 style="font-size:14px; margin-bottom:4px;">Stakeholder engagement roster</h3>
+    <div class="card" style="padding:18px; overflow:hidden;" id="roster">
+      <h3 class="card-dark-bar" style="margin:-18px -18px 4px -18px;">Stakeholder engagement roster</h3>
       <p class="section-note" style="margin:0 0 12px;">"Active participants" = attended at least 1/3 of the 21 workgroup meetings held in the past year (Aug 2025–Aug 2026), per the uploaded meeting tracker.</p>
       <div class="roster-controls">
         <button class="chip-btn" data-type-filter="all" aria-pressed="true">All types</button>
@@ -1226,7 +1233,7 @@
 
     <div class="gov-layout">
       <div class="card gov-card">
-        <h3 style="font-size:13px; margin-bottom:10px;">Meeting tracker <span class="section-note" style="font-weight:400;">— engagement score, all-time (unit not specified in source)</span></h3>
+        <h3 class="card-dark-bar" style="margin:-18px -18px 10px -18px;">Meeting tracker <span style="font-weight:400; opacity:.75;">— engagement score, all-time (unit not specified in source)</span></h3>
         <div id="leaderboard"></div>
       </div>
       <div class="card gov-card fac-hours">

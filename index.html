@@ -12,6 +12,7 @@
     --ink:#101B33; --ink-soft:#4B5670; --paper:#F1F3F9; --card:#FFFFFF; --line:#E1E4EC;
     --brand:#2A4DFF; --brand-soft:#EAF0FF; --brand-text:#1E3ACC;
     --teal:#0E9488; --gold:#D97706; --rose:#C2255C; --violet:#7C3AED; --fuchsia:#C026D3; --graphite:#475569;
+    --indigo:#4F46E5; --crimson:#9F1239;
     --success-soft:#E7F7EE; --success-text:#157A44;
     --slate:#8B94A7; --slate-soft:#EEF0F4; --slate-text:#5B6478;
     --badge-ink:#101B33;
@@ -244,7 +245,9 @@
     'Originations': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V6a2 2 0 0 1 2-2h8l6 6v9a2 2 0 0 1-2 2Z"/><path d="M14 4v5h5"/></svg>',
     'Valuation': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>',
     'Artificial Intelligence': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M12 8V4M9 4h6"/><circle cx="9" cy="14" r="1.3"/><circle cx="15" cy="14" r="1.3"/></svg>',
-    'Governance': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v5c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-3Z"/></svg>'
+    'Governance': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v5c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-3Z"/></svg>',
+    'Secondary': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10l-4-4 4-4"/><path d="M3 6h13a4 4 0 0 1 4 4v1"/><path d="M17 14l4 4-4 4"/><path d="M21 18H8a4 4 0 0 1-4-4v-1"/></svg>',
+    'Credit Reporting': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h6M9 9h1"/></svg>'
   };
 
   const domainMeta = {
@@ -254,9 +257,11 @@
     'Originations': {color:'var(--rose)', soft:'#FCE7EF', desc:'Standards used during loan origination and underwriting.'},
     'Valuation': {color:'var(--violet)', soft:'#F1EBFD', desc:'Appraisal and automated valuation model (AVM) standards.'},
     'Artificial Intelligence': {color:'var(--fuchsia)', soft:'#FBE8FC', desc:'Governance frameworks for responsible AI use in mortgage lending.'},
-    'Governance': {color:'var(--graphite)', soft:'#EEF1F4', desc:'Oversight and risk-management standards across MISMO\'s initiatives.'}
+    'Governance': {color:'var(--graphite)', soft:'#EEF1F4', desc:'Oversight and risk-management standards across MISMO\'s initiatives.'},
+    'Secondary': {color:'var(--indigo)', soft:'#EBEAFD', desc:'Standards for the secondary market where loans are sold, pooled, and securitized.'},
+    'Credit Reporting': {color:'var(--crimson)', soft:'#FBE7EC', desc:'Standards for pulling, formatting, and exchanging consumer credit data.'}
   };
-  const domainOrder = ['Artificial Intelligence','Compliance','eMortgage','Governance','Originations','Servicing','Valuation'];
+  const domainOrder = ['Artificial Intelligence','Compliance','Credit Reporting','eMortgage','Governance','Originations','Secondary','Servicing','Valuation'];
 
   const tileGrid = document.getElementById('tileGrid');
   const panelArea = document.getElementById('panelArea');

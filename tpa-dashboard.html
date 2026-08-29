@@ -1,0 +1,1890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tri-Party eNote Bailee Agreement — Workgroup Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#101B33;
+    --ink-soft:#4B5670;
+    --paper:#F1F3F9;
+    --card:#FFFFFF;
+    --line:#E1E4EC;
+
+    --brand:#B8770A;
+    --brand-soft:#FBF0DD;
+    --brand-text:#8A5906;
+
+    --signal:#FF5A36;
+    --signal-soft:#FFEAE3;
+    --signal-text:#B8391B;
+
+    --success:#1D9A56;
+    --success-soft:#E7F7EE;
+    --success-text:#157A44;
+
+    --amber:#F2A93B;
+    --amber-soft:#FDF2DF;
+    --amber-text:#9C6B0E;
+
+    --slate:#8B94A7;
+    --slate-soft:#EEF0F4;
+    --slate-text:#5B6478;
+
+    --dwg:#7C3AED;
+    --dwg-soft:#F2EBFE;
+
+    --radius:10px;
+    --shadow:0 1px 2px rgba(16,27,51,.05), 0 10px 28px rgba(16,27,51,.06);
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+  }
+
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    line-height:1.5;
+  }
+
+  h1,h2,h3,.display{
+    font-family:'Space Grotesk',system-ui,sans-serif;
+    letter-spacing:-0.01em;
+    margin:0;
+  }
+
+  .mono{font-family:'IBM Plex Mono',monospace;}
+
+  a{color:var(--brand-text);}
+
+  :focus-visible{
+    outline:2.5px solid var(--brand);
+    outline-offset:2px;
+    border-radius:4px;
+  }
+
+  .wrap{
+    max-width:1180px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- MASTHEAD ---------- */
+  .masthead{
+    padding:36px 24px 0;
+  }
+  .masthead-inner{
+    max-width:1180px;
+    margin:0 auto;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:24px;
+    flex-wrap:wrap;
+    padding-bottom:24px;
+    border-bottom:1px solid var(--line);
+  }
+  .eyebrow-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:10px;
+  }
+  .eyebrow{
+    font-size:12.5px;
+    font-weight:600;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+  }
+  .sponsor-mark{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;
+    font-size:11px;
+    letter-spacing:0.06em;
+    background:var(--ink);
+    color:#fff;
+    padding:3px 8px;
+    border-radius:4px;
+  }
+  .workgroup-tag{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;
+    font-size:11px;
+    letter-spacing:0.03em;
+    background:var(--dwg);
+    color:#fff;
+    padding:3px 10px;
+    border-radius:999px;
+    white-space:nowrap;
+  }
+  .title-row h1{
+    font-size:34px;
+    font-weight:700;
+  }
+  .title-row .segment-tag{
+    font-size:17px;
+    font-weight:500;
+    color:var(--ink-soft);
+    margin-left:6px;
+  }
+  .leadership{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:14px;
+  }
+  .lead-chip{
+    display:flex;
+    flex-direction:column;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:6px 12px;
+    font-size:12.5px;
+  }
+  .lead-chip .role{color:var(--ink-soft); font-size:10.5px; text-transform:uppercase; letter-spacing:.05em;}
+  .lead-chip .name{font-weight:600;}
+
+  .masthead-right{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    gap:10px;
+  }
+  .back-to-hub{
+    font-family:'Inter',sans-serif; font-size:14.5px; font-weight:700;
+    color:var(--brand-text); text-decoration:none;
+    padding:10px 20px; border:1px solid var(--line); border-radius:999px; background:var(--card);
+  }
+  .back-to-hub:hover{background:var(--brand-soft); border-color:var(--brand);}
+  .masthead-actions-row{display:flex; flex-direction:row; gap:8px;}
+
+  /* ---------- LOCK MODE ---------- */
+  .lock-toggle-btn{
+    display:flex; align-items:center; gap:7px;
+    font-family:'Inter',sans-serif; font-size:12.5px; font-weight:700;
+    padding:7px 14px; border-radius:999px; border:1px solid var(--line);
+    background:var(--card); color:var(--ink-soft); cursor:pointer;
+  }
+  .lock-toggle-btn svg{flex:0 0 auto; display:block;}
+  .lock-toggle-btn:hover{background:var(--brand-soft); border-color:var(--brand); color:var(--brand-text);}
+  .lock-toggle-btn.is-locked{background:var(--ink); border-color:var(--ink); color:#fff;}
+  .lock-toggle-btn.is-locked:hover{background:#000; border-color:#000;}
+
+  .save-toggle-btn{
+    display:flex; align-items:center; gap:7px;
+    font-family:'Inter',sans-serif; font-size:12.5px; font-weight:700;
+    padding:7px 14px; border-radius:999px; border:1px solid var(--line);
+    background:var(--card); color:var(--ink-soft); cursor:pointer;
+  }
+  .save-toggle-btn svg{flex:0 0 auto; display:block;}
+  .save-toggle-btn:hover{background:var(--brand-soft); border-color:var(--brand); color:var(--brand-text);}
+  .save-toggle-btn.just-saved{background:var(--success); border-color:var(--success); color:#fff;}
+  .save-toggle-btn.has-changes{background:var(--amber-soft); border-color:var(--amber); color:var(--amber-text);}
+  .save-toggle-btn.has-changes:hover{background:var(--amber); color:#fff;}
+  .save-toggle-btn .dirty-dot{
+    width:6px; height:6px; border-radius:50%; background:var(--amber); display:none; flex:0 0 auto;
+  }
+  .save-toggle-btn.has-changes .dirty-dot{display:block;}
+
+  body.locked [contenteditable="true"]{
+    pointer-events:none;
+  }
+  body.locked select.status-select,
+  body.locked select.crit-select,
+  body.locked select.role-select,
+  body.locked select.type-select,
+  body.locked select.deliv-status-select,
+  body.locked input.type-input,
+  body.locked input.deliv-date-input,
+  body.locked .contact-input{
+    pointer-events:none;
+    opacity:.75;
+  }
+  body.locked .contact-edit-btn,
+  body.locked .icon-btn,
+  body.locked .add-task-btn,
+  body.locked .pill-add-btn,
+  body.locked .pill-remove{
+    display:none !important;
+  }
+
+  /* ---------- SECTIONS GENERIC ---------- */
+  section{margin-top:44px;}
+  .section-head{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:16px;
+    flex-wrap:wrap;
+  }
+  .section-head h2{font-size:20px;}
+  .section-note{font-size:12.5px; color:var(--ink-soft);}
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+  }
+
+  /* ---------- KPI STRIP ---------- */
+  .kpi-strip{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:14px;
+  }
+  @media (max-width:900px){ .kpi-strip{grid-template-columns:repeat(2,1fr);} }
+  @media (max-width:520px){ .kpi-strip{grid-template-columns:1fr;} }
+  .kpi{
+    padding:18px 18px 16px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    text-decoration:none;
+    color:inherit;
+  }
+  .kpi-label{
+    font-size:11.5px;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    color:var(--ink-soft);
+    font-weight:600;
+  }
+  .kpi-value{font-size:24px; font-weight:700; font-family:'IBM Plex Mono',monospace;}
+  .range-track{
+    height:6px;
+    border-radius:4px;
+    background:var(--brand-soft);
+    position:relative;
+    margin-top:2px;
+  }
+  .range-fill{
+    position:absolute; top:0; left:14%; right:8%;
+    height:100%;
+    border-radius:4px;
+    background:var(--brand);
+  }
+  .range-labels{
+    display:flex;
+    justify-content:space-between;
+    font-size:11px;
+    color:var(--ink-soft);
+    font-family:'IBM Plex Mono',monospace;
+  }
+
+  .rail{display:flex; gap:6px; margin-top:2px;}
+  .rail-step{flex:1; display:flex; flex-direction:column; gap:5px;}
+  .rail-bar{height:6px; border-radius:4px; background:var(--slate-soft);}
+  .rail-bar.done{background:var(--success);}
+  .rail-bar.progress{background:var(--amber);}
+  .rail-step small{font-size:10.5px; color:var(--ink-soft); line-height:1.3;}
+
+  .funnel-mini{display:flex; height:8px; border-radius:4px; overflow:hidden; margin-top:2px;}
+  .funnel-mini span{height:100%;}
+
+  .status-chip-inline{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-size:12px;
+    font-weight:600;
+    padding:5px 10px;
+    border-radius:999px;
+    width:fit-content;
+  }
+  .status-chip-inline.warn{background:var(--signal-soft); color:var(--signal-text);}
+
+  /* ---------- WHY GRID ---------- */
+  .why-layout{
+    display:grid;
+    grid-template-columns:1.6fr 1fr;
+    gap:20px;
+    align-items:start;
+  }
+  @media (max-width:900px){ .why-layout{grid-template-columns:1fr;} }
+
+  .reason-cards{
+    display:grid;
+    gap:12px;
+  }
+  .reason{
+    padding:16px 18px;
+    display:grid;
+    grid-template-columns:auto 1fr;
+    gap:14px;
+    align-items:flex-start;
+  }
+  .reason .num{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:var(--brand-text);
+    background:var(--brand-soft);
+    border-radius:6px;
+    padding:3px 8px;
+    font-weight:600;
+  }
+  .reason h3{font-size:14.5px; margin-bottom:4px;}
+  .reason p{margin:0 0 6px; font-size:13px; color:var(--ink-soft);}
+  .reason .fig{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13px;
+    font-weight:600;
+    color:var(--ink);
+  }
+
+  .side-stack{display:flex; flex-direction:column; gap:14px;}
+  .side-card{padding:16px 18px;}
+  .side-card h3{font-size:13px; margin-bottom:10px;}
+  .meeting-field{margin-bottom:10px;}
+  .meeting-field:last-child{margin-bottom:0;}
+  .meeting-field-label{display:block; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--ink); margin-bottom:3px;}
+  .meeting-field-value{display:block; font-size:13px; font-family:'IBM Plex Mono',monospace; color:var(--ink-soft); line-height:1.35;}
+
+  .video-stub{
+    margin-top:10px;
+    border-radius:8px;
+    background:var(--ink);
+    color:#fff;
+    padding:16px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    font-size:12.5px;
+  }
+  .play-btn{
+    flex:0 0 auto;
+    width:30px;height:30px;
+    border-radius:50%;
+    background:var(--signal);
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  .reading-list{list-style:none; margin:8px 0 0; padding:0; display:flex; flex-direction:column; gap:7px;}
+  .reading-list li{font-size:12.5px;}
+  .reading-list a{text-decoration:none; font-weight:500;}
+  .reading-list a:hover{text-decoration:underline;}
+
+  .origin-line{font-size:12.5px; margin:0 0 6px; color:var(--ink-soft);}
+  .origin-line strong{color:var(--ink); font-weight:600;}
+
+  /* ---------- ROADMAP TABS ---------- */
+  .roadmap-intro{font-size:13.5px; color:var(--ink-soft); max-width:760px; margin-bottom:18px;}
+  .tab-row{
+    display:flex;
+    gap:6px;
+    flex-wrap:wrap;
+    border-bottom:1px solid var(--line);
+    margin-bottom:20px;
+  }
+  .tab-btn{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:13.5px;
+    font-weight:600;
+    background:none;
+    border:none;
+    cursor:pointer;
+    padding:10px 16px;
+    color:var(--ink-soft);
+    border-bottom:2.5px solid transparent;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    margin-bottom:-1px;
+  }
+  .tab-btn[aria-selected="true"]{
+    color:var(--ink);
+    border-bottom-color:var(--brand);
+  }
+  .tab-flag{
+    font-size:9.5px;
+    background:var(--signal-soft);
+    color:var(--signal-text);
+    padding:2px 6px;
+    border-radius:999px;
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:600;
+  }
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;}
+
+  .lane-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr 1.4fr;
+    gap:18px;
+  }
+  @media (max-width:900px){ .lane-grid{grid-template-columns:1fr;} }
+  .lane-block h4{
+    font-size:11.5px;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    color:var(--ink-soft);
+    margin-bottom:10px;
+  }
+  .lane-block ul{margin:0; padding-left:18px; font-size:13.5px;}
+  .lane-block li{margin-bottom:6px;}
+  .inferred-note{
+    font-size:11.5px;
+    color:var(--signal-text);
+    background:var(--signal-soft);
+    padding:8px 10px;
+    border-radius:6px;
+    margin-bottom:10px;
+    display:flex;
+    gap:6px;
+  }
+  .empty-note{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    font-style:italic;
+  }
+
+  table{width:100%; border-collapse:collapse; font-size:13px;}
+  th{
+    text-align:left;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    color:var(--ink-soft);
+    padding:8px 10px;
+    border-bottom:1px solid var(--line);
+  }
+  td{padding:9px 10px; border-bottom:1px solid var(--line); vertical-align:top;}
+  tr:last-child td{border-bottom:none;}
+
+  .status-chip{
+    display:inline-block;
+    font-size:11px;
+    font-weight:600;
+    padding:3px 9px;
+    border-radius:999px;
+    white-space:nowrap;
+  }
+  .status-chip.not-started{background:var(--slate-soft); color:var(--slate-text);}
+  .status-chip.in-progress{background:var(--brand-soft); color:var(--brand-text);}
+  .status-chip.blocked{background:var(--signal-soft); color:var(--signal-text);}
+  .status-chip.done{background:var(--success-soft); color:var(--success-text);}
+  .status-chip.complete{background:var(--success-soft); color:var(--success-text);}
+  .status-chip.planned{background:var(--brand-soft); color:var(--brand-text);}
+  .status-chip.piloted{background:var(--amber-soft); color:var(--amber-text);}
+  .status-chip.in-use{background:var(--success-soft); color:var(--success-text);}
+  .done-task{text-decoration:line-through; color:var(--ink-soft);}
+
+  /* ---------- STAKEHOLDERS ---------- */
+  .stake-layout{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:18px;
+    margin-bottom:20px;
+  }
+  .stake-card{padding:18px;}
+  .stake-card h3{font-size:14px; margin-bottom:12px;}
+  .crit-star{color:var(--amber-text); font-weight:700;}
+  .crit-select{
+    font-family:inherit; font-size:13px; font-weight:600; color:var(--slate-text);
+    border:1px solid transparent; background:transparent; cursor:pointer;
+    padding:3px 8px; border-radius:6px;
+  }
+  .crit-select.is-star{color:var(--amber-text); font-weight:700;}
+  .crit-select:hover{background:var(--slate-soft); border-color:var(--slate);}
+  .crit-select.is-star:hover{background:var(--brand-soft); border-color:var(--brand);}
+  .crit-select:focus{outline:none; background:#fff; border-color:var(--brand); box-shadow:0 0 0 2px var(--brand);}
+  .role-select{
+    font-family:inherit; font-size:13px; font-weight:600; color:var(--ink);
+    border:1px solid transparent; background:transparent; cursor:pointer;
+    padding:3px 8px; border-radius:6px;
+  }
+  .role-select:hover{background:var(--brand-soft); border-color:var(--brand);}
+  .role-select:focus{outline:none; background:#fff; border-color:var(--brand); box-shadow:0 0 0 2px var(--brand);}
+  .type-select{
+    font-family:inherit; font-size:11px; font-weight:600; color:var(--ink);
+    border:1px solid transparent; background:transparent; cursor:pointer;
+    padding:3px 6px; border-radius:6px; max-width:100%; min-width:185px;
+    white-space:normal; word-wrap:break-word;
+  }
+  .type-select:hover{background:var(--brand-soft); border-color:var(--brand);}
+  .type-select:focus{outline:none; background:#fff; border-color:var(--brand); box-shadow:0 0 0 2px var(--brand);}
+  .type-input{
+    font-family:inherit; font-size:11px; border:1px solid transparent; background:transparent;
+    padding:3px 5px; border-radius:4px; width:100%; max-width:100%; box-sizing:border-box; cursor:text; color:var(--ink);
+  }
+  .type-input:hover{background:var(--brand-soft); border-color:var(--line);}
+  .type-input:focus{background:#fff; border-color:var(--brand); outline:none; box-shadow:0 0 0 2px var(--brand);}
+
+  .funnel-row{margin-bottom:14px;}
+  .funnel-row-top{display:flex; justify-content:space-between; font-size:12.5px; margin-bottom:6px;}
+  .funnel-row-top span:first-child{font-weight:600;}
+  .funnel-row-top span:last-child{color:var(--ink-soft); font-family:'IBM Plex Mono',monospace; font-size:11.5px;}
+
+  select.status-select{
+    font-family:'Inter',sans-serif;
+    font-size:11px;
+    font-weight:600;
+    padding:4px 8px;
+    border-radius:999px;
+    border:1.5px solid transparent;
+    cursor:pointer;
+  }
+  select.status-select:hover{border-color:currentColor;}
+  select.status-select.not-started{background:var(--slate-soft); color:var(--slate-text);}
+  select.status-select.planned{background:var(--brand-soft); color:var(--brand-text);}
+  select.status-select.piloted{background:var(--amber-soft); color:var(--amber-text);}
+  select.status-select.in-use{background:var(--success-soft); color:var(--success-text);}
+  select.status-select.in-progress{background:var(--brand-soft); color:var(--brand-text);}
+  select.status-select.blocked{background:var(--signal-soft); color:var(--signal-text);}
+  select.status-select.complete{background:var(--success-soft); color:var(--success-text);}
+
+  .contact-block{display:flex; flex-direction:column; gap:2px; min-width:150px;}
+  .contact-name{font-weight:600;}
+
+  /* ---------- GENERIC EDITABLE FIELDS ---------- */
+  [contenteditable="true"]{
+    outline: none;
+    border-radius: 4px;
+    padding: 1px 4px;
+    margin: -1px -4px;
+    cursor: text;
+  }
+  [contenteditable="true"]:hover{
+    background: var(--brand-soft);
+    box-shadow: 0 0 0 1px var(--line);
+  }
+  [contenteditable="true"]:focus{
+    background: #fff;
+    box-shadow: 0 0 0 2px var(--brand);
+  }
+  [contenteditable="true"]:empty:before{
+    content: attr(data-placeholder);
+    color: var(--slate-text);
+    font-style: italic;
+  }
+  .ics-download-btn{
+    margin-top:12px; width:100%;
+    font-family:inherit; font-size:12.5px; font-weight:600;
+    color:#fff; background:var(--brand); border:none; border-radius:8px;
+    padding:9px 12px; cursor:pointer;
+  }
+  .ics-download-btn:hover{background:var(--brand-text);}
+  .deliv-date-input{
+    font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink);
+    border:1px solid transparent; background:transparent; padding:3px 4px;
+    border-radius:4px; cursor:pointer; width:100%;
+  }
+  .deliv-date-input:hover{background:var(--brand-soft); border-color:var(--line);}
+  .deliv-date-input:focus{background:#fff; border-color:var(--brand); outline:none;}
+  .deliv-date-wrap{display:flex; flex-direction:column; gap:2px;}
+  .deliv-date-label{font-size:9px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-soft); font-weight:700;}
+  select.deliv-pill{border:none; appearance:auto; -webkit-appearance:auto;}
+  .pill-goal[contenteditable="true"], .pill-block[contenteditable="true"]{
+    padding: 5px 11px; margin: 0;
+  }
+  .pill-remove{
+    background:none; border:none; cursor:pointer; color:var(--ink-soft); opacity:.6;
+    font-size:13px; margin:0 8px 0 -4px; padding:0 2px; vertical-align:middle; line-height:1;
+  }
+  .pill-remove:hover{opacity:1; color:var(--signal-text);}
+  .pill-add-btn{
+    display:inline-flex; align-items:center; font-size:12px; font-weight:600;
+    color:var(--brand-text); background:none; border:1px dashed var(--line);
+    border-radius:999px; padding:5px 11px; cursor:pointer; font-family:inherit;
+  }
+  .pill-add-btn:hover{border-color:var(--brand); background:var(--brand-soft);}
+  .contact-sub{font-size:11.5px; color:var(--ink-soft);}
+  .contact-sub.placeholder{font-style:italic; color:var(--slate-text);}
+  .contact-sub a{color:var(--brand-text); text-decoration:none;}
+  .contact-sub a:hover{text-decoration:underline;}
+  .contact-edit-btn{
+    align-self:flex-start;
+    margin-top:5px;
+    font-size:11px;
+    font-weight:600;
+    color:var(--brand-text);
+    background:none;
+    border:none;
+    cursor:pointer;
+    padding:0;
+    font-family:inherit;
+  }
+  .contact-edit-btn:hover{text-decoration:underline;}
+  .contact-edit-form{display:flex; flex-direction:column; gap:5px; min-width:170px;}
+  .contact-input{
+    font-family:inherit;
+    font-size:12px;
+    padding:5px 8px;
+    border:1px solid var(--line);
+    border-radius:6px;
+    width:100%;
+  }
+  .contact-edit-actions{display:flex; gap:6px; margin-top:2px;}
+  .contact-save-btn{
+    font-size:11px; font-weight:700; padding:5px 10px; border-radius:6px; border:none;
+    background:var(--brand); color:#fff; cursor:pointer; font-family:inherit;
+  }
+  .contact-cancel-btn{
+    font-size:11px; font-weight:600; padding:5px 10px; border-radius:6px; border:1px solid var(--line);
+    background:var(--card); color:var(--ink-soft); cursor:pointer; font-family:inherit;
+  }
+  .kanban-card select.status-select{margin-top:8px; width:100%; font-size:10.5px; padding:4px 8px;}
+
+  .task-icons{display:flex; gap:4px; justify-content:flex-end;}
+  .icon-btn{background:none; border:none; cursor:pointer; padding:3px 5px; font-size:13px; color:var(--ink-soft); border-radius:4px; line-height:1; font-family:inherit;}
+  .icon-btn:hover{color:var(--ink); background:var(--paper);}
+  .add-task-btn{
+    margin-top:12px;
+    font-size:12.5px; font-weight:600; color:var(--brand-text);
+    background:none; border:1px dashed var(--line); border-radius:8px;
+    padding:9px 14px; cursor:pointer; width:100%; text-align:center; font-family:inherit;
+  }
+  .add-task-btn:hover{border-color:var(--brand); background:var(--brand-soft);}
+  .task-edit-container td{background:var(--paper); padding-top:8px; padding-bottom:8px;}
+  .kanban-card-edit{
+    background:var(--card); border:1.5px solid var(--brand); border-radius:6px; padding:10px;
+    margin-bottom:8px; display:flex; flex-direction:column; gap:6px;
+  }
+  .kanban-add-wrap{margin-bottom:14px;}
+  .kanban-card-actions{display:flex; gap:4px; justify-content:flex-end; margin-top:6px;}
+  .empty-lane-note{font-size:13px; color:var(--ink-soft); font-style:italic; padding:18px 0; text-align:center; margin:0;}
+  .primary-contact{vertical-align:top;}
+  .funnel-bar{display:flex; height:14px; border-radius:4px; overflow:hidden; background:var(--paper);}
+  .funnel-bar span{height:100%;}
+  .funnel-bar.empty{border:1px dashed var(--line); background:none;}
+  .funnel-empty-label{font-size:11px; color:var(--ink-soft); padding:2px 0 0; font-style:italic;}
+  .funnel-legend{display:flex; gap:14px; margin-top:12px; flex-wrap:wrap;}
+  .funnel-legend-item{display:flex; align-items:center; gap:6px; font-size:11.5px; color:var(--ink-soft);}
+  .legend-dot{width:9px; height:9px; border-radius:2px; display:inline-block;}
+
+  .roster-controls{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+    margin-bottom:14px;
+  }
+  .chip-btn{
+    font-family:'Inter',sans-serif;
+    font-size:12px;
+    font-weight:600;
+    padding:6px 12px;
+    border-radius:999px;
+    border:1px solid var(--line);
+    background:var(--card);
+    color:var(--ink-soft);
+    cursor:pointer;
+  }
+  .chip-btn[aria-pressed="true"]{
+    background:var(--ink);
+    border-color:var(--ink);
+    color:#fff;
+  }
+  .search-input{
+    margin-left:auto;
+    font-family:inherit;
+    font-size:12.5px;
+    padding:7px 12px;
+    border-radius:8px;
+    border:1px solid var(--line);
+    min-width:200px;
+  }
+  .highlight-row{background:var(--signal-soft) !important;}
+
+  /* ---------- GOVERNANCE ---------- */
+  .gov-layout{
+    display:grid;
+    grid-template-columns:1.5fr 1fr;
+    gap:18px;
+  }
+  @media (max-width:900px){ .gov-layout{grid-template-columns:1fr;} }
+  .gov-card{padding:18px;}
+  .leaderboard-row{
+    display:grid;
+    grid-template-columns:110px 1fr 46px;
+    align-items:center;
+    gap:10px;
+    font-size:12px;
+    padding:5px 0;
+  }
+  .leaderboard-row .who{font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .leaderboard-track{background:var(--paper); border-radius:4px; height:9px;}
+  .leaderboard-fill{background:var(--brand); height:100%; border-radius:4px;}
+  .leaderboard-val{text-align:right; font-family:'IBM Plex Mono',monospace; color:var(--ink-soft);}
+
+  .fac-hours{
+    text-align:center;
+    padding:24px 10px 14px;
+  }
+  .fac-hours .kpi-value{font-size:38px;}
+  .recon-note{
+    margin-top:14px;
+    font-size:11.8px;
+    color:var(--signal-text);
+    background:var(--signal-soft);
+    padding:10px 12px;
+    border-radius:8px;
+    text-align:left;
+  }
+  .updated-line{font-size:11.5px; color:var(--ink-soft); margin-top:10px;}
+
+  /* ---------- WORK PRODUCT OVERVIEW (true-look styling) ---------- */
+  .overview-shell{
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    overflow:hidden;
+    box-shadow:var(--shadow);
+    background:var(--paper);
+  }
+  .overview-bar{
+    background:var(--ink);
+    color:#fff;
+    text-align:center;
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:600;
+    font-size:15px;
+    letter-spacing:.02em;
+    padding:13px 16px;
+  }
+  .overview-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+    padding:18px;
+  }
+  @media (max-width:900px){ .overview-grid{grid-template-columns:1fr;} }
+  .overview-col{display:flex; flex-direction:column; gap:14px;}
+  .overview-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:16px 18px;
+    box-shadow:none;
+  }
+  .overview-head{
+    font-size:14px;
+    font-weight:700;
+    color:var(--ink);
+    text-decoration:underline;
+    margin:0 0 10px;
+    display:inline-block;
+  }
+  .overview-card p{font-size:13px; color:var(--ink); margin:0 0 8px;}
+  .overview-card p:last-child{margin-bottom:0;}
+
+  .why-list{margin:0; padding-left:19px; font-size:13px;}
+  .why-list li{margin-bottom:10px;}
+  .why-list li:last-child{margin-bottom:0;}
+
+  .overview-pair{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  @media (max-width:560px){ .overview-pair{grid-template-columns:1fr;} }
+
+  .video-card{padding:0; overflow:hidden; background:var(--ink); border-color:var(--ink);}
+  .video-card-inner{
+    position:relative;
+    padding:20px 16px;
+    min-height:140px;
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    gap:8px;
+    background:linear-gradient(135deg, #16234a 0%, var(--ink) 65%);
+  }
+  .play-btn-lg{
+    width:36px;height:36px;
+    border-radius:50%;
+    background:var(--signal);
+    display:flex; align-items:center; justify-content:center;
+    position:absolute;
+    top:14px; right:14px;
+  }
+  .video-title{color:#fff; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:16.5px; line-height:1.25;}
+  .video-cta{color:var(--amber); font-size:11.5px; font-weight:600;}
+
+  .video-embed-wrap{
+    position:relative; width:100%; padding-bottom:56.25%; height:0; overflow:hidden;
+  }
+  .video-embed-wrap iframe{
+    position:absolute; top:0; left:0; width:100%; height:100%; border:0;
+  }
+
+  .restore-banner{
+    max-width:1180px; margin:14px auto 0; padding:12px 20px;
+    background:var(--amber-soft); border:1px solid var(--amber); border-radius:var(--radius);
+    display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
+  }
+  .restore-banner-text{font-size:13px; color:var(--amber-text); font-weight:600;}
+  .restore-banner-actions{display:flex; gap:8px; flex:0 0 auto;}
+  .restore-btn{
+    font-family:'Inter',sans-serif; font-size:12.5px; font-weight:700; color:#fff;
+    background:var(--amber); border:none; border-radius:999px; padding:7px 16px; cursor:pointer;
+  }
+  .restore-btn:hover{background:var(--amber-text);}
+  .dismiss-restore-btn{
+    font-family:'Inter',sans-serif; font-size:12.5px; font-weight:600; color:var(--amber-text);
+    background:none; border:1px solid var(--amber); border-radius:999px; padding:7px 16px; cursor:pointer;
+  }
+  .dismiss-restore-btn:hover{background:var(--amber-soft);}
+
+  .meeting-schedule-wrap{
+    max-width:1180px; margin:22px auto 0; padding:0 24px;
+  }
+  .meeting-banner{
+    display:flex; align-items:center; gap:0; flex-wrap:wrap;
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    box-shadow:var(--shadow); padding:0; overflow:hidden;
+  }
+  .meeting-banner-label{
+    flex:0 0 auto; background:var(--ink); color:#fff; font-family:'Space Grotesk',sans-serif;
+    font-weight:700; font-size:13px; padding:16px 22px; align-self:stretch;
+    display:flex; align-items:center; letter-spacing:.02em;
+  }
+  .meeting-tile-row{display:flex; flex:1; flex-wrap:wrap;}
+  .meeting-tile{
+    flex:1; min-width:130px; padding:14px 18px; border-right:1px solid var(--line);
+    display:flex; flex-direction:column; gap:3px;
+  }
+  .meeting-tile:last-of-type{border-right:none;}
+  .meeting-tile-icon{font-size:14px; margin-bottom:2px;}
+  .meeting-tile-label{font-size:9.5px; text-transform:uppercase; letter-spacing:.05em; font-weight:700; color:var(--ink-soft);}
+  .meeting-tile-value{font-size:13px; font-family:'IBM Plex Mono',monospace; color:var(--ink);}
+  .meeting-banner-btn{
+    flex:0 0 auto; align-self:stretch; font-family:'Inter',sans-serif; font-size:12.5px; font-weight:700;
+    color:#fff; background:var(--brand); border:none; padding:0 22px; cursor:pointer; white-space:nowrap;
+  }
+  .meeting-banner-btn:hover{background:var(--brand-text);}
+
+  .meeting-tile.sponsor-tile{flex:0 0 auto; align-items:flex-start;}
+  .sponsor-tile-logo{height:20px; width:auto; display:block; margin-top:2px;}
+  @media (max-width:900px){
+    .meeting-banner{flex-direction:column; align-items:stretch;}
+    .meeting-banner-label{padding:12px 18px;}
+    .meeting-tile{border-right:none; border-bottom:1px solid var(--line);}
+    .meeting-banner-btn{padding:12px 18px;}
+  }
+
+  .savings-placeholder{text-align:center; padding:10px 0 4px;}
+  .savings-placeholder .fig{font-family:'IBM Plex Mono',monospace; font-size:30px; font-weight:700; color:var(--ink);}
+  .savings-placeholder .note{font-size:11.5px; color:var(--ink-soft); margin:4px 0 12px;}
+
+  .roi-link{
+    display:block; text-align:center; font-size:12px; font-weight:600;
+    color:var(--ink-soft); text-decoration:none; margin-top:8px;
+  }
+  .roi-link:hover{text-decoration:underline;}
+  .roi-link.disabled{color:var(--slate-text); pointer-events:none; font-style:italic; font-weight:500;}
+
+  .savings-value-row{display:flex; justify-content:space-between; font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:18px; margin-bottom:10px;}
+  .savings-track{height:6px; background:var(--line); border-radius:4px; position:relative; margin:0 6px 16px;}
+  .savings-fill{position:absolute; left:14%; right:8%; top:0; height:100%; background:var(--ink); border-radius:4px;}
+  .savings-handle{position:absolute; top:50%; width:14px; height:14px; background:var(--ink); border:2px solid #fff; border-radius:50%; transform:translate(-50%,-50%); box-shadow:0 0 0 1px var(--ink);}
+  .savings-btn{
+    display:inline-block;
+    background:var(--ink);
+    color:#fff;
+    font-size:12.5px;
+    font-weight:600;
+    padding:8px 14px;
+    border-radius:999px;
+    text-decoration:none;
+  }
+  .savings-btn:hover{background:#000;}
+
+  .deliverables-table{font-size:12.5px; width:100%;}
+  .deliverables-table th{font-size:10px; padding:6px 8px;}
+  .deliverables-table td{padding:8px 8px; border-bottom:1px solid #DDE6FA;}
+  .prog-track{width:64px; height:6px; background:#DDE6FA; border-radius:4px;}
+  .prog-fill{height:100%; border-radius:4px;}
+  .deliv-pill{display:inline-block; font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:5px; color:#fff; white-space:nowrap;}
+  .deliv-pill.done{background:var(--success);}
+  .deliv-pill.progress{background:var(--amber); color:#4A3300;}
+  .deliv-pill.notstarted{background:var(--signal);}
+
+  .link-ico{color:var(--ink-soft); margin-right:4px; font-size:11px;}
+
+  /* ---------- ROADMAP: goal strip + compact/kanban views ---------- */
+  .view-toggle{display:flex; gap:4px; background:var(--slate-soft); padding:3px; border-radius:8px;}
+  .view-btn{font-family:'Inter',sans-serif; font-size:12px; font-weight:600; padding:6px 13px; border-radius:6px; border:none; background:none; color:var(--ink-soft); cursor:pointer;}
+  .view-btn[aria-pressed="true"]{background:var(--card); color:var(--ink); box-shadow:var(--shadow);}
+
+  .goal-strip{display:flex; gap:26px; flex-wrap:wrap; padding:14px 2px 18px; border-bottom:1px solid var(--line); margin-bottom:16px;}
+  .goal-strip-group{flex:1; min-width:220px;}
+  .strip-label{display:block; font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-soft); font-weight:600; margin-bottom:8px;}
+  .pill-row{display:flex; flex-wrap:wrap; gap:6px;}
+  .pill-goal{background:var(--brand-soft); color:var(--brand-text); font-size:12px; font-weight:500; padding:5px 11px; border-radius:999px;}
+  .pill-block{background:var(--signal-soft); color:var(--signal-text); font-size:12px; font-weight:500; padding:5px 11px; border-radius:999px;}
+
+  .action-table-full{width:100%;}
+
+  .kanban-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:12px;}
+  @media (max-width:800px){ .kanban-grid{grid-template-columns:repeat(2,1fr);} }
+  .kanban-col{background:var(--paper); border-radius:8px; padding:10px; min-height:80px;}
+  .kanban-col-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;}
+  .kanban-count{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink-soft);}
+  .kanban-card{background:var(--card); border:1px solid var(--line); border-radius:6px; padding:8px 10px; margin-bottom:8px; font-size:12px; box-shadow:var(--shadow);}
+  .kanban-card:last-child{margin-bottom:0;}
+  .kanban-task{font-weight:600; margin-bottom:3px;}
+  .kanban-owner{color:var(--ink-soft); font-size:11px;}
+  .kanban-empty{font-size:11.5px; color:var(--ink-soft); font-style:italic; text-align:center; padding:14px 0;}
+
+  footer{
+    max-width:1180px;
+    margin:50px auto 0;
+    padding:20px 24px 0;
+    border-top:1px solid var(--line);
+    font-size:11.5px;
+    color:var(--ink-soft);
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="masthead-inner">
+    <div>
+      <div class="eyebrow-row">
+        <span class="sponsor-mark">MISMO</span>
+        <span class="workgroup-tag" contenteditable="true">Master Bailee Agreement DWG (proposed)</span>
+        <span class="eyebrow" contenteditable="true">eMortgage · Discovery Phase</span>
+      </div>
+      <div class="title-row">
+        <h1 contenteditable="true">Tri-Party eNote Bailee Agreement</h1>
+      </div>
+      <div class="leadership">
+        <div class="lead-chip"><span class="role">Facilitator</span><span class="name" contenteditable="true">Kathryn Williams</span></div>
+      </div>
+    </div>
+    <div class="masthead-right">
+      <a class="back-to-hub" href="index.html">← Back to Initiative Hub</a>
+      <div class="masthead-actions-row">
+        <button type="button" id="saveSnapshotBtn" class="save-toggle-btn" title="Save your current edits so they survive a page refresh">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"></path><path d="M17 21v-8H7v8"></path><path d="M7 3v5h8"></path></svg>
+          <span class="save-label">Save</span>
+          <span class="dirty-dot" aria-hidden="true"></span>
+        </button>
+        <button type="button" id="lockToggleBtn" class="lock-toggle-btn" aria-pressed="true" title="Unlock to allow edits">
+          <span class="lock-icon" aria-hidden="true"></span><span class="lock-label">Locked</span>
+        </button>
+      </div>
+      <span class="section-note mono">Draft v1 · not affiliated with Smartsheet</span>
+    </div>
+  </div>
+</div>
+
+  <div id="restoreBanner" class="restore-banner" style="display:none;">
+    <span class="restore-banner-text">A saved version of this page exists in your browser from a previous visit.</span>
+    <div class="restore-banner-actions">
+      <button type="button" id="restoreBtn" class="restore-btn">Restore it</button>
+      <button type="button" id="dismissRestoreBtn" class="dismiss-restore-btn">Dismiss</button>
+    </div>
+  </div>
+
+  <!-- WORKGROUP INFORMATION -->
+  <div class="meeting-schedule-wrap">
+    <section id="meeting-schedule">
+      <div class="meeting-banner">
+        <div class="meeting-banner-label">Workgroup Information</div>
+        <div class="meeting-tile-row">
+          <div class="meeting-tile">
+            <span class="meeting-tile-icon">👥</span>
+            <span class="meeting-tile-label">Name</span>
+            <span class="meeting-tile-value" contenteditable="true">TBD — not yet chartered</span>
+          </div>
+          <div class="meeting-tile sponsor-tile">
+            <span class="meeting-tile-label">Sponsored by</span>
+            <span class="meeting-tile-value" contenteditable="true">Snapdocs (Camelia Martin)</span>
+          </div>
+          <div class="meeting-tile">
+            <span class="meeting-tile-icon">🔁</span>
+            <span class="meeting-tile-label">Cadence</span>
+            <span class="meeting-tile-value" contenteditable="true">TBD</span>
+          </div>
+          <div class="meeting-tile">
+            <span class="meeting-tile-icon">🕒</span>
+            <span class="meeting-tile-label">Time</span>
+            <span class="meeting-tile-value" contenteditable="true">TBD</span>
+          </div>
+          <div class="meeting-tile">
+            <span class="meeting-tile-icon">🔗</span>
+            <span class="meeting-tile-label">Zoom link</span>
+            <span class="meeting-tile-value" contenteditable="true" data-placeholder="Add Zoom link"></span>
+          </div>
+        </div>
+        <p class="section-note" style="margin:8px 20px 0; padding:0;">Workgroup, cadence, and meeting details are TBD — this initiative is still in Discovery, with a kickoff workshop at MISMO's Fall Summit (Reston, VA), Wednesday, August 26, 1:30–4:30 PM ET.</p>
+      </div>
+    </section>
+  </div>
+
+<div class="wrap">
+
+  <!-- WORK PRODUCT OVERVIEW -->
+  <section id="overview">
+    <div class="overview-shell">
+      <div class="overview-bar">Work Product Overview</div>
+      <div class="overview-grid">
+
+        <div class="overview-col">
+          <div class="overview-card">
+            <h3 class="overview-head">What is the Tri-Party eNote Bailee Agreement?</h3>
+            <p contenteditable="true">In paper-based note delivery, "bailee letters" notify parties that a promissory note is being transferred under bailee — subject to the notifying party's continuing interest until funding occurs. With eNotes, the industry has adopted a "Master Bailee Agreement" (MBA) to serve the same function: a tri-party agreement among a lender, the lender's warehouse lender, and the lender's investor, under which the investor acknowledges it holds control and location of the authoritative copy of the eNote in a custodial capacity until it disburses funds to purchase the loan.</p>
+            <p contenteditable="true">This initiative proposes a MISMO-developed, consensus-based industry template MBA — a standardized reference (not legal advice) that clarifies intent and aligns the industry on a core set of terms, so trading partners start from a shared baseline rather than renegotiating foundational concepts for every relationship.</p>
+            <p contenteditable="true">The scale problem is real: a typical lender maintains 5–7 warehouse lines and delivers loans to 12–20 non-GSE investors, requiring negotiation and execution of at least 60 substantively similar MBAs. The friction has been significant enough that some lenders have deprioritized or paused their eNote adoption efforts altogether — making this one of the few remaining barriers to broader market adoption of eNotes.</p>
+          </div>
+
+          <div class="overview-card" id="why-card">
+            <h3 class="overview-head">Why is MISMO working on this?</h3>
+            <ol class="why-list">
+              <li contenteditable="true"><strong>Reduced outside legal review and negotiation.</strong> Financial-services outside counsel rates frequently exceed $1,000/hour, and contract negotiation is one of the largest, most repeatable categories of external legal spend — an estimated <span class="mono">$10,000–$25,000</span> in avoided outside counsel cost per agreement.</li>
+              <li contenteditable="true"><strong>Reduced internal legal and onboarding effort.</strong> Executing these agreements requires coordination across legal, capital markets, operations, compliance, and technology teams — an estimated <span class="mono">$5,000–$15,000</span> per agreement in avoided internal labor and rework.</li>
+              <li contenteditable="true"><strong>Lower ongoing compliance and interpretation cost.</strong> Non-standard agreements increase downstream costs for policy interpretation, training, audit support, and issue resolution — an estimated <span class="mono">$2,000–$5,000</span> per agreement in avoided recurring compliance overhead.</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="overview-col">
+          <div class="overview-card">
+            <h3 class="overview-head">Who brought this to MISMO?</h3>
+            <p class="origin-line"><strong>Brought by:</strong> <span contenteditable="true">Snapdocs (Camelia Martin), via a MISMO DWG proposal to standardize eNote Master Bailee Agreement terms</span></p>
+            <p class="origin-line"><strong>Date started:</strong> <span contenteditable="true">Discovery workshop planned for August 2026 (MISMO Fall Summit)</span></p>
+            <p class="origin-line"><strong>Why:</strong> <span contenteditable="true">To develop a standardized, industry-created reference template for Tri-Party (Master Bailee) Agreements, reducing the cost, complexity, and time required to establish new eNote trading relationships.</span></p>
+            <p class="origin-line" style="margin-bottom:0; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <strong>Status:</strong>
+              <span id="kpi-status" class="status-chip-inline warn" contenteditable="true">⚑ Proposed — Discovery workshop scheduled, not yet chartered as a workgroup</span>
+            </p>
+          </div>
+
+          <div class="overview-card">
+            <h3 class="overview-head">Estimated per agreement savings</h3>
+            <div class="savings-value-row"><span contenteditable="true">$17,000</span><span contenteditable="true">$45,000</span></div>
+            <div class="savings-track">
+              <div class="savings-fill"></div>
+              <div class="savings-handle" style="left:14%;"></div>
+              <div class="savings-handle" style="left:92%;"></div>
+            </div>
+            <a href="#why-card" class="savings-btn">See the cost breakdown ↓</a>
+          </div>
+
+          <div class="overview-card">
+            <h3 class="overview-head">Work product deliverables</h3>
+            <table class="deliverables-table">
+              <tr><th>Primary</th><th>Progress</th><th>Status</th><th>Date</th></tr>
+              <tr><td contenteditable="true">Industry Template Master Bailee Agreement (v1)</td><td><div class="prog-track"><div class="prog-fill deliv-progress-fill" style="width:0%;"></div></div></td><td><select class="deliv-pill notstarted deliv-status-select"><option value="notstarted" selected>Not Started</option><option value="progress">In Progress</option><option value="done">Done</option></select></td><td><div class="deliv-date-wrap"><span class="deliv-date-label">ETA</span><input type="date" class="deliv-date-input" value=""></div></td></tr>
+            </table>
+            <p class="section-note" style="margin-top:10px;" contenteditable="true">Scope, out-of-scope items, and any further deliverables are TBD pending the Discovery workshop — the source Work Request form leaves these fields open.</p>
+          </div>
+
+          <div class="overview-card">
+            <h3 class="overview-head">Relevant industry resources</h3>
+            <ul class="reading-list">
+              <li><span class="link-ico">⌁</span><a href="https://www.acc.com/sites/default/files/2025-06/ACC_2025_Law_Department_Management_Benchmarking_Report.pdf" target="_blank" rel="noopener">ACC — Law Department Management Benchmarking Report</a></li>
+              <li><span class="link-ico">⌁</span><a href="https://www.wolterskluwer.com/en/expert-insights/legal-spend-unlocked-proven-methods-for-controlling-outside-counsel-costs" target="_blank" rel="noopener">Wolters Kluwer — Legal Spend Insights</a></li>
+              <li><span class="link-ico">⌁</span><a href="https://swiftwaterco.com/insights/reduce-legal-spend-without-sacrificing-quality/" target="_blank" rel="noopener">Swiftwater — Reducing Legal Spend Without Sacrificing Quality</a></li>
+              <li><span class="link-ico">⌁</span><a href="https://www.lawinsider.com/resources/articles/the-power-of-standardization-lessons-from-other-industries-and-the-legal-secto" target="_blank" rel="noopener">Law Insider — The Power of Contract Standardization</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROADMAP -->
+  <section id="roadmap">
+    <div class="section-head">
+      <h2>Roadmap to broad adoption</h2>
+      <div class="view-toggle" role="group" aria-label="Layout format">
+        <button class="view-btn" data-view="compact" aria-pressed="true">Compact</button>
+        <button class="view-btn" data-view="kanban" aria-pressed="false">Kanban</button>
+      </div>
+    </div>
+    <p class="roadmap-intro">Tasks are organized by stakeholder group. This initiative is still in Discovery — most lanes are empty until the Discovery workshop (August 2026) establishes a workgroup, roster, and real task list.</p>
+
+    <div class="card" style="padding:8px 20px 20px;">
+      <div class="tab-row" role="tablist" aria-label="Adoption lanes">
+        <button class="tab-btn" role="tab" aria-selected="true" data-tab="originator">Mortgage Originator</button>
+        <button class="tab-btn" role="tab" aria-selected="false" data-tab="warehouse">Warehouse Lenders</button>
+        <button class="tab-btn" role="tab" aria-selected="false" data-tab="investor">Investors/Aggregators</button>
+        <button class="tab-btn" role="tab" aria-selected="false" data-tab="tech">eMortgage Technology Providers</button>
+      </div>
+      <div id="laneRoot"></div>
+    </div>
+  </section>
+
+  <!-- STAKEHOLDERS -->
+  <section id="stakeholders">
+    <div class="section-head">
+      <h2>Stakeholder participation &amp; implementation</h2>
+      <span class="section-note" id="adoptionNote">5 of 13 tracked orgs are piloting or live · funnel computed live from the roster</span>
+    </div>
+
+    <div class="stake-layout">
+      <div class="card stake-card">
+        <h3>Stakeholder groups</h3>
+        <table>
+          <tr><th>Type</th><th>Benefit</th><th>Critical?</th><th>Role</th></tr>
+          <tr><td><select class="type-select"><option value="Mortgage Originator" selected>Mortgage Originator</option><option value="Warehouse Lenders">Warehouse Lenders</option><option value="Investors/Aggregators">Investors/Aggregators</option><option value="eMortgage Technology Providers">eMortgage Technology Providers</option></select></td><td contenteditable="true">Faster onboarding, lower legal spend — high cost and delay negotiating multiple agreements today</td><td><select class="crit-select is-star"><option value="star" selected>★</option><option value="line">—</option></select></td><td><select class="role-select"><option value="Driver" selected>Driver</option><option value="Implementer">Implementer</option></select></td></tr>
+          <tr><td><select class="type-select"><option value="Mortgage Originator">Mortgage Originator</option><option value="Warehouse Lenders" selected>Warehouse Lenders</option><option value="Investors/Aggregators">Investors/Aggregators</option><option value="eMortgage Technology Providers">eMortgage Technology Providers</option></select></td><td contenteditable="true">Consistent treatment, reduced legal overhead — exponential agreement maintenance burden today</td><td><select class="crit-select is-star"><option value="star" selected>★</option><option value="line">—</option></select></td><td><select class="role-select"><option value="Driver" selected>Driver</option><option value="Implementer">Implementer</option></select></td></tr>
+          <tr><td><select class="type-select"><option value="Mortgage Originator">Mortgage Originator</option><option value="Warehouse Lenders">Warehouse Lenders</option><option value="Investors/Aggregators" selected>Investors/Aggregators</option><option value="eMortgage Technology Providers">eMortgage Technology Providers</option></select></td><td contenteditable="true">Faster delivery readiness, reduced risk — repeated negotiation of narrow-scope agreements today</td><td><select class="crit-select is-star"><option value="star" selected>★</option><option value="line">—</option></select></td><td><select class="role-select"><option value="Driver" selected>Driver</option><option value="Implementer">Implementer</option></select></td></tr>
+          <tr><td><select class="type-select"><option value="Mortgage Originator">Mortgage Originator</option><option value="Warehouse Lenders">Warehouse Lenders</option><option value="Investors/Aggregators">Investors/Aggregators</option><option value="eMortgage Technology Providers" selected>eMortgage Technology Providers</option></select></td><td contenteditable="true">Increased eNote adoption — adoption friction today limits transaction volume; Medium implementation complexity</td><td><select class="crit-select"><option value="star">★</option><option value="line" selected>—</option></select></td><td><select class="role-select"><option value="Driver">Driver</option><option value="Implementer" selected>Implementer</option></select></td></tr>
+        </table>
+      </div>
+
+      <div class="card stake-card">
+        <h3>Stakeholder use (by organization count)</h3>
+        <p class="section-note" style="margin:-4px 0 12px;">Change any status in the roster below — the bars update to match.</p>
+        <div id="funnelRoot"></div>
+
+        <div class="funnel-legend">
+          <div class="funnel-legend-item"><span class="legend-dot" style="background:var(--slate);"></span>Not started</div>
+          <div class="funnel-legend-item"><span class="legend-dot" style="background:var(--brand);"></span>Planned</div>
+          <div class="funnel-legend-item"><span class="legend-dot" style="background:var(--amber);"></span>Piloted</div>
+          <div class="funnel-legend-item"><span class="legend-dot" style="background:var(--success);"></span>In use</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="padding:18px;" id="roster">
+      <h3 style="font-size:14px; margin-bottom:4px;">Stakeholder engagement roster</h3>
+      <p class="section-note" style="margin:0 0 12px;">"Active participants" = attended at least 1/3 of the 17 workgroup meetings held in the past year (Aug 2025–Aug 2026), per the uploaded meeting tracker.</p>
+      <div class="roster-controls">
+        <button class="chip-btn" data-type-filter="all" aria-pressed="true">All types</button>
+        <button class="chip-btn" data-type-filter="Mortgage Originator" aria-pressed="false">Mortgage Originator</button>
+        <button class="chip-btn" data-type-filter="Warehouse Lenders" aria-pressed="false">Warehouse Lenders</button>
+        <button class="chip-btn" data-type-filter="Investors/Aggregators" aria-pressed="false">Investors/Aggregators</button>
+        <button class="chip-btn" data-type-filter="eMortgage Technology Providers" aria-pressed="false">Tech Providers</button>
+        <input class="search-input" id="rosterSearch" type="text" placeholder="Search org or participant…">
+      </div>
+      <table id="rosterTable">
+        <thead>
+          <tr><th>Type</th><th>Organization</th><th>Primary Contact</th><th>Status</th><th>Active participants</th><th>Notes</th></tr>
+        </thead>
+        <tbody id="rosterBody"></tbody>
+      </table>
+      <p class="section-note" id="rosterEmpty" style="display:none; padding:14px 0 0;">No rows match this filter.</p>
+      <datalist id="stakeholderTypeOptions">
+        <option value="Mortgage Originator">
+        <option value="Warehouse Lenders">
+        <option value="Investors/Aggregators">
+        <option value="eMortgage Technology Providers">
+        <option value="Servicing Technology Provider">
+      </datalist>
+    </div>
+  </section>
+
+  <!-- GOVERNANCE -->
+  <section id="governance">
+    <div class="section-head">
+      <h2>Governance, effort &amp; technical signals</h2>
+      <span class="section-note">No meeting tracker yet</span>
+    </div>
+    <div class="card" style="padding:20px;">
+      <p class="section-note" style="margin:0;" contenteditable="true">This initiative doesn't have a meeting tracker or attendance data yet — it's still in Discovery, ahead of its kickoff workshop at MISMO's Fall Summit (August 26, 2026). This section will populate once real meeting attendance is available.</p>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  Draft dashboard built from the MISMO DWG Proposal, Work Request Form, and Discovery Workshop invitation for eNote Master Bailee Agreements · this initiative is in Discovery, not yet chartered as a workgroup · not affiliated with or hosted by MISMO.
+</footer>
+
+<script>
+  // --- Lock/unlock: defined first so isLocked exists before any initial render call runs.
+  // applyLockState() genuinely toggles the contenteditable attribute and .disabled property
+  // (not just CSS) and is called from renderRosterTable()/renderLane() too, so re-renders
+  // triggered by search, filtering, or status changes can't silently unlock fresh content. ---
+  let isLocked = true;
+  const lockToggleBtn = document.getElementById('lockToggleBtn');
+  const LOCK_ICON_LOCKED = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>';
+  const LOCK_ICON_UNLOCKED = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 7.75-1.5"></path></svg>';
+
+  function applyLockState(){
+    document.querySelectorAll('[contenteditable]').forEach(el => {
+      el.setAttribute('contenteditable', isLocked ? 'false' : 'true');
+    });
+    document.querySelectorAll(
+      'select.status-select, select.crit-select, select.role-select, select.type-select, select.deliv-status-select, input.type-input, input.deliv-date-input, .contact-input'
+    ).forEach(el => {
+      el.disabled = isLocked;
+    });
+    document.body.classList.toggle('locked', isLocked);
+  }
+
+  function updateLockUI(){
+    lockToggleBtn.classList.toggle('is-locked', isLocked);
+    lockToggleBtn.setAttribute('aria-pressed', isLocked ? 'true' : 'false');
+    lockToggleBtn.querySelector('.lock-icon').innerHTML = isLocked ? LOCK_ICON_LOCKED : LOCK_ICON_UNLOCKED;
+    lockToggleBtn.querySelector('.lock-label').textContent = isLocked ? 'Locked' : 'Unlocked';
+    lockToggleBtn.title = isLocked ? 'Unlock to allow edits' : 'Lock this dashboard to prevent edits';
+    applyLockState();
+  }
+
+  lockToggleBtn.addEventListener('click', () => {
+    isLocked = !isLocked;
+    if (isLocked){
+      editingContactIdx = null;
+      editingTaskIdx = null;
+      renderRosterTable();
+      renderLane();
+    }
+    updateLockUI();
+  });
+
+  updateLockUI();
+
+  // Roadmap: lane data + compact/kanban renderer
+  let laneData = {
+    originator: {
+      flagged: false,
+      goals: ['Participate in the Discovery workshop at MISMO\'s Fall Summit (Aug 26, 2026)'],
+      roadblocks: [],
+      actions: []
+    },
+    warehouse: {
+      flagged: true,
+      goals: ['Identify a named warehouse lender participant — none confirmed yet'],
+      roadblocks: ['No warehouse lender has been identified as engaged yet'],
+      actions: []
+    },
+    investor: {
+      flagged: false,
+      goals: ['Participate in the Discovery workshop at MISMO\'s Fall Summit (Aug 26, 2026)'],
+      roadblocks: [],
+      actions: []
+    },
+    tech: {
+      flagged: false,
+      goals: ['Participate in the Discovery workshop at MISMO\'s Fall Summit (Aug 26, 2026)'],
+      roadblocks: [],
+      actions: []
+    }
+  };
+
+  let currentLane = 'originator';
+  let currentView = 'compact';
+  let editingTaskIdx = null; // null = none, 'new' = adding, number = editing that index
+  const laneRoot = document.getElementById('laneRoot');
+
+  const actionStatusOptions = [
+    ['not-started', 'Not Started'],
+    ['in-progress', 'In Progress'],
+    ['blocked', 'Blocked'],
+    ['complete', 'Complete']
+  ];
+  const actionStatusLabels = Object.fromEntries(actionStatusOptions);
+
+  function escapeAttr(str){
+    return (str || '').replace(/"/g, '&quot;');
+  }
+
+  function renderActionStatusSelect(laneKey, idx, status){
+    const opts = actionStatusOptions.map(([key, label]) =>
+      `<option value="${key}" ${key === status ? 'selected' : ''}>${label}</option>`
+    ).join('');
+    return `<select class="status-select ${status}" data-lane="${laneKey}" data-action-idx="${idx}" aria-label="Task status">${opts}</select>`;
+  }
+
+  function taskStatusOptionsHtml(status){
+    return actionStatusOptions.map(([key, label]) =>
+      `<option value="${key}" ${key === status ? 'selected' : ''}>${label}</option>`
+    ).join('');
+  }
+
+  function taskEditRowHtml(idx, action){
+    return `<tr class="task-edit-container">
+      <td><input class="contact-input" type="text" data-task-field="task" placeholder="Task" value="${escapeAttr(action.task)}"></td>
+      <td><input class="contact-input" type="text" data-task-field="owner" placeholder="Owner" value="${escapeAttr(action.owner)}"></td>
+      <td><select class="contact-input" data-task-field="status">${taskStatusOptionsHtml(action.status)}</select></td>
+      <td class="task-icons"><button type="button" class="contact-save-btn" data-save-task="${idx}">Save</button><button type="button" class="contact-cancel-btn" data-cancel-task="${idx}">Cancel</button></td>
+    </tr>`;
+  }
+
+  function taskEditCardHtml(idx, action){
+    return `<div class="kanban-card-edit task-edit-container">
+      <input class="contact-input task-input" type="text" data-task-field="task" placeholder="Task" value="${escapeAttr(action.task)}">
+      <input class="contact-input task-input" type="text" data-task-field="owner" placeholder="Owner" value="${escapeAttr(action.owner)}">
+      <select class="contact-input task-input" data-task-field="status">${taskStatusOptionsHtml(action.status)}</select>
+      <div class="contact-edit-actions">
+        <button type="button" class="contact-save-btn" data-save-task="${idx}">Save</button>
+        <button type="button" class="contact-cancel-btn" data-cancel-task="${idx}">Cancel</button>
+      </div>
+    </div>`;
+  }
+
+  function renderPillGroup(label, items, kind){
+    const pillClass = kind === 'goal' ? 'pill-goal' : 'pill-block';
+    let inner = items.map((text, i) =>
+      `<span class="${pillClass}" contenteditable="true" data-pill-kind="${kind}" data-pill-idx="${i}">${text}</span><button type="button" class="pill-remove" data-pill-remove="${kind}:${i}" title="Remove">×</button>`
+    ).join('');
+    inner += `<button type="button" class="pill-add-btn" data-pill-add="${kind}">+ Add</button>`;
+    return `<div class="goal-strip-group"><span class="strip-label">${label}</span><div class="pill-row">${inner}</div></div>`;
+  }
+
+  // --- Shared persistent storage (test build) ---
+  // Keys are namespaced per-dashboard as cheap insurance against any cross-artifact collision.
+  const ROSTER_STORAGE_KEY = 'tpa-roster-data-v1';
+  const LANE_STORAGE_KEY = 'tpa-lane-data-v1';
+  let hasLoadedFromStorage = false; // guards against saving default data over real stored data before the initial load finishes
+
+  async function saveRosterData(){
+    if (!window.storage || !hasLoadedFromStorage) return;
+    try {
+      await window.storage.set(ROSTER_STORAGE_KEY, JSON.stringify(rosterData), true);
+    } catch (err) {
+      console.error('Could not save roster data to shared storage:', err);
+    }
+  }
+
+  async function saveLaneData(){
+    if (!window.storage || !hasLoadedFromStorage) return;
+    try {
+      await window.storage.set(LANE_STORAGE_KEY, JSON.stringify(laneData), true);
+    } catch (err) {
+      console.error('Could not save roadmap data to shared storage:', err);
+    }
+  }
+
+  async function loadSharedData(){
+    if (!window.storage) return { rosterFound: false, laneFound: false };
+    let rosterFound = false;
+    let laneFound = false;
+    try {
+      const r = await window.storage.get(ROSTER_STORAGE_KEY, true);
+      if (r && r.value) {
+        rosterData = JSON.parse(r.value);
+        rosterFound = true;
+      }
+    } catch (err) {
+      // No stored roster yet — this throws rather than returning null, per the storage API.
+    }
+    try {
+      const l = await window.storage.get(LANE_STORAGE_KEY, true);
+      if (l && l.value) {
+        laneData = JSON.parse(l.value);
+        laneFound = true;
+      }
+    } catch (err) {
+      // No stored roadmap data yet.
+    }
+    return { rosterFound, laneFound };
+  }
+
+  function renderLane(){
+    const lane = laneData[currentLane];
+    let html = '';
+
+    if (lane.flagged){
+      html += `<div class="inferred-note">⚑ Source repeated the Servicer lane's goals here. Goals below are inferred from this lane's own action items, pending owner confirmation.</div>`;
+    }
+
+    html += `<div class="goal-strip">`;
+    html += renderPillGroup('Goals', lane.goals, 'goal');
+    html += renderPillGroup('Roadblocks', lane.roadblocks, 'roadblock');
+    html += `</div>`;
+
+    if (currentView === 'compact'){
+      if (lane.actions.length === 0 && editingTaskIdx !== 'new'){
+        html += `<p class="empty-lane-note">No tasks yet for this stakeholder group.</p>`;
+      } else {
+        html += `<table class="action-table-full"><tr><th>Task</th><th>Owner</th><th>Status</th><th></th></tr>`;
+        lane.actions.forEach((a, i) => {
+          if (i === editingTaskIdx){
+            html += taskEditRowHtml(i, a);
+          } else {
+            const doneClass = a.status === 'complete' ? 'done-task' : '';
+            html += `<tr><td class="${doneClass}">${a.task}</td><td>${a.owner}</td><td>${renderActionStatusSelect(currentLane, i, a.status)}</td><td class="task-icons"><button type="button" class="icon-btn" data-edit-task="${i}" title="Edit">✎</button><button type="button" class="icon-btn" data-remove-task="${i}" title="Remove">🗑</button></td></tr>`;
+          }
+        });
+        if (editingTaskIdx === 'new'){
+          html += taskEditRowHtml('new', {task:'', owner:'', status:'not-started'});
+        }
+        html += `</table>`;
+      }
+      if (editingTaskIdx === null){
+        html += `<button type="button" class="add-task-btn" data-add-task>+ Add task</button>`;
+      }
+    } else {
+      const cols = [
+        {key:'not-started', label:'Not Started'},
+        {key:'in-progress', label:'In Progress'},
+        {key:'blocked', label:'Blocked'},
+        {key:'complete', label:'Complete'}
+      ];
+      if (editingTaskIdx === null){
+        html += `<button type="button" class="add-task-btn" data-add-task style="margin-bottom:14px;">+ Add task</button>`;
+      } else if (editingTaskIdx === 'new'){
+        html += `<div class="kanban-add-wrap">${taskEditCardHtml('new', {task:'', owner:'', status:'not-started'})}</div>`;
+      }
+      html += `<div class="kanban-grid">`;
+      cols.forEach(col => {
+        const items = lane.actions.filter(a => a.status === col.key);
+        html += `<div class="kanban-col"><div class="kanban-col-head"><span class="status-chip ${col.key}">${col.label}</span><span class="kanban-count">${items.length}</span></div>`;
+        if (items.length === 0){
+          html += `<div class="kanban-empty">—</div>`;
+        } else {
+          items.forEach(a => {
+            const idx = lane.actions.indexOf(a);
+            if (idx === editingTaskIdx){
+              html += taskEditCardHtml(idx, a);
+            } else {
+              html += `<div class="kanban-card${a.status === 'complete' ? ' done-task' : ''}">
+                <div class="kanban-task">${a.task}</div>
+                <div class="kanban-owner">${a.owner}</div>
+                ${renderActionStatusSelect(currentLane, idx, a.status)}
+                <div class="kanban-card-actions"><button type="button" class="icon-btn" data-edit-task="${idx}" title="Edit">✎</button><button type="button" class="icon-btn" data-remove-task="${idx}" title="Remove">🗑</button></div>
+              </div>`;
+            }
+          });
+        }
+        html += `</div>`;
+      });
+      html += `</div>`;
+    }
+
+    laneRoot.innerHTML = html;
+    saveLaneData();
+    applyLockState();
+  }
+
+  const tabButtons = document.querySelectorAll('.tab-btn');
+  tabButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabButtons.forEach(b => b.setAttribute('aria-selected', 'false'));
+      btn.setAttribute('aria-selected', 'true');
+      currentLane = btn.getAttribute('data-tab');
+      editingTaskIdx = null;
+      renderLane();
+    });
+  });
+
+  const viewButtons = document.querySelectorAll('.view-btn');
+  viewButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      viewButtons.forEach(b => b.setAttribute('aria-pressed', 'false'));
+      btn.setAttribute('aria-pressed', 'true');
+      currentView = btn.getAttribute('data-view');
+      editingTaskIdx = null;
+      renderLane();
+    });
+  });
+
+  renderLane();
+
+  // Quick status changes on non-edit rows: update the data model and re-render
+  laneRoot.addEventListener('change', async (e) => {
+    if (!e.target.matches('select.status-select')) return;
+    const laneKey = e.target.getAttribute('data-lane');
+    const idx = parseInt(e.target.getAttribute('data-action-idx'), 10);
+    const newStatus = e.target.value;
+    await ensureLoaded();
+    laneData[laneKey].actions[idx].status = newStatus;
+    laneData[laneKey].actions[idx].label = actionStatusLabels[newStatus];
+    renderLane();
+  });
+
+  // Add / edit / remove tasks
+  laneRoot.addEventListener('click', async (e) => {
+    if (e.target.closest('[data-add-task]')){
+      editingTaskIdx = 'new';
+      renderLane();
+      return;
+    }
+    const editBtn = e.target.closest('[data-edit-task]');
+    if (editBtn){
+      editingTaskIdx = parseInt(editBtn.getAttribute('data-edit-task'), 10);
+      renderLane();
+      return;
+    }
+    const removeBtn = e.target.closest('[data-remove-task]');
+    if (removeBtn){
+      const idx = parseInt(removeBtn.getAttribute('data-remove-task'), 10);
+      await ensureLoaded();
+      laneData[currentLane].actions.splice(idx, 1);
+      editingTaskIdx = null;
+      renderLane();
+      return;
+    }
+    const saveBtn = e.target.closest('[data-save-task]');
+    if (saveBtn){
+      const container = saveBtn.closest('.task-edit-container');
+      const taskVal = container.querySelector('[data-task-field="task"]').value.trim();
+      const ownerVal = container.querySelector('[data-task-field="owner"]').value.trim();
+      const statusVal = container.querySelector('[data-task-field="status"]').value;
+      if (!taskVal){
+        alert('Task name is required.');
+        return;
+      }
+      const rawIdx = saveBtn.getAttribute('data-save-task');
+      await ensureLoaded();
+      const newAction = {task: taskVal, owner: ownerVal || 'Unassigned', status: statusVal, label: actionStatusLabels[statusVal]};
+      if (rawIdx === 'new'){
+        laneData[currentLane].actions.push(newAction);
+      } else {
+        laneData[currentLane].actions[parseInt(rawIdx, 10)] = newAction;
+      }
+      editingTaskIdx = null;
+      renderLane();
+      return;
+    }
+    if (e.target.closest('[data-cancel-task]')){
+      editingTaskIdx = null;
+      renderLane();
+    }
+
+    const pillAddBtn = e.target.closest('[data-pill-add]');
+    if (pillAddBtn){
+      const kind = pillAddBtn.getAttribute('data-pill-add');
+      await ensureLoaded();
+      const arr = kind === 'goal' ? laneData[currentLane].goals : laneData[currentLane].roadblocks;
+      arr.push(kind === 'goal' ? 'New goal' : 'New roadblock');
+      renderLane();
+      setTimeout(() => {
+        const pills = laneRoot.querySelectorAll(`[data-pill-kind="${kind}"]`);
+        const last = pills[pills.length - 1];
+        if (last){
+          last.focus();
+          const range = document.createRange();
+          range.selectNodeContents(last);
+          const sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+        }
+      }, 0);
+      return;
+    }
+    const pillRemoveBtn = e.target.closest('[data-pill-remove]');
+    if (pillRemoveBtn){
+      const [kind, idxStr] = pillRemoveBtn.getAttribute('data-pill-remove').split(':');
+      const idx = parseInt(idxStr, 10);
+      await ensureLoaded();
+      const arr = kind === 'goal' ? laneData[currentLane].goals : laneData[currentLane].roadblocks;
+      arr.splice(idx, 1);
+      renderLane();
+    }
+  });
+
+  // Goal/roadblock pill text: sync to the data model on blur (capture phase, since blur doesn't bubble)
+  laneRoot.addEventListener('blur', async (e) => {
+    const kind = e.target.getAttribute && e.target.getAttribute('data-pill-kind');
+    if (!kind) return;
+    const idx = parseInt(e.target.getAttribute('data-pill-idx'), 10);
+    const textVal = e.target.textContent.trim();
+    await ensureLoaded();
+    const arr = kind === 'goal' ? laneData[currentLane].goals : laneData[currentLane].roadblocks;
+    arr[idx] = textVal;
+    renderLane();
+  }, true);
+
+  // Shared roster data — drives both the engagement table and the funnel bars
+  let rosterData = [
+    {type:'Mortgage Originator', org:'Planet Home Lending', status:'planned', primaryContact:'', title:'', email:'', participants:'No roster data on file — attendance tracking not yet started', notes:'Named in the Work Request Form as an organization already interested in participating.'},
+    {type:'Mortgage Originator', org:'Fairway', status:'planned', primaryContact:'', title:'', email:'', participants:'No roster data on file — attendance tracking not yet started', notes:'Named in the Work Request Form as an organization already interested in participating.'},
+    {type:'Mortgage Originator', org:'Veterans United', status:'planned', primaryContact:'', title:'', email:'', participants:'No roster data on file — attendance tracking not yet started', notes:'Named in the Work Request Form as an organization already interested in participating.'},
+    {type:'Warehouse Lenders', org:'TBD', status:'not-started', primaryContact:'', title:'', email:'', participants:'No roster data on file — attendance tracking not yet started', notes:'No warehouse lender has been identified as engaged yet, per the Work Request Form.'},
+    {type:'Investors/Aggregators', org:'Amerihome', status:'planned', primaryContact:'', title:'', email:'', participants:'No roster data on file — attendance tracking not yet started', notes:'Named in the Work Request Form as an organization already interested in participating.'},
+    {type:'eMortgage Technology Providers', org:'Snapdocs', status:'planned', primaryContact:'Camelia Martin', title:'Work Request Sponsor', email:'', participants:'No roster data on file — attendance tracking not yet started', notes:'Sponsor of this Work Request; Camelia Martin is the named contact.'}
+  ];
+
+  const statusOptions = [
+    ['not-started', 'Not Started'],
+    ['planned', 'Planned'],
+    ['piloted', 'Piloted'],
+    ['in-use', 'In Use']
+  ];
+
+  const funnelCategories = ['Mortgage Originator', 'Warehouse Lenders', 'Investors/Aggregators', 'eMortgage Technology Providers'];
+  function funnelCategoryFor(type){
+    return type;
+  }
+
+  function renderStatusSelect(idx, status){
+    const opts = statusOptions.map(([key, label]) =>
+      `<option value="${key}" ${key === status ? 'selected' : ''}>${label}</option>`
+    ).join('');
+    return `<select class="status-select ${status}" data-idx="${idx}" aria-label="Adoption status">${opts}</select>`;
+  }
+
+  let editingContactIdx = null;
+
+  function renderContactCell(idx, row){
+    if (idx === editingContactIdx){
+      return `<div class="contact-edit-form">
+        <input class="contact-input" type="text" data-field="name" placeholder="Name" value="${row.primaryContact.replace(/"/g,'&quot;')}">
+        <input class="contact-input" type="text" data-field="title" placeholder="Title" value="${(row.title||'').replace(/"/g,'&quot;')}">
+        <input class="contact-input" type="email" data-field="email" placeholder="Email" value="${(row.email||'').replace(/"/g,'&quot;')}">
+        <div class="contact-edit-actions">
+          <button type="button" class="contact-save-btn" data-save-idx="${idx}">Save</button>
+          <button type="button" class="contact-cancel-btn" data-cancel-idx="${idx}">Cancel</button>
+        </div>
+      </div>`;
+    }
+    const titleHtml = row.title ? `<div class="contact-sub">${row.title}</div>` : `<div class="contact-sub placeholder">Add title</div>`;
+    const emailHtml = row.email ? `<div class="contact-sub"><a href="mailto:${row.email}">${row.email}</a></div>` : `<div class="contact-sub placeholder">Add email</div>`;
+    return `<div class="contact-block">
+      <div class="contact-name">${row.primaryContact}</div>
+      ${titleHtml}
+      ${emailHtml}
+      <button type="button" class="contact-edit-btn" data-edit-idx="${idx}">✎ Edit</button>
+    </div>`;
+  }
+
+  function renderRosterTable(){
+    const tbody = document.getElementById('rosterBody');
+    const q = searchInput.value.trim().toLowerCase();
+    let html = '';
+    let visibleCount = 0;
+    rosterData.forEach((row, idx) => {
+      const typeMatch = activeType === 'all' || row.type === activeType;
+      const haystack = `${row.type} ${row.org} ${row.primaryContact} ${row.title||''} ${row.email||''} ${row.participants} ${row.notes}`.toLowerCase();
+      const textMatch = q === '' || haystack.includes(q);
+      if (!(typeMatch && textMatch)) return;
+      visibleCount++;
+      const idAttr = row.rowId ? ` id="${row.rowId}"` : '';
+      html += `<tr data-type="${row.type}"${idAttr}>
+        <td><input class="type-input" list="stakeholderTypeOptions" data-roster-field="type" data-idx="${idx}" value="${row.type.replace(/"/g,'&quot;')}"></td>
+        <td contenteditable="true" data-roster-field="org" data-idx="${idx}">${row.org}</td>
+        <td class="primary-contact">${renderContactCell(idx, row)}</td>
+        <td>${renderStatusSelect(idx, row.status)}</td>
+        <td title="Attendance data — not editable">${row.participants}</td>
+        <td contenteditable="true" data-roster-field="notes" data-idx="${idx}">${row.notes}</td>
+      </tr>`;
+    });
+    tbody.innerHTML = html;
+    emptyMsg.style.display = visibleCount === 0 ? 'block' : 'none';
+    saveRosterData();
+    applyLockState();
+  }
+
+  function renderFunnel(){
+    const counts = {};
+    funnelCategories.forEach(cat => counts[cat] = {'not-started':0, 'planned':0, 'piloted':0, 'in-use':0});
+    rosterData.forEach(row => {
+      const cat = funnelCategoryFor(row.type);
+      if (counts[cat]) counts[cat][row.status]++;
+    });
+
+    const order = [['not-started','--slate'], ['planned','--brand'], ['piloted','--amber'], ['in-use','--success']];
+    const root = document.getElementById('funnelRoot');
+    let html = '';
+    funnelCategories.forEach((cat, i) => {
+      const c = counts[cat];
+      const total = c['not-started'] + c['planned'] + c['piloted'] + c['in-use'];
+      const lastStyle = i === funnelCategories.length - 1 ? ' style="margin-bottom:0;"' : '';
+      html += `<div class="funnel-row"${lastStyle}>`;
+      html += `<div class="funnel-row-top"><span>${cat}</span><span>${total > 0 ? total + ' org' + (total > 1 ? 's' : '') + ' tracked' : 'no roster data yet'}</span></div>`;
+      if (total === 0){
+        html += `<div class="funnel-bar empty"></div>`;
+      } else {
+        html += `<div class="funnel-bar">`;
+        order.forEach(([key, cssVar]) => {
+          if (c[key] > 0){
+            html += `<span style="width:${(c[key] / total * 100).toFixed(1)}%; background:var(${cssVar});"></span>`;
+          }
+        });
+        html += `</div>`;
+      }
+      html += `</div>`;
+    });
+    root.innerHTML = html;
+  }
+
+  function updateAdoptionNote(){
+    const total = rosterData.length;
+    const pilotedOrLive = rosterData.filter(r => r.status === 'piloted' || r.status === 'in-use').length;
+    document.getElementById('adoptionNote').textContent =
+      `${pilotedOrLive} of ${total} tracked orgs are piloting or live · funnel computed live from the roster`;
+  }
+
+  // Roster filtering
+  const typeButtons = document.querySelectorAll('[data-type-filter]');
+  const searchInput = document.getElementById('rosterSearch');
+  const emptyMsg = document.getElementById('rosterEmpty');
+  let activeType = 'all';
+
+  typeButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      typeButtons.forEach(b => b.setAttribute('aria-pressed', 'false'));
+      btn.setAttribute('aria-pressed', 'true');
+      activeType = btn.getAttribute('data-type-filter');
+      renderRosterTable();
+    });
+  });
+  searchInput.addEventListener('input', renderRosterTable);
+
+  // Primary contact editing: click Edit to reveal name/title/email inputs for that row only
+  document.getElementById('rosterTable').addEventListener('click', async (e) => {
+    const editBtn = e.target.closest('.contact-edit-btn');
+    if (editBtn){
+      editingContactIdx = parseInt(editBtn.getAttribute('data-edit-idx'), 10);
+      renderRosterTable();
+      return;
+    }
+    const saveBtn = e.target.closest('.contact-save-btn');
+    if (saveBtn){
+      const idx = parseInt(saveBtn.getAttribute('data-save-idx'), 10);
+      const cell = saveBtn.closest('.contact-edit-form');
+      const nameVal = cell.querySelector('[data-field="name"]').value.trim();
+      const titleVal = cell.querySelector('[data-field="title"]').value.trim();
+      const emailVal = cell.querySelector('[data-field="email"]').value.trim();
+      await ensureLoaded();
+      if (nameVal) rosterData[idx].primaryContact = nameVal;
+      rosterData[idx].title = titleVal;
+      rosterData[idx].email = emailVal;
+      editingContactIdx = null;
+      renderRosterTable();
+      return;
+    }
+    const cancelBtn = e.target.closest('.contact-cancel-btn');
+    if (cancelBtn){
+      editingContactIdx = null;
+      renderRosterTable();
+    }
+  });
+
+  // Type / Organization / Notes are plain editable text — sync to the data model on blur
+  // so edits survive the next re-render (filtering, searching, contact save/cancel).
+  document.getElementById('rosterTable').addEventListener('blur', async (e) => {
+    const field = e.target.getAttribute && e.target.getAttribute('data-roster-field');
+    if (!field) return;
+    const idx = parseInt(e.target.getAttribute('data-idx'), 10);
+    const val = e.target.tagName === 'INPUT' ? e.target.value.trim() : e.target.textContent.trim();
+    await ensureLoaded();
+    rosterData[idx][field] = val;
+    renderRosterTable();
+  }, true);
+
+  // Status changes: update the data model, then re-render the table row's own
+  // select styling, the funnel bars, and the adoption stat — all from one source of truth.
+  document.getElementById('rosterTable').addEventListener('change', async (e) => {
+    if (!e.target.matches('select.status-select')) return;
+    const idx = parseInt(e.target.getAttribute('data-idx'), 10);
+    const newStatus = e.target.value;
+    await ensureLoaded();
+    rosterData[idx].status = newStatus;
+    renderFunnel();
+    updateAdoptionNote();
+    saveRosterData();
+    renderRosterTable();
+  });
+
+  // Pure viewing never touches window.storage — only the first actual edit does.
+  // This avoids the account-required prompt firing for people who are just looking.
+  async function ensureLoaded(){
+    if (hasLoadedFromStorage) return;
+    const { rosterFound, laneFound } = await loadSharedData();
+    hasLoadedFromStorage = true;
+    renderLane();
+    renderRosterTable();
+    renderFunnel();
+    updateAdoptionNote();
+    // If this is the very first edit ever made (nothing in shared storage yet), seed it
+    // with the current defaults so every subsequent viewer/editor starts from the same baseline.
+    if (!rosterFound) saveRosterData();
+    if (!laneFound) saveLaneData();
+  }
+
+  renderLane();
+  renderRosterTable();
+  renderFunnel();
+  updateAdoptionNote();
+
+  // Stakeholder Groups "Critical?" dropdown: keep the star gold-colored when selected
+  document.querySelectorAll('.crit-select').forEach(sel => {
+    sel.addEventListener('change', () => {
+      sel.classList.toggle('is-star', sel.value === 'star');
+    });
+  });
+
+
+  // Work Product Deliverables: status dropdown drives the progress bar
+  const deliverableProgress = {
+    'notstarted': { width: '0%', color: 'transparent' },
+    'progress': { width: '55%', color: 'var(--amber)' },
+    'done': { width: '100%', color: 'var(--success)' }
+  };
+  document.querySelectorAll('.deliv-status-select').forEach(sel => {
+    sel.addEventListener('change', () => {
+      const val = sel.value;
+      sel.className = 'deliv-pill deliv-status-select ' + val;
+      const row = sel.closest('tr');
+      const fill = row.querySelector('.deliv-progress-fill');
+      if (fill && deliverableProgress[val]){
+        fill.style.width = deliverableProgress[val].width;
+        fill.style.background = deliverableProgress[val].color;
+      }
+      const dateLabel = row.querySelector('.deliv-date-label');
+      if (dateLabel){
+        dateLabel.textContent = val === 'done' ? 'Completed' : 'ETA';
+      }
+    });
+  });
+
+  // Save: snapshot the entire current page (including all edits) to this browser's
+  // local storage. Restoring it is now an explicit, opt-in action (see the banner
+  // below) rather than automatic on every load — auto-restoring via document.write()
+  // on every page open was slow and would silently override any newly deployed
+  // version of this page with whatever was saved previously.
+  const saveSnapshotBtn = document.getElementById('saveSnapshotBtn');
+  // Track unsaved changes: any edit, anywhere, flips the Save button to an
+  // "unsaved changes" state until the user actually clicks Save.
+  let hasUnsavedChanges = false;
+  function markDirty(){
+    if (hasUnsavedChanges) return;
+    hasUnsavedChanges = true;
+    saveSnapshotBtn.classList.add('has-changes');
+  }
+  document.addEventListener('input', markDirty, true);
+  document.addEventListener('change', markDirty, true);
+
+  saveSnapshotBtn.addEventListener('click', () => {
+    const label = saveSnapshotBtn.querySelector('.save-label');
+    const originalLabel = label.textContent;
+    try {
+      localStorage.setItem('tpa-dashboard-snapshot', '<!DOCTYPE html>\n' + document.documentElement.outerHTML);
+      hasUnsavedChanges = false;
+      saveSnapshotBtn.classList.remove('has-changes');
+      saveSnapshotBtn.classList.add('just-saved');
+      label.textContent = 'Saved!';
+    } catch (e) {
+      label.textContent = 'Save failed';
+      alert('Could not save — this browser may be blocking local storage (common in some private/incognito modes, or in a sandboxed preview). Try the real published link in a normal browser tab.');
+    }
+    setTimeout(() => {
+      saveSnapshotBtn.classList.remove('just-saved');
+      label.textContent = originalLabel;
+    }, 1800);
+  });
+
+  // Opt-in restore: just check for a snapshot's existence (cheap) — only actually
+  // restore it if the user clicks the button.
+  (function(){
+    let savedSnapshot;
+    try {
+      savedSnapshot = localStorage.getItem('tpa-dashboard-snapshot');
+    } catch (e) {
+      return;
+    }
+    if (!savedSnapshot) return;
+    const banner = document.getElementById('restoreBanner');
+    banner.style.display = 'flex';
+    document.getElementById('restoreBtn').addEventListener('click', () => {
+      document.open();
+      document.write(savedSnapshot);
+      document.close();
+    });
+    document.getElementById('dismissRestoreBtn').addEventListener('click', () => {
+      banner.style.display = 'none';
+    });
+  })();
+</script>
+
+</body>
+</html>

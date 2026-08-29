@@ -871,9 +871,9 @@
     font-weight:700; font-size:16px; padding:16px 22px; align-self:stretch;
     display:flex; align-items:center; letter-spacing:.02em;
   }
-  .meeting-tile-row{display:flex; flex:1; flex-wrap:wrap;}
+  .meeting-tile-row{display:grid; grid-template-columns:repeat(5, 1fr);}
   .meeting-tile{
-    flex:1; min-width:130px; padding:14px 18px; border-right:1px solid var(--line);
+    padding:14px 18px; border-right:1px solid var(--line); min-width:0;
     display:flex; flex-direction:column; gap:3px;
   }
   .meeting-tile:last-of-type{border-right:none;}
@@ -881,7 +881,7 @@
   .meeting-tile-label{font-size:9.5px; text-transform:uppercase; letter-spacing:.05em; font-weight:700; color:var(--ink-soft);}
   .meeting-tile-value{font-size:12px; font-family:'IBM Plex Mono',monospace; color:var(--ink); overflow-wrap:anywhere; word-break:break-word;}
   .meeting-tile-label-caption{
-    font-size:10px; font-weight:700; letter-spacing:.07em; text-transform:uppercase;
+    font-size:11.5px; font-weight:700; letter-spacing:.07em; text-transform:uppercase;
     color:var(--ink-soft); border-bottom:1.5px solid var(--line); padding-bottom:5px; margin-bottom:6px; display:block;
   }
   .meeting-banner-btn{
@@ -890,13 +890,17 @@
   }
   .meeting-banner-btn:hover{background:var(--brand-text);}
 
-  .meeting-tile.sponsor-tile{flex:0 0 auto; align-items:flex-start; min-width:150px;}
-  .sponsor-tile-logo{height:34px; width:auto; max-width:130px; object-fit:contain; align-self:center; margin-top:6px;}
+  .meeting-tile.sponsor-tile{align-items:flex-start;}
+  .sponsor-tile-logo{height:34px; width:auto; max-width:100%; object-fit:contain; align-self:center; margin-top:6px;}
   @media (max-width:900px){
     .meeting-banner{flex-direction:column; align-items:stretch;}
     .meeting-banner-label{padding:12px 18px;}
+    .meeting-tile-row{grid-template-columns:repeat(3, 1fr);}
     .meeting-tile{border-right:none; border-bottom:1px solid var(--line);}
     .meeting-banner-btn{padding:12px 18px;}
+  }
+  @media (max-width:560px){
+    .meeting-tile-row{grid-template-columns:repeat(2, 1fr);}
   }
 
   .savings-placeholder{text-align:center; padding:10px 0 4px;}

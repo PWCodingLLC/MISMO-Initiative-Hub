@@ -538,8 +538,13 @@
   .type-input:hover{background:var(--brand-soft); border-color:var(--line);}
   .type-input:focus{background:#fff; border-color:var(--brand); outline:none; box-shadow:0 0 0 2px var(--brand);}
 
-  .funnel-row{margin-bottom:14px;}
-  .funnel-row-top{display:flex; justify-content:space-between; font-size:12.5px; margin-bottom:6px;}
+  #funnelRoot{display:grid; grid-template-columns:repeat(3, 1fr); gap:16px 12px;}
+  @media (max-width:700px){#funnelRoot{grid-template-columns:repeat(2, 1fr);}}
+  @media (max-width:420px){#funnelRoot{grid-template-columns:1fr;}}
+  .pie-item{border:1px solid var(--line); border-radius:10px; padding:16px; display:flex; flex-direction:column; align-items:center; gap:10px; background:var(--card);}
+  .pie-name{font-size:12.5px; font-weight:700; text-align:center; line-height:1.3; color:var(--ink);}
+  .pie-total{font-size:11px; color:var(--ink-soft); font-family:'IBM Plex Mono',monospace;}
+  .pie-empty{width:90px; height:90px; border-radius:50%; border:1px dashed var(--line);}
   .funnel-row-top span:first-child{font-weight:600;}
   .funnel-row-top span:last-child{color:var(--ink-soft); font-family:'IBM Plex Mono',monospace; font-size:11.5px;}
 
@@ -681,9 +686,6 @@
   .kanban-card-actions{display:flex; gap:4px; justify-content:flex-end; margin-top:6px;}
   .empty-lane-note{font-size:13px; color:var(--ink-soft); font-style:italic; padding:18px 0; text-align:center; margin:0;}
   .primary-contact{vertical-align:top;}
-  .funnel-bar{display:flex; height:14px; border-radius:4px; overflow:hidden; background:var(--paper);}
-  .funnel-bar span{height:100%;}
-  .funnel-bar.empty{border:1px dashed var(--line); background:none;}
   .funnel-empty-label{font-size:11px; color:var(--ink-soft); padding:2px 0 0; font-style:italic;}
   .funnel-legend{display:flex; gap:14px; margin-top:12px; flex-wrap:wrap;}
   .funnel-legend-item{display:flex; align-items:center; gap:6px; font-size:11.5px; color:var(--ink-soft);}
@@ -1752,6 +1754,46 @@
     applyLockState();
   }
 
+  function polarToCartesian(cx, cy, r, angleDeg){
+    const rad = (angleDeg - 90) * Math.PI / 180;
+    return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+  }
+
+  function wedgePath(cx, cy, r, startAngle, endAngle){
+    // A full 360° arc can't be drawn as a single SVG arc — split it into two halves.
+    if (endAngle - startAngle >= 359.99){
+      const mid = startAngle + 180;
+      return wedgePath(cx, cy, r, startAngle, mid) + ' ' + wedgePath(cx, cy, r, mid, endAngle);
+    }
+    const start = polarToCartesian(cx, cy, r, endAngle);
+    const end = polarToCartesian(cx, cy, r, startAngle);
+    const largeArcFlag = endAngle - startAngle <= 180 ? '0' : '1';
+    return `M ${cx} ${cy} L ${start.x.toFixed(2)} ${start.y.toFixed(2)} A ${r} ${r} 0 ${largeArcFlag} 0 ${end.x.toFixed(2)} ${end.y.toFixed(2)} Z`;
+  }
+
+  // Every individual organization gets its own wedge (rather than one wedge per status),
+  // with a stroke around each wedge so adjacent same-color orgs stay visually distinct.
+  function buildOrgPie(counts, order, size){
+    const r = size / 2 - 2;
+    const cx = size / 2, cy = size / 2;
+    const totalOrgs = order.reduce((sum, [key]) => sum + counts[key], 0);
+    if (totalOrgs === 0){
+      return `<div class="pie-empty"></div>`;
+    }
+    const anglePerOrg = 360 / totalOrgs;
+    let angle = 0;
+    let paths = '';
+    order.forEach(([key, cssVar]) => {
+      for (let i = 0; i < counts[key]; i++){
+        const start = angle;
+        const end = angle + anglePerOrg;
+        paths += `<path d="${wedgePath(cx, cy, r, start, end)}" fill="var(${cssVar})" stroke="var(--card)" stroke-width="1.5"/>`;
+        angle = end;
+      }
+    });
+    return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${paths}</svg>`;
+  }
+
   function renderFunnel(){
     const counts = {};
     funnelCategories.forEach(cat => counts[cat] = {'not-applicable':0, 'not-started':0, 'planned':0, 'piloted':0, 'in-use':0});
@@ -1763,24 +1805,15 @@
     const order = [['not-applicable','--slate'], ['not-started','--status-red'], ['planned','--status-orange'], ['piloted','--status-yellow'], ['in-use','--status-green']];
     const root = document.getElementById('funnelRoot');
     let html = '';
-    funnelCategories.forEach((cat, i) => {
+    funnelCategories.forEach(cat => {
       const c = counts[cat];
       const total = c['not-applicable'] + c['not-started'] + c['planned'] + c['piloted'] + c['in-use'];
-      const lastStyle = i === funnelCategories.length - 1 ? ' style="margin-bottom:0;"' : '';
-      html += `<div class="funnel-row"${lastStyle}>`;
-      html += `<div class="funnel-row-top"><span>${cat}</span><span>${total > 0 ? total + ' org' + (total > 1 ? 's' : '') + ' tracked' : 'no roster data yet'}</span></div>`;
-      if (total === 0){
-        html += `<div class="funnel-bar empty"></div>`;
-      } else {
-        html += `<div class="funnel-bar">`;
-        order.forEach(([key, cssVar]) => {
-          if (c[key] > 0){
-            html += `<span style="width:${(c[key] / total * 100).toFixed(1)}%; background:var(${cssVar});"></span>`;
-          }
-        });
-        html += `</div>`;
-      }
-      html += `</div>`;
+      const pieHtml = buildOrgPie(c, order, 90);
+      html += `<div class="pie-item">
+        <div class="pie-name">${cat}</div>
+        ${pieHtml}
+        <div class="pie-total">${total > 0 ? total + ' org' + (total > 1 ? 's' : '') + ' tracked' : 'no roster data yet'}</div>
+      </div>`;
     });
     root.innerHTML = html;
   }

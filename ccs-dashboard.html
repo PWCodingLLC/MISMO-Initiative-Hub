@@ -915,6 +915,40 @@
     position:absolute; top:0; left:0; width:100%; height:100%; border:0;
   }
 
+  .meeting-schedule-wrap{
+    max-width:1180px; margin:22px auto 0; padding:0 24px;
+  }
+  .meeting-banner{
+    display:flex; align-items:center; gap:0; flex-wrap:wrap;
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    box-shadow:var(--shadow); padding:0; overflow:hidden;
+  }
+  .meeting-banner-label{
+    flex:0 0 auto; background:var(--ink); color:#fff; font-family:'Space Grotesk',sans-serif;
+    font-weight:700; font-size:13px; padding:16px 22px; align-self:stretch;
+    display:flex; align-items:center; letter-spacing:.02em;
+  }
+  .meeting-tile-row{display:flex; flex:1; flex-wrap:wrap;}
+  .meeting-tile{
+    flex:1; min-width:130px; padding:14px 18px; border-right:1px solid var(--line);
+    display:flex; flex-direction:column; gap:3px;
+  }
+  .meeting-tile:last-of-type{border-right:none;}
+  .meeting-tile-icon{font-size:14px; margin-bottom:2px;}
+  .meeting-tile-label{font-size:9.5px; text-transform:uppercase; letter-spacing:.05em; font-weight:700; color:var(--ink-soft);}
+  .meeting-tile-value{font-size:13px; font-family:'IBM Plex Mono',monospace; color:var(--ink);}
+  .meeting-banner-btn{
+    flex:0 0 auto; align-self:stretch; font-family:'Inter',sans-serif; font-size:12.5px; font-weight:700;
+    color:#fff; background:var(--brand); border:none; padding:0 22px; cursor:pointer; white-space:nowrap;
+  }
+  .meeting-banner-btn:hover{background:var(--brand-text);}
+  @media (max-width:900px){
+    .meeting-banner{flex-direction:column; align-items:stretch;}
+    .meeting-banner-label{padding:12px 18px;}
+    .meeting-tile{border-right:none; border-bottom:1px solid var(--line);}
+    .meeting-banner-btn{padding:12px 18px;}
+  }
+
   .savings-placeholder{text-align:center; padding:10px 0 4px;}
   .savings-placeholder .fig{font-family:'IBM Plex Mono',monospace; font-size:30px; font-weight:700; color:var(--ink);}
   .savings-placeholder .note{font-size:11.5px; color:var(--ink-soft); margin:4px 0 12px;}
@@ -1015,6 +1049,38 @@
   </div>
 </div>
 
+  <!-- WORKGROUP INFORMATION -->
+  <div class="meeting-schedule-wrap">
+    <section id="meeting-schedule">
+      <div class="meeting-banner">
+        <div class="meeting-banner-label">Workgroup Information</div>
+        <div class="meeting-tile-row">
+          <div class="meeting-tile">
+            <span class="meeting-tile-icon">👥</span>
+            <span class="meeting-tile-label">Name</span>
+            <span class="meeting-tile-value" contenteditable="true">Automated Valuation Model DWG</span>
+          </div>
+          <div class="meeting-tile">
+            <span class="meeting-tile-icon">🔁</span>
+            <span class="meeting-tile-label">Cadence</span>
+            <span class="meeting-tile-value" contenteditable="true">Weekly</span>
+          </div>
+          <div class="meeting-tile">
+            <span class="meeting-tile-icon">🕒</span>
+            <span class="meeting-tile-label">Time</span>
+            <span class="meeting-tile-value" contenteditable="true">4–5 PM</span>
+          </div>
+          <div class="meeting-tile">
+            <span class="meeting-tile-icon">🔗</span>
+            <span class="meeting-tile-label">Zoom link</span>
+            <span class="meeting-tile-value" contenteditable="true" data-placeholder="Add Zoom link"></span>
+          </div>
+        </div>
+        <button type="button" class="meeting-banner-btn" id="icsDownloadBtn">📅 Add to calendar</button>
+      </div>
+    </section>
+  </div>
+
 <!-- MANIFEST CHECK -->
 <div class="manifest">
   <div class="manifest-panel" id="manifestPanel">
@@ -1094,26 +1160,6 @@
             <div class="video-embed-wrap">
               <iframe src="https://www.youtube.com/embed/AZENuyaAYEc?si=hDb80YebmH5pbmk7" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
             </div>
-          </div>
-          <div class="overview-card">
-            <h3 class="overview-head">Meeting schedule</h3>
-            <div class="meeting-field">
-              <span class="meeting-field-label">Workgroup</span>
-              <span class="meeting-field-value" contenteditable="true">Automated Valuation Model DWG</span>
-            </div>
-            <div class="meeting-field">
-              <span class="meeting-field-label">Time</span>
-              <span class="meeting-field-value" contenteditable="true">4–5 PM</span>
-            </div>
-            <div class="meeting-field">
-              <span class="meeting-field-label">Cadence</span>
-              <span class="meeting-field-value" contenteditable="true">Weekly</span>
-            </div>
-            <div class="meeting-field">
-              <span class="meeting-field-label">Zoom link</span>
-              <span class="meeting-field-value" contenteditable="true" data-placeholder="Add Zoom link"></span>
-            </div>
-            <button type="button" class="ics-download-btn" id="icsDownloadBtn">📅 Download calendar invite</button>
           </div>
         </div>
 

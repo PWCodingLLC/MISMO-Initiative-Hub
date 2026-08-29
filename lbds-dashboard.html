@@ -858,6 +858,18 @@
     color:#fff; background:var(--brand); border:none; padding:0 22px; cursor:pointer; white-space:nowrap;
   }
   .meeting-banner-btn:hover{background:var(--brand-text);}
+
+  .sponsor-box{
+    display:flex; align-items:center; gap:12px;
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    box-shadow:var(--shadow); padding:12px 20px; margin-top:12px;
+  }
+  .sponsor-label{
+    font-family:'Space Grotesk',sans-serif; font-size:11.5px; font-weight:700;
+    color:var(--ink-soft); text-transform:uppercase; letter-spacing:.04em; white-space:nowrap;
+  }
+  .sponsor-logo{height:22px; width:auto; display:block;}
+  .sponsor-name{font-family:'Inter',sans-serif; font-size:13px; font-weight:700; color:var(--ink);}
   @media (max-width:900px){
     .meeting-banner{flex-direction:column; align-items:stretch;}
     .meeting-banner-label{padding:12px 18px;}
@@ -1001,6 +1013,10 @@
           </div>
         </div>
         <button type="button" class="meeting-banner-btn" id="icsDownloadBtn">📅 Add to calendar</button>
+      </div>
+      <div class="sponsor-box">
+        <span class="sponsor-label">Sponsored by</span>
+        <img src="mismo-logo.png" alt="MISMO" class="sponsor-logo">
       </div>
     </section>
   </div>

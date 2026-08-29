@@ -859,6 +859,18 @@
     color:#fff; background:var(--brand); border:none; padding:0 22px; cursor:pointer; white-space:nowrap;
   }
   .meeting-banner-btn:hover{background:var(--brand-text);}
+
+  .sponsor-box{
+    display:flex; align-items:center; gap:12px;
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    box-shadow:var(--shadow); padding:12px 20px; margin-top:12px;
+  }
+  .sponsor-label{
+    font-family:'Space Grotesk',sans-serif; font-size:11.5px; font-weight:700;
+    color:var(--ink-soft); text-transform:uppercase; letter-spacing:.04em; white-space:nowrap;
+  }
+  .sponsor-logo{height:22px; width:auto; display:block;}
+  .sponsor-name{font-family:'Inter',sans-serif; font-size:13px; font-weight:700; color:var(--ink);}
   @media (max-width:900px){
     .meeting-banner{flex-direction:column; align-items:stretch;}
     .meeting-banner-label{padding:12px 18px;}
@@ -1003,6 +1015,10 @@
         </div>
         <button type="button" class="meeting-banner-btn" id="icsDownloadBtn">📅 Add to calendar</button>
       </div>
+      <div class="sponsor-box">
+        <span class="sponsor-label">Sponsored by</span>
+        <img src="asurity-logo.png" alt="Asurity" class="sponsor-logo">
+      </div>
     </section>
   </div>
 
@@ -1030,11 +1046,9 @@
             </ol>
           </div>
 
-          <div class="overview-card video-card">
-            <div class="video-card-inner">
-              <span class="play-btn-lg" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg></span>
-              <div class="video-title" contenteditable="true">MCD Specification<br>Walkthrough</div>
-              <div class="video-cta" contenteditable="true">Lynn Calahan, Alpha7X ▷</div>
+          <div class="overview-card" style="padding:0; overflow:hidden;">
+            <div class="video-embed-wrap">
+              <iframe src="https://www.youtube.com/embed/udRz2GbwKEI?si=u231L_8herTD6yCk" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
             </div>
           </div>
         </div>
@@ -1042,8 +1056,8 @@
         <div class="overview-col">
           <div class="overview-card">
             <h3 class="overview-head">Who brought this to MISMO?</h3>
-            <p class="origin-line"><strong>Brought by:</strong> <span contenteditable="true">MISMO, in partnership with the Conference of State Bank Supervisors (CSBS) · sponsored by Asurity</span></p>
-            <p class="origin-line"><strong>Date started:</strong> <span contenteditable="true">Not specified in source materials</span></p>
+            <p class="origin-line"><strong>Brought by:</strong> <span contenteditable="true">MISMO, in partnership with the Conference of State Bank Supervisors (CSBS)</span></p>
+            <p class="origin-line"><strong>Date started:</strong> <span contenteditable="true">July 2022</span></p>
             <p class="origin-line"><strong>Why:</strong> <span contenteditable="true">To replace the inconsistent Loan Examination File (LEF) format with a standardized compliance dataset that lenders and regulators could test loans against consistently.</span></p>
             <p class="origin-line" style="margin-bottom:0; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
               <strong>Status:</strong>

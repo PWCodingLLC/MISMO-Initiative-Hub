@@ -51,6 +51,7 @@
        light mode match the original dark-navy-bar-with-white-text look. */
     --bar-bg:#101B33;
     --header-bg:#101B33;
+    --header-bg-hover:#1C2B4D;
     --header-text:#fff;
     --header-text-soft:rgba(255,255,255,.65);
   }
@@ -91,6 +92,7 @@
     --dwg-soft:#2A2040;
 
     --header-bg:#F1F3F9;
+    --header-bg-hover:#E3E7EF;
     --header-text:#101B33;
     --header-text-soft:rgba(16,27,51,.65);
 
@@ -257,7 +259,7 @@
   }
   .save-toggle-btn svg{flex:0 0 auto; display:block;}
   .save-toggle-btn:hover{background:var(--brand-soft); border-color:var(--brand); color:var(--brand-text);}
-  .save-toggle-btn.just-saved{background:var(--success); border-color:var(--success); color:#fff;}
+  .save-toggle-btn.just-saved{background:var(--success); border-color:var(--success); color:var(--header-text);}
   .save-toggle-btn.has-changes{background:var(--amber-soft); border-color:var(--amber); color:var(--amber-text);}
   .save-toggle-btn.has-changes:hover{background:var(--amber); color:#fff;}
   .save-toggle-btn .dirty-dot{
@@ -710,6 +712,8 @@
     border:1px solid var(--line);
     border-radius:6px;
     width:100%;
+    background:var(--card);
+    color:var(--ink);
   }
   .contact-edit-actions{display:flex; gap:6px; margin-top:2px;}
   .contact-save-btn{
@@ -777,6 +781,8 @@
     border-radius:8px;
     border:1px solid var(--line);
     min-width:200px;
+    background:var(--card);
+    color:var(--ink);
   }
   .highlight-row{background:var(--signal-soft) !important;}
 
@@ -933,7 +939,7 @@
   .restore-banner-text{font-size:13px; color:var(--amber-text); font-weight:600;}
   .restore-banner-actions{display:flex; gap:8px; flex:0 0 auto;}
   .restore-btn{
-    font-family:'Inter',sans-serif; font-size:12.5px; font-weight:700; color:#fff;
+    font-family:'Inter',sans-serif; font-size:12.5px; font-weight:700; color:var(--header-text);
     background:var(--amber); border:none; border-radius:999px; padding:7px 16px; cursor:pointer;
   }
   .restore-btn:hover{background:var(--amber-text);}
@@ -971,10 +977,11 @@
   }
   .meeting-banner-btn{
     font-family:'Inter',sans-serif; font-size:15px; font-weight:700; min-width:0;
-    color:#fff; background:var(--bar-bg); border:none; padding:16px 18px; cursor:pointer;
-    display:flex; align-items:center; justify-content:center; text-align:center; white-space:normal;
+    color:var(--header-text); background:var(--header-bg); border:none; padding:16px 18px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:8px; text-align:center; white-space:normal;
   }
-  .meeting-banner-btn:hover{background:#000;}
+  .meeting-banner-btn svg{flex:0 0 auto;}
+  .meeting-banner-btn:hover{background:var(--header-bg-hover);}
 
   .meeting-tile.sponsor-tile{align-items:flex-start;}
   .sponsor-tile-logo{height:34px; width:auto; max-width:100%; object-fit:contain; align-self:center; margin-top:6px; background:#fff; padding:6px 12px; border-radius:6px;}
@@ -1021,7 +1028,7 @@
   .prog-track{width:64px; height:6px; background:#DDE6FA; border-radius:4px;}
   .prog-fill{height:100%; border-radius:4px;}
   .deliv-pill{display:inline-block; font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:5px; color:#fff; white-space:nowrap;}
-  .deliv-pill.done{background:var(--success);}
+  .deliv-pill.done{background:var(--success); color:var(--header-text);}
   .deliv-pill.progress{background:var(--amber); color:#4A3300;}
   .deliv-pill.notstarted{background:var(--signal);}
 

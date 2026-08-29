@@ -973,6 +973,8 @@
   .meeting-tile-icon{display:none;}
   .meeting-tile-label{font-size:9.5px; text-transform:uppercase; letter-spacing:.05em; font-weight:700; color:var(--ink-soft);}
   .meeting-tile-value{font-size:12px; font-family:'IBM Plex Mono',monospace; color:var(--ink); overflow-wrap:anywhere; word-break:break-word;}
+  a.meeting-tile-value{text-decoration:underline; text-decoration-color:var(--line); text-underline-offset:2px; cursor:pointer;}
+  a.meeting-tile-value:hover{color:var(--brand-text); text-decoration-color:var(--brand-text);}
   .meeting-tile-label-caption{
     font-size:11.5px; font-weight:700; letter-spacing:.07em; text-transform:uppercase;
     color:var(--ink-soft); border-bottom:1.5px solid var(--line); padding-bottom:5px; margin-bottom:6px; display:block;
@@ -1143,7 +1145,7 @@
           </div>
           <div class="meeting-tile">
             <span class="meeting-tile-label-caption">Zoom link</span>
-            <span class="meeting-tile-value" contenteditable="true" data-placeholder="Add Zoom link">https://mba-org.zoom.us/j/88042907892</span>
+            <a class="meeting-tile-value" href="https://mba-org.zoom.us/j/88042907892" target="_blank" rel="noopener">https://mba-org.zoom.us/j/88042907892</a>
           </div>
         </div>
         <button type="button" class="meeting-banner-btn" id="icsDownloadBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Add to calendar</button>

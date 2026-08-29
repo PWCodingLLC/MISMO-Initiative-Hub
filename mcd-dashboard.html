@@ -242,6 +242,20 @@
   .back-to-hub:hover{background:var(--brand-soft); border-color:var(--brand);}
   .masthead-actions-row{display:flex; flex-direction:row; gap:8px;}
 
+  /* Floating action stack: Locked, Save, and the theme toggle live here instead of
+     inline in the masthead, so they stay reachable at the top-right of the viewport
+     no matter how far down the page you've scrolled. */
+  .floating-actions{
+    position:fixed;
+    top:20px;
+    right:20px;
+    z-index:200;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    gap:8px;
+  }
+
   /* ---------- LOCK MODE ---------- */
   .lock-toggle-btn{
     display:flex; align-items:center; gap:7px;
@@ -1106,23 +1120,24 @@
     </div>
     <div class="masthead-right">
       <a class="back-to-hub" href="index.html">← Back to Initiative Hub</a>
-      <div class="masthead-actions-row">
-        <button type="button" id="saveSnapshotBtn" class="save-toggle-btn" title="Save your current edits so they survive a page refresh">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"></path><path d="M17 21v-8H7v8"></path><path d="M7 3v5h8"></path></svg>
-          <span class="save-label">Save</span>
-          <span class="dirty-dot" aria-hidden="true"></span>
-        </button>
-        <button type="button" id="lockToggleBtn" class="lock-toggle-btn" aria-pressed="true" title="Unlock to allow edits">
-          <span class="lock-icon" aria-hidden="true"></span><span class="lock-label">Locked</span>
-        </button>
-        <button type="button" id="themeToggleBtn" class="theme-toggle-btn" aria-label="Switch to dark mode" title="Switch to dark mode">
-          <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 3v2M12 19v2M5 5l1.5 1.5M17.5 17.5L19 19M3 12h2M19 12h2M5 19l1.5-1.5M17.5 6.5L19 5"/></svg>
-          <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z"/></svg>
-        </button>
-      </div>
       <span class="section-note mono">Draft v1 · not affiliated with Smartsheet</span>
     </div>
   </div>
+</div>
+
+<div class="floating-actions">
+  <button type="button" id="lockToggleBtn" class="lock-toggle-btn" aria-pressed="true" title="Unlock to allow edits">
+    <span class="lock-icon" aria-hidden="true"></span><span class="lock-label">Locked</span>
+  </button>
+  <button type="button" id="saveSnapshotBtn" class="save-toggle-btn" title="Save your current edits so they survive a page refresh">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"></path><path d="M17 21v-8H7v8"></path><path d="M7 3v5h8"></path></svg>
+    <span class="save-label">Save</span>
+    <span class="dirty-dot" aria-hidden="true"></span>
+  </button>
+  <button type="button" id="themeToggleBtn" class="theme-toggle-btn" aria-label="Switch to dark mode" title="Switch to dark mode">
+    <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 3v2M12 19v2M5 5l1.5 1.5M17.5 17.5L19 19M3 12h2M19 12h2M5 19l1.5-1.5M17.5 6.5L19 5"/></svg>
+    <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z"/></svg>
+  </button>
 </div>
 
   <div id="restoreBanner" class="restore-banner" style="display:none;">
@@ -1264,7 +1279,7 @@
   <!-- STAKEHOLDERS -->
   <section id="stakeholders">
     <div class="section-head">
-      <h2>Stakeholder participation &amp; implementation</h2>
+      <h2>Stakeholder Role &amp; Benefits</h2>
       <span class="section-note" id="adoptionNote">11 of 19 tracked orgs are piloting or live · funnel computed live from the roster</span>
     </div>
     <p class="section-subtext">Who's involved, how critical they are, and their current implementation status.</p>
@@ -1297,7 +1312,7 @@
       </div>
     </div>
 
-    <h3 class="card-dark-bar" style="margin:0 0 4px;">Stakeholder engagement roster</h3>
+    <h3 class="card-dark-bar" style="margin:0 0 4px; text-transform:uppercase;">Stakeholder engagement roster</h3>
     <p class="section-subtext" style="margin:0 0 12px;">"Active participants" = attended at least 1/3 of the 21 workgroup meetings held in the past year (Aug 2025–Aug 2026), per the uploaded meeting tracker.</p>
     <div class="card" style="padding:18px;" id="roster">
       <div class="roster-controls">

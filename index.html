@@ -62,7 +62,8 @@
   .calendar-link-text{display:flex; flex-direction:column; gap:1px;}
   .calendar-link-title{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13.5px;}
   .calendar-link-sub{font-size:11px; opacity:.8;}
-  .masthead-actions{display:flex; align-items:center; gap:10px; flex:0 0 auto;}
+  .masthead-actions{display:flex; flex-direction:column; align-items:flex-end; gap:10px; flex:0 0 auto;}
+  .masthead-actions-row{display:flex; align-items:center; gap:10px;}
   .theme-toggle{
     display:flex; align-items:center; justify-content:center; flex:0 0 auto;
     width:48px; height:48px; border-radius:50%; border:1px solid var(--line); background:var(--card);
@@ -198,13 +199,15 @@
           <span class="calendar-link-sub">See all workgroup schedules →</span>
         </div>
       </a>
-      <button type="button" class="theme-toggle" id="replayTourBtn" aria-label="Replay the color tour with sound" title="Replay with sound">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 6a9 9 0 0 1 0 12"/></svg>
-      </button>
-      <button type="button" class="theme-toggle" id="themeToggleBtn" aria-label="Toggle dark mode">
-        <svg class="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 3v2M12 19v2M5 5l1.5 1.5M17.5 17.5L19 19M3 12h2M19 12h2M5 19l1.5-1.5M17.5 6.5L19 5"/></svg>
+      <div class="masthead-actions-row">
+        <button type="button" class="theme-toggle" id="replayTourBtn" aria-label="Replay the color tour with sound" title="Replay with sound">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 6a9 9 0 0 1 0 12"/></svg>
+        </button>
+        <button type="button" class="theme-toggle" id="themeToggleBtn" aria-label="Toggle dark mode" title="Toggle dark mode">
+          <svg class="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 3v2M12 19v2M5 5l1.5 1.5M17.5 17.5L19 19M3 12h2M19 12h2M5 19l1.5-1.5M17.5 6.5L19 5"/></svg>
         <svg class="icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z"/></svg>
       </button>
+      </div>
     </div>
   </div>
 </div>

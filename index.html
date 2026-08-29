@@ -386,7 +386,7 @@
     osc.stop(startTime + duration);
   }
 
-  function playIntroColorTour(){
+  function playIntroColorTour(withSound){
     const tiles = [...tileGrid.querySelectorAll('.domain-tile')];
     // Group tiles into visual rows based on their actual rendered top offset,
     // so this adapts correctly at any screen width (3 columns, 2, or 1).
@@ -404,14 +404,15 @@
 
     // Descending tones, one per row, high to low — then a short ascending
     // three-note flourish once every row has had its turn (Close Encounters-ish).
-    const rowNotes = [880.00, 587.33, 440.00]; // A5, D5, A4
-    const flourishNotes = [523.25, 659.25, 783.99]; // C5, E5, G5
+    // Dropped one octave from the original pitch per feedback.
+    const rowNotes = [440.00, 293.66, 220.00]; // A4, D4, A3
+    const flourishNotes = [261.63, 329.63, 392.00]; // C4, E4, G4
 
-    const ctx = getAudioContext();
-    // On an automatic page-load run (no click involved) the browser will keep this
-    // suspended no matter what we call here — that's expected. audioIsLive() below
-    // checks the real state at play-time rather than assuming resume() worked.
-    if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {});
+    // withSound is only ever true when this was called from a real click/tap/keypress
+    // (see the button and first-interaction handlers below) — the automatic on-load
+    // pass always calls this with withSound=false, so no audio is attempted at all
+    // on load, and it can't ever play twice.
+    const ctx = withSound ? getAudioContext() : null;
     function audioIsLive(){ return ctx && ctx.state === 'running'; }
 
     rows.forEach((row, i) => {
@@ -435,16 +436,16 @@
       }, flourishStart + i * 220);
     });
   }
-  playIntroColorTour();
+  playIntroColorTour(false);
 
   // A real click is a genuine user gesture, so this button reliably unlocks audio —
   // unlike the automatic run above, sound is guaranteed to work here.
   function playWithUnlockedAudio(){
     const ctx = getAudioContext();
     if (ctx && ctx.state === 'suspended'){
-      ctx.resume().then(playIntroColorTour);
+      ctx.resume().then(() => playIntroColorTour(true));
     } else {
-      playIntroColorTour();
+      playIntroColorTour(true);
     }
   }
 

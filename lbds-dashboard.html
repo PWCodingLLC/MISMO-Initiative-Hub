@@ -178,11 +178,12 @@
     gap:10px;
   }
   .back-to-hub{
-    font-family:'Inter',sans-serif; font-size:12.5px; font-weight:600;
+    font-family:'Inter',sans-serif; font-size:14.5px; font-weight:700;
     color:var(--brand-text); text-decoration:none;
-    padding:6px 12px; border:1px solid var(--line); border-radius:999px; background:var(--card);
+    padding:10px 20px; border:1px solid var(--line); border-radius:999px; background:var(--card);
   }
   .back-to-hub:hover{background:var(--brand-soft); border-color:var(--brand);}
+  .masthead-actions-row{display:flex; flex-direction:row; gap:8px;}
 
   /* ---------- LOCK MODE ---------- */
   .lock-toggle-btn{
@@ -499,11 +500,10 @@
   /* ---------- STAKEHOLDERS ---------- */
   .stake-layout{
     display:grid;
-    grid-template-columns:1.1fr 1fr;
+    grid-template-columns:1fr;
     gap:18px;
     margin-bottom:20px;
   }
-  @media (max-width:900px){ .stake-layout{grid-template-columns:1fr;} }
   .stake-card{padding:18px;}
   .stake-card h3{font-size:14px; margin-bottom:12px;}
   .crit-star{color:var(--amber-text); font-weight:700;}
@@ -971,15 +971,17 @@
       </div>
     </div>
     <div class="masthead-right">
-      <button type="button" id="saveSnapshotBtn" class="save-toggle-btn" title="Save your current edits so they survive a page refresh">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"></path><path d="M17 21v-8H7v8"></path><path d="M7 3v5h8"></path></svg>
-        <span class="save-label">Save</span>
-        <span class="dirty-dot" aria-hidden="true"></span>
-      </button>
-      <button type="button" id="lockToggleBtn" class="lock-toggle-btn" aria-pressed="true" title="Unlock to allow edits">
-        <span class="lock-icon" aria-hidden="true"></span><span class="lock-label">Locked</span>
-      </button>
       <a class="back-to-hub" href="index.html">← Back to Initiative Hub</a>
+      <div class="masthead-actions-row">
+        <button type="button" id="saveSnapshotBtn" class="save-toggle-btn" title="Save your current edits so they survive a page refresh">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"></path><path d="M17 21v-8H7v8"></path><path d="M7 3v5h8"></path></svg>
+          <span class="save-label">Save</span>
+          <span class="dirty-dot" aria-hidden="true"></span>
+        </button>
+        <button type="button" id="lockToggleBtn" class="lock-toggle-btn" aria-pressed="true" title="Unlock to allow edits">
+          <span class="lock-icon" aria-hidden="true"></span><span class="lock-label">Locked</span>
+        </button>
+      </div>
       <span class="section-note mono">Draft v1 · not affiliated with Smartsheet</span>
     </div>
   </div>

@@ -1011,7 +1011,7 @@
           </div>
           <div class="meeting-tile sponsor-tile">
             <span class="meeting-tile-label">Sponsored by</span>
-            <span class="meeting-tile-value" contenteditable="true">Snapdocs (Camelia Martin)</span>
+            <img src="mismo-logo.png" alt="MISMO" class="sponsor-tile-logo">
           </div>
           <div class="meeting-tile">
             <span class="meeting-tile-icon">🔁</span>
@@ -1029,7 +1029,6 @@
             <span class="meeting-tile-value" contenteditable="true" data-placeholder="Add Zoom link"></span>
           </div>
         </div>
-        <p class="section-note" style="margin:8px 20px 0; padding:0;">Workgroup, cadence, and meeting details are TBD — this initiative is still in Discovery, with a kickoff workshop at MISMO's Fall Summit (Reston, VA), Wednesday, August 26, 1:30–4:30 PM ET.</p>
       </div>
     </section>
   </div>
@@ -1087,7 +1086,7 @@
             <h3 class="overview-head">Work product deliverables</h3>
             <table class="deliverables-table">
               <tr><th>Primary</th><th>Progress</th><th>Status</th><th>Date</th></tr>
-              <tr><td contenteditable="true">Industry Template Master Bailee Agreement (v1)</td><td><div class="prog-track"><div class="prog-fill deliv-progress-fill" style="width:0%;"></div></div></td><td><select class="deliv-pill notstarted deliv-status-select"><option value="notstarted" selected>Not Started</option><option value="progress">In Progress</option><option value="done">Done</option></select></td><td><div class="deliv-date-wrap"><span class="deliv-date-label">ETA</span><input type="date" class="deliv-date-input" value=""></div></td></tr>
+              <tr><td contenteditable="true">Industry Template Master Bailee Agreement (v1)</td><td><div class="prog-track"><div class="prog-fill deliv-progress-fill" style="width:0%;"></div></div></td><td><select class="deliv-pill notstarted deliv-status-select"><option value="notstarted" selected>Not Started</option><option value="progress">In Progress</option><option value="done">Done</option></select></td><td><div class="deliv-date-wrap"><span class="deliv-date-label">Expected Publication Date</span><input type="date" class="deliv-date-input" value=""></div></td></tr>
             </table>
             <p class="section-note" style="margin-top:10px;" contenteditable="true">Scope, out-of-scope items, and any further deliverables are TBD pending the Discovery workshop — the source Work Request form leaves these fields open.</p>
           </div>
@@ -1840,7 +1839,7 @@
       }
       const dateLabel = row.querySelector('.deliv-date-label');
       if (dateLabel){
-        dateLabel.textContent = val === 'done' ? 'Completed' : 'ETA';
+        dateLabel.textContent = val === 'done' ? 'Completed' : 'Expected Publication Date';
       }
     });
   });

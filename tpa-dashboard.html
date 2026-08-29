@@ -1388,7 +1388,7 @@
     }
   };
 
-  let currentLane = 'general';
+  let currentLane = 'tech';
   let currentView = 'compact';
   let editingTaskIdx = null; // null = none, 'new' = adding, number = editing that index
   const laneRoot = document.getElementById('commandLayout');
@@ -1507,7 +1507,13 @@
 
   function renderChips(){
     const chipRow = document.getElementById('chipRow');
-    chipRow.innerHTML = Object.keys(laneData).map(key => {
+    // Alphabetical by label, with "general" always sorted last.
+    const orderedKeys = Object.keys(laneData).sort((a, b) => {
+      if (a === 'general') return 1;
+      if (b === 'general') return -1;
+      return (laneLabels[a] || a).localeCompare(laneLabels[b] || b);
+    });
+    chipRow.innerHTML = orderedKeys.map(key => {
       const hasRoadblocks = laneData[key].roadblocks.length > 0;
       const flag = hasRoadblocks ? '<span class="lane-chip-flag">⚑</span>' : '';
       const selected = key === currentLane ? 'true' : 'false';

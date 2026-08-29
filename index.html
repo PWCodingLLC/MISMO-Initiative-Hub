@@ -14,14 +14,26 @@
     --teal:#0E9488; --gold:#D97706; --rose:#C2255C; --violet:#7C3AED; --fuchsia:#C026D3; --graphite:#475569;
     --success-soft:#E7F7EE; --success-text:#157A44;
     --slate:#8B94A7; --slate-soft:#EEF0F4; --slate-text:#5B6478;
+    --badge-ink:#101B33;
     --radius:14px; --shadow:0 1px 2px rgba(16,27,51,.04), 0 4px 14px rgba(16,27,51,.05);
   }
+  html[data-theme="dark"]{
+    --ink:#E8EAF0; --ink-soft:#A0A8C0; --paper:#0B0F1C; --card:#161C30; --line:#2A3150;
+    --brand:#5B85FF; --brand-soft:#1A2745; --brand-text:#9AB8FF;
+    --teal:#14B8A6; --gold:#F0930D; --rose:#E0417A; --violet:#9660F5; --fuchsia:#D946E4; --graphite:#64748B;
+    --success-soft:#123024; --success-text:#4ADE80;
+    --slate:#6B7488; --slate-soft:#202536; --slate-text:#A0A8C0;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 4px 14px rgba(0,0,0,.35);
+  }
   *{box-sizing:border-box;}
-  body{margin:0; background:var(--paper); color:var(--ink); font-family:'Inter',sans-serif;}
-  .masthead{padding:36px 24px 24px; background:var(--card); border-bottom:1px solid var(--line);}
+  body{
+    margin:0; background:var(--paper); color:var(--ink); font-family:'Inter',sans-serif;
+    transition:background .2s ease, color .2s ease;
+  }
+  .masthead{padding:36px 24px 24px; background:var(--card); border-bottom:1px solid var(--line); transition:background .2s ease, border-color .2s ease;}
   .masthead-inner{max-width:1100px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:24px; flex-wrap:wrap;}
   .eyebrow-row{display:flex; align-items:center; gap:10px; margin-bottom:12px;}
-  .sponsor-mark{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:11px; letter-spacing:.06em; background:var(--ink); color:#fff; padding:3px 8px; border-radius:4px;}
+  .sponsor-mark{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:11px; letter-spacing:.06em; background:var(--badge-ink); color:#fff; padding:3px 8px; border-radius:4px;}
   .eyebrow{font-size:12.5px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft);}
   h1{font-size:30px; font-weight:700; margin:0;}
   .subtitle{font-size:14px; color:var(--ink-soft); max-width:560px; margin-top:8px;}
@@ -35,6 +47,17 @@
   .calendar-link-text{display:flex; flex-direction:column; gap:1px;}
   .calendar-link-title{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13.5px;}
   .calendar-link-sub{font-size:11px; opacity:.8;}
+  .masthead-actions{display:flex; align-items:center; gap:10px; flex:0 0 auto;}
+  .theme-toggle{
+    display:flex; align-items:center; justify-content:center; flex:0 0 auto;
+    width:48px; height:48px; border-radius:50%; border:1px solid var(--line); background:var(--card);
+    color:var(--ink-soft); cursor:pointer; transition:background .15s ease, border-color .15s ease, color .15s ease;
+  }
+  .theme-toggle:hover{background:var(--brand-soft); border-color:var(--brand); color:var(--brand-text);}
+  .theme-toggle svg{width:20px; height:20px;}
+  .theme-toggle .icon-moon{display:none;}
+  html[data-theme="dark"] .theme-toggle .icon-sun{display:none;}
+  html[data-theme="dark"] .theme-toggle .icon-moon{display:block;}
 
   .wrap{max-width:1100px; margin:0 auto; padding:28px 24px 70px;}
 
@@ -46,7 +69,7 @@
   .domain-tile{
     border:2px solid var(--line); border-radius:var(--radius); background:var(--card); cursor:pointer;
     padding:18px 16px; display:flex; flex-direction:column; gap:24px; min-height:92px; text-align:left;
-    transition:border-color .15s ease, transform .15s ease;
+    transition:border-color .15s ease, transform .15s ease, background .2s ease;
   }
   .domain-tile:hover{transform:translateY(-2px);}
   .domain-tile.active{border-color:var(--tile-color); background:var(--tile-soft);}
@@ -62,7 +85,7 @@
 
   .panel{
     background:var(--card); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow);
-    padding:26px 26px 24px; color:var(--ink);
+    padding:26px 26px 24px; color:var(--ink); transition:background .2s ease, border-color .2s ease;
   }
   .panel-head{display:flex; align-items:center; gap:12px; margin-bottom:20px;}
   .panel-icon-wrap{
@@ -76,7 +99,7 @@
   .init-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
   @media (max-width:760px){.init-grid{grid-template-columns:1fr;}}
 
-  .init-card{border:1px solid var(--line); border-radius:12px; padding:18px 19px; background:var(--paper);}
+  .init-card{border:1px solid var(--line); border-radius:12px; padding:18px 19px; background:var(--paper); transition:background .2s ease, border-color .2s ease;}
   .init-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:4px;}
   .init-title{font-family:'Space Grotesk',sans-serif; font-size:15px; font-weight:700; color:var(--ink);}
   .badge-row{display:flex; gap:6px; flex-wrap:wrap; flex:0 0 auto;}
@@ -128,13 +151,19 @@
       <h1>Welcome to the MISMO Initiative Hub</h1>
       <p class="subtitle">Explore active workgroup initiatives organized by domain — pick a domain below to see what's being built, who's involved, and how far along it is.</p>
     </div>
-    <a class="calendar-link" href="calendar.html">
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-      <div class="calendar-link-text">
-        <span class="calendar-link-title">Meeting Calendar</span>
-        <span class="calendar-link-sub">See all workgroup schedules →</span>
-      </div>
-    </a>
+    <div class="masthead-actions">
+      <a class="calendar-link" href="calendar.html">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        <div class="calendar-link-text">
+          <span class="calendar-link-title">Meeting Calendar</span>
+          <span class="calendar-link-sub">See all workgroup schedules →</span>
+        </div>
+      </a>
+      <button type="button" class="theme-toggle" id="themeToggleBtn" aria-label="Toggle dark mode">
+        <svg class="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 3v2M12 19v2M5 5l1.5 1.5M17.5 17.5L19 19M3 12h2M19 12h2M5 19l1.5-1.5M17.5 6.5L19 5"/></svg>
+        <svg class="icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z"/></svg>
+      </button>
+    </div>
   </div>
 </div>
 
@@ -297,6 +326,32 @@
 
   renderTiles();
   renderPanel();
+
+  // Dark mode: check for a saved preference (this is a real hosted site, not a
+  // sandboxed preview, so localStorage works normally and persists across visits).
+  const themeToggleBtn = document.getElementById('themeToggleBtn');
+  function applyTheme(theme){
+    document.documentElement.setAttribute('data-theme', theme);
+    themeToggleBtn.setAttribute('aria-pressed', theme === 'dark' ? 'true' : 'false');
+  }
+  let savedTheme = 'light';
+  try {
+    savedTheme = localStorage.getItem('mismo-hub-theme') || 'light';
+  } catch (e) {
+    // Local storage unavailable — just default to light mode.
+  }
+  applyTheme(savedTheme);
+
+  themeToggleBtn.addEventListener('click', () => {
+    const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    const next = current === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+    try {
+      localStorage.setItem('mismo-hub-theme', next);
+    } catch (e) {
+      // Local storage unavailable — the toggle still works, it just won't persist.
+    }
+  });
 </script>
 
 </body>

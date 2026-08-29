@@ -105,8 +105,9 @@
   }
 
   /* ---------- CARD GRID ---------- */
-  .grid{display:grid; grid-template-columns:repeat(2,1fr); gap:18px;}
-  @media (max-width:760px){ .grid{grid-template-columns:1fr;} }
+  .grid{display:grid; grid-template-columns:repeat(3,1fr); gap:18px;}
+  @media (max-width:980px){ .grid{grid-template-columns:repeat(2,1fr);} }
+  @media (max-width:600px){ .grid{grid-template-columns:1fr;} }
 
   .card{
     border:1px solid var(--line);
@@ -304,7 +305,7 @@
   ];
 
   function renderCard(item){
-    const domainTags = item.domains.map(d => {
+    const domainTags = [...item.domains].sort((a, b) => a.localeCompare(b)).map(d => {
       const dClass = domainClass[d] || 'servicing';
       return `<span class="domain-tag ${dClass}">${d}</span>`;
     }).join('');

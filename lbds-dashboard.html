@@ -205,6 +205,12 @@
   .save-toggle-btn svg{flex:0 0 auto; display:block;}
   .save-toggle-btn:hover{background:var(--brand-soft); border-color:var(--brand); color:var(--brand-text);}
   .save-toggle-btn.just-saved{background:var(--success); border-color:var(--success); color:#fff;}
+  .save-toggle-btn.has-changes{background:var(--amber-soft); border-color:var(--amber); color:var(--amber-text);}
+  .save-toggle-btn.has-changes:hover{background:var(--amber); color:#fff;}
+  .save-toggle-btn .dirty-dot{
+    width:6px; height:6px; border-radius:50%; background:var(--amber); display:none; flex:0 0 auto;
+  }
+  .save-toggle-btn.has-changes .dirty-dot{display:block;}
 
   body.locked [contenteditable="true"]{
     pointer-events:none;
@@ -771,8 +777,8 @@
   @media (max-width:900px){ .overview-grid{grid-template-columns:1fr;} }
   .overview-col{display:flex; flex-direction:column; gap:14px;}
   .overview-card{
-    background:var(--brand-soft);
-    border:1px solid #C7D6F7;
+    background:var(--card);
+    border:1px solid var(--line);
     border-radius:8px;
     padding:16px 18px;
     box-shadow:none;
@@ -780,7 +786,7 @@
   .overview-head{
     font-size:14px;
     font-weight:700;
-    color:var(--brand-text);
+    color:var(--ink);
     text-decoration:underline;
     margin:0 0 10px;
     display:inline-block;
@@ -852,6 +858,18 @@
     color:#fff; background:var(--brand); border:none; padding:0 22px; cursor:pointer; white-space:nowrap;
   }
   .meeting-banner-btn:hover{background:var(--brand-text);}
+  .meeting-banner-actions{display:flex; flex:0 0 auto; align-self:stretch;}
+  .meeting-banner-actions .meeting-banner-btn{border-radius:0;}
+  .meeting-banner-actions .outlook-btn{
+    background:var(--ink); color:#fff; text-decoration:none;
+    display:flex; align-items:center; font-family:'Inter',sans-serif; font-size:12.5px; font-weight:700;
+    padding:0 22px; white-space:nowrap;
+  }
+  .meeting-banner-actions .outlook-btn:hover{background:#000;}
+  @media (max-width:900px){
+    .meeting-banner-actions{flex-direction:column;}
+    .meeting-banner-actions .outlook-btn{padding:12px 18px;}
+  }
   @media (max-width:900px){
     .meeting-banner{flex-direction:column; align-items:stretch;}
     .meeting-banner-label{padding:12px 18px;}
@@ -865,18 +883,18 @@
 
   .roi-link{
     display:block; text-align:center; font-size:12px; font-weight:600;
-    color:var(--brand-text); text-decoration:none; margin-top:8px;
+    color:var(--ink-soft); text-decoration:none; margin-top:8px;
   }
   .roi-link:hover{text-decoration:underline;}
   .roi-link.disabled{color:var(--slate-text); pointer-events:none; font-style:italic; font-weight:500;}
 
   .savings-value-row{display:flex; justify-content:space-between; font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:18px; margin-bottom:10px;}
-  .savings-track{height:6px; background:#C7D6F7; border-radius:4px; position:relative; margin:0 6px 16px;}
-  .savings-fill{position:absolute; left:14%; right:8%; top:0; height:100%; background:var(--brand); border-radius:4px;}
-  .savings-handle{position:absolute; top:50%; width:14px; height:14px; background:var(--brand); border:2px solid #fff; border-radius:50%; transform:translate(-50%,-50%); box-shadow:0 0 0 1px var(--brand);}
+  .savings-track{height:6px; background:var(--line); border-radius:4px; position:relative; margin:0 6px 16px;}
+  .savings-fill{position:absolute; left:14%; right:8%; top:0; height:100%; background:var(--ink); border-radius:4px;}
+  .savings-handle{position:absolute; top:50%; width:14px; height:14px; background:var(--ink); border:2px solid #fff; border-radius:50%; transform:translate(-50%,-50%); box-shadow:0 0 0 1px var(--ink);}
   .savings-btn{
     display:inline-block;
-    background:var(--brand);
+    background:var(--ink);
     color:#fff;
     font-size:12.5px;
     font-weight:600;
@@ -884,7 +902,7 @@
     border-radius:999px;
     text-decoration:none;
   }
-  .savings-btn:hover{background:var(--brand-text);}
+  .savings-btn:hover{background:#000;}
 
   .deliverables-table{font-size:12.5px; width:100%;}
   .deliverables-table th{font-size:10px; padding:6px 8px;}
@@ -956,6 +974,7 @@
       <button type="button" id="saveSnapshotBtn" class="save-toggle-btn" title="Save your current edits so they survive a page refresh">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"></path><path d="M17 21v-8H7v8"></path><path d="M7 3v5h8"></path></svg>
         <span class="save-label">Save</span>
+        <span class="dirty-dot" aria-hidden="true"></span>
       </button>
       <button type="button" id="lockToggleBtn" class="lock-toggle-btn" aria-pressed="true" title="Unlock to allow edits">
         <span class="lock-icon" aria-hidden="true"></span><span class="lock-label">Locked</span>
@@ -993,7 +1012,10 @@
             <span class="meeting-tile-value" contenteditable="true" data-placeholder="Add Zoom link"></span>
           </div>
         </div>
-        <button type="button" class="meeting-banner-btn" id="icsDownloadBtn">📅 Add to calendar</button>
+        <div class="meeting-banner-actions">
+          <button type="button" class="meeting-banner-btn" id="icsDownloadBtn">📅 Add to calendar</button>
+          <a class="meeting-banner-btn outlook-btn" id="outlookAddBtn" href="#" target="_blank" rel="noopener" title="Adds the next single occurrence to Outlook — download the calendar invite for the full recurring series">📧 Add to Outlook</a>
+        </div>
       </div>
     </section>
   </div>
@@ -1927,6 +1949,33 @@
     });
   }
 
+  // Outlook web quick-add: adds a single occurrence directly to Outlook's calendar.
+  // Outlook's deep-link compose URL doesn't support recurrence rules, so this only
+  // covers the next meeting — the .ics download above is what carries the full
+  // recurring series into any calendar app, Outlook included.
+  const outlookBtn = document.getElementById('outlookAddBtn');
+  if (outlookBtn){
+    outlookBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const meetingDate = findNextMeetingDate();
+      const start = new Date(meetingDate);
+      start.setHours(15, 0, 0, 0);
+      const end = new Date(meetingDate);
+      end.setHours(16, 0, 0, 0);
+      const workgroupName = document.querySelector('.workgroup-tag').textContent.trim();
+      const params = new URLSearchParams({
+        subject: workgroupName + ' Meeting',
+        startdt: start.toISOString(),
+        enddt: end.toISOString(),
+        body: 'Recurring workgroup meeting. This link only adds the next single occurrence — download the calendar invite (.ics) for the full recurring series.',
+        allday: 'false',
+        path: '/calendar/action/compose',
+        rru: 'addevent'
+      });
+      window.open('https://outlook.office.com/calendar/0/deeplink/compose?' + params.toString(), '_blank');
+    });
+  }
+
   // Work Product Deliverables: status dropdown drives the progress bar
   const deliverableProgress = {
     'notstarted': { width: '0%', color: 'transparent' },
@@ -1954,11 +2003,24 @@
   // local storage. The restore script at the very top of <head> checks for this
   // snapshot on every load and, if found, uses it instead of the shipped defaults.
   const saveSnapshotBtn = document.getElementById('saveSnapshotBtn');
+  // Track unsaved changes: any edit, anywhere, flips the Save button to an
+  // "unsaved changes" state until the user actually clicks Save.
+  let hasUnsavedChanges = false;
+  function markDirty(){
+    if (hasUnsavedChanges) return;
+    hasUnsavedChanges = true;
+    saveSnapshotBtn.classList.add('has-changes');
+  }
+  document.addEventListener('input', markDirty, true);
+  document.addEventListener('change', markDirty, true);
+
   saveSnapshotBtn.addEventListener('click', () => {
     const label = saveSnapshotBtn.querySelector('.save-label');
     const originalLabel = label.textContent;
     try {
       localStorage.setItem('lbds-dashboard-snapshot', '<!DOCTYPE html>\n' + document.documentElement.outerHTML);
+      hasUnsavedChanges = false;
+      saveSnapshotBtn.classList.remove('has-changes');
       saveSnapshotBtn.classList.add('just-saved');
       label.textContent = 'Saved!';
     } catch (e) {

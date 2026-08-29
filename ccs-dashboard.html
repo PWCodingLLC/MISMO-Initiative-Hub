@@ -205,6 +205,12 @@
   .save-toggle-btn svg{flex:0 0 auto; display:block;}
   .save-toggle-btn:hover{background:var(--brand-soft); border-color:var(--brand); color:var(--brand-text);}
   .save-toggle-btn.just-saved{background:var(--success); border-color:var(--success); color:#fff;}
+  .save-toggle-btn.has-changes{background:var(--amber-soft); border-color:var(--amber); color:var(--amber-text);}
+  .save-toggle-btn.has-changes:hover{background:var(--amber); color:#fff;}
+  .save-toggle-btn .dirty-dot{
+    width:6px; height:6px; border-radius:50%; background:var(--amber); display:none; flex:0 0 auto;
+  }
+  .save-toggle-btn.has-changes .dirty-dot{display:block;}
 
   body.locked [contenteditable="true"]{
     pointer-events:none;
@@ -772,8 +778,8 @@
   @media (max-width:900px){ .overview-grid{grid-template-columns:1fr;} }
   .overview-col{display:flex; flex-direction:column; gap:14px;}
   .overview-card{
-    background:var(--brand-soft);
-    border:1px solid #C7D6F7;
+    background:var(--card);
+    border:1px solid var(--line);
     border-radius:8px;
     padding:16px 18px;
     box-shadow:none;
@@ -781,7 +787,7 @@
   .overview-head{
     font-size:14px;
     font-weight:700;
-    color:var(--brand-text);
+    color:var(--ink);
     text-decoration:underline;
     margin:0 0 10px;
     display:inline-block;
@@ -853,6 +859,18 @@
     color:#fff; background:var(--brand); border:none; padding:0 22px; cursor:pointer; white-space:nowrap;
   }
   .meeting-banner-btn:hover{background:var(--brand-text);}
+  .meeting-banner-actions{display:flex; flex:0 0 auto; align-self:stretch;}
+  .meeting-banner-actions .meeting-banner-btn{border-radius:0;}
+  .meeting-banner-actions .outlook-btn{
+    background:var(--ink); color:#fff; text-decoration:none;
+    display:flex; align-items:center; font-family:'Inter',sans-serif; font-size:12.5px; font-weight:700;
+    padding:0 22px; white-space:nowrap;
+  }
+  .meeting-banner-actions .outlook-btn:hover{background:#000;}
+  @media (max-width:900px){
+    .meeting-banner-actions{flex-direction:column;}
+    .meeting-banner-actions .outlook-btn{padding:12px 18px;}
+  }
   @media (max-width:900px){
     .meeting-banner{flex-direction:column; align-items:stretch;}
     .meeting-banner-label{padding:12px 18px;}
@@ -957,6 +975,7 @@
       <button type="button" id="saveSnapshotBtn" class="save-toggle-btn" title="Save your current edits so they survive a page refresh">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"></path><path d="M17 21v-8H7v8"></path><path d="M7 3v5h8"></path></svg>
         <span class="save-label">Save</span>
+        <span class="dirty-dot" aria-hidden="true"></span>
       </button>
       <button type="button" id="lockToggleBtn" class="lock-toggle-btn" aria-pressed="true" title="Unlock to allow edits">
         <span class="lock-icon" aria-hidden="true"></span><span class="lock-label">Locked</span>
@@ -994,7 +1013,10 @@
             <span class="meeting-tile-value" contenteditable="true" data-placeholder="Add Zoom link"></span>
           </div>
         </div>
-        <button type="button" class="meeting-banner-btn" id="icsDownloadBtn">📅 Add to calendar</button>
+        <div class="meeting-banner-actions">
+          <button type="button" class="meeting-banner-btn" id="icsDownloadBtn">📅 Add to calendar</button>
+          <a class="meeting-banner-btn outlook-btn" id="outlookAddBtn" href="#" target="_blank" rel="noopener" title="Adds the next single occurrence to Outlook — download the calendar invite for the full recurring series">📧 Add to Outlook</a>
+        </div>
       </div>
     </section>
   </div>
@@ -1091,7 +1113,6 @@
         <button class="tab-btn" role="tab" aria-selected="true" data-tab="avmprovider">AVM Provider</button>
         <button class="tab-btn" role="tab" aria-selected="false" data-tab="gse">GSE</button>
         <button class="tab-btn" role="tab" aria-selected="false" data-tab="lender">Lender</button>
-        <button class="tab-btn" role="tab" aria-selected="false" data-tab="los">LOS Provider</button>
       </div>
       <div id="laneRoot"></div>
     </div>
@@ -1109,10 +1130,9 @@
         <h3>Stakeholder groups</h3>
         <table>
           <tr><th>Type</th><th>Benefit</th><th>Critical?</th><th>Role</th></tr>
-          <tr><td><select class="type-select"><option value="AVM Provider" selected>AVM Provider</option><option value="GSE">GSE</option><option value="Lender">Lender</option><option value="LOS Provider">LOS Provider</option></select></td><td contenteditable="true">Standardized way to communicate valuation confidence, marketed with assurance of following MISMO-prescribed standards</td><td><select class="crit-select is-star"><option value="star" selected>★</option><option value="line">—</option></select></td><td><select class="role-select"><option value="Driver">Driver</option><option value="Implementer" selected>Implementer</option></select></td></tr>
-          <tr><td><select class="type-select"><option value="AVM Provider">AVM Provider</option><option value="GSE" selected>GSE</option><option value="Lender">Lender</option><option value="LOS Provider">LOS Provider</option></select></td><td contenteditable="true">Supports compliance with the interagency rule for Quality Control Standards for AVMs</td><td><select class="crit-select"><option value="star">★</option><option value="line" selected>—</option></select></td><td><select class="role-select"><option value="Driver" selected>Driver</option><option value="Implementer">Implementer</option></select></td></tr>
-          <tr><td><select class="type-select"><option value="AVM Provider">AVM Provider</option><option value="GSE">GSE</option><option value="Lender" selected>Lender</option><option value="LOS Provider">LOS Provider</option></select></td><td contenteditable="true">Can evaluate risk more effectively, knowing AVMs across providers can be assessed through the same lens</td><td><select class="crit-select is-star"><option value="star" selected>★</option><option value="line">—</option></select></td><td><select class="role-select"><option value="Driver" selected>Driver</option><option value="Implementer">Implementer</option></select></td></tr>
-          <tr><td><select class="type-select"><option value="AVM Provider">AVM Provider</option><option value="GSE">GSE</option><option value="Lender">Lender</option><option value="LOS Provider" selected>LOS Provider</option></select></td><td contenteditable="true">Single integration point to surface Common Confidence Score across valuation product workflows</td><td><select class="crit-select"><option value="star">★</option><option value="line" selected>—</option></select></td><td><select class="role-select"><option value="Driver">Driver</option><option value="Implementer" selected>Implementer</option></select></td></tr>
+          <tr><td><select class="type-select"><option value="AVM Provider" selected>AVM Provider</option><option value="GSE">GSE</option><option value="Lender">Lender</option></select></td><td contenteditable="true">Standardized way to communicate valuation confidence, marketed with assurance of following MISMO-prescribed standards</td><td><select class="crit-select is-star"><option value="star" selected>★</option><option value="line">—</option></select></td><td><select class="role-select"><option value="Driver">Driver</option><option value="Implementer" selected>Implementer</option></select></td></tr>
+          <tr><td><select class="type-select"><option value="AVM Provider">AVM Provider</option><option value="GSE" selected>GSE</option><option value="Lender">Lender</option></select></td><td contenteditable="true">Supports compliance with the interagency rule for Quality Control Standards for AVMs</td><td><select class="crit-select"><option value="star">★</option><option value="line" selected>—</option></select></td><td><select class="role-select"><option value="Driver" selected>Driver</option><option value="Implementer">Implementer</option></select></td></tr>
+          <tr><td><select class="type-select"><option value="AVM Provider">AVM Provider</option><option value="GSE">GSE</option><option value="Lender" selected>Lender</option></select></td><td contenteditable="true">Can evaluate risk more effectively, knowing AVMs across providers can be assessed through the same lens</td><td><select class="crit-select is-star"><option value="star" selected>★</option><option value="line">—</option></select></td><td><select class="role-select"><option value="Driver" selected>Driver</option><option value="Implementer">Implementer</option></select></td></tr>
         </table>
       </div>
 
@@ -1138,7 +1158,6 @@
         <button class="chip-btn" data-type-filter="AVM Provider" aria-pressed="false">AVM Provider</button>
         <button class="chip-btn" data-type-filter="GSE" aria-pressed="false">GSE</button>
         <button class="chip-btn" data-type-filter="Lender" aria-pressed="false">Lender</button>
-        <button class="chip-btn" data-type-filter="LOS Provider" aria-pressed="false">LOS Provider</button>
         <input class="search-input" id="rosterSearch" type="text" placeholder="Search org or participant…">
       </div>
       <table id="rosterTable">
@@ -1152,7 +1171,6 @@
         <option value="AVM Provider">
         <option value="GSE">
         <option value="Lender">
-        <option value="LOS Provider">
       </datalist>
     </div>
   </section>
@@ -1208,14 +1226,6 @@
       roadblocks: ['Adoption depends on lender demand, which has not yet reached critical mass among loan aggregators'],
       actions: [
         {task:'Discuss Common Confidence Score implementation with JPMorgan Chase', owner:'Lisa Morrison', status:'in-progress', label:'In Progress'}
-      ]
-    },
-    los: {
-      flagged: false,
-      goals: ['Integrate Common Confidence Score into valuation product rollout'],
-      roadblocks: [],
-      actions: [
-        {task:'Roll out Common Confidence Score across ICE valuation products', owner:'Anand Dwivedi', status:'in-progress', label:'In Progress'}
       ]
     }
   };
@@ -1551,8 +1561,7 @@
     {type:'Lender', org:'JPMorgan Chase', status:'piloted', primaryContact:'Lisa Morrison', title:'', email:'', participants:'Lisa Morrison (23/31) — see Manifest Check re: Co-Chair Carla Nott', notes:'Call held February 2026 with Lisa Morrison and Jarrett Scarpiello to discuss Common Confidence Score implementation.', rowId:'jpmchase'},
     {type:'Lender', org:'Truist', status:'not-started', primaryContact:'Sara Campione', title:'', email:'', participants:'No roster data on file', notes:'Outreach contact identified; has expressed interest but has not yet attended.'},
     {type:'Lender', org:'Columbia Bank (Umpqua)', status:'not-started', primaryContact:'Katherine Owen', title:'', email:'', participants:'No one met the 1/3 attendance threshold — closest: Katherine Owen (2/31)', notes:'Attended a couple of meetings; attendance has been inconsistent.'},
-    {type:'Lender', org:'United Wholesale Mortgage', status:'not-started', primaryContact:'', title:'', email:'', participants:'No roster data on file', notes:'Outreach in progress to identify the right internal contact (candidates: Kim Brown, Howard Ellison, Dom Virgilio).'},
-    {type:'LOS Provider', org:'ICE Mortgage Technology', status:'in-use', primaryContact:'Anand Dwivedi', title:'', email:'', participants:'Anand Dwivedi (18/31), Webster Royston (6/31)', notes:'Recognized for implementation leadership, April 2026; systematically rolling out the Common Confidence Score across its valuation products, February 2026.'}
+    {type:'Lender', org:'United Wholesale Mortgage', status:'not-started', primaryContact:'', title:'', email:'', participants:'No roster data on file', notes:'Outreach in progress to identify the right internal contact (candidates: Kim Brown, Howard Ellison, Dom Virgilio).'}
   ];
 
   const statusOptions = [
@@ -1562,7 +1571,7 @@
     ['in-use', 'In Use']
   ];
 
-  const funnelCategories = ['AVM Provider', 'GSE', 'Lender', 'LOS Provider'];
+  const funnelCategories = ['AVM Provider', 'GSE', 'Lender'];
   function funnelCategoryFor(type){
     return type;
   }
@@ -1838,8 +1847,8 @@
   if (icsBtn){
     icsBtn.addEventListener('click', () => {
       const meetingDate = findNextMeetingDate();
-      const dtstart = icsLocalDateTime(meetingDate, 15, 0);
-      const dtend = icsLocalDateTime(meetingDate, 16, 0);
+      const dtstart = icsLocalDateTime(meetingDate, 16, 0);
+      const dtend = icsLocalDateTime(meetingDate, 17, 0);
       const workgroupName = document.querySelector('.workgroup-tag').textContent.trim();
       const icsContent = [
         'BEGIN:VCALENDAR',
@@ -1865,6 +1874,33 @@
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+    });
+  }
+
+  // Outlook web quick-add: adds a single occurrence directly to Outlook's calendar.
+  // Outlook's deep-link compose URL doesn't support recurrence rules, so this only
+  // covers the next meeting — the .ics download above is what carries the full
+  // recurring series into any calendar app, Outlook included.
+  const outlookBtn = document.getElementById('outlookAddBtn');
+  if (outlookBtn){
+    outlookBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const meetingDate = findNextMeetingDate();
+      const start = new Date(meetingDate);
+      start.setHours(16, 0, 0, 0);
+      const end = new Date(meetingDate);
+      end.setHours(17, 0, 0, 0);
+      const workgroupName = document.querySelector('.workgroup-tag').textContent.trim();
+      const params = new URLSearchParams({
+        subject: workgroupName + ' Meeting',
+        startdt: start.toISOString(),
+        enddt: end.toISOString(),
+        body: 'Recurring workgroup meeting. This link only adds the next single occurrence — download the calendar invite (.ics) for the full recurring series.',
+        allday: 'false',
+        path: '/calendar/action/compose',
+        rru: 'addevent'
+      });
+      window.open('https://outlook.office.com/calendar/0/deeplink/compose?' + params.toString(), '_blank');
     });
   }
 
@@ -1936,11 +1972,24 @@
   // local storage. The restore script at the very top of <head> checks for this
   // snapshot on every load and, if found, uses it instead of the shipped defaults.
   const saveSnapshotBtn = document.getElementById('saveSnapshotBtn');
+  // Track unsaved changes: any edit, anywhere, flips the Save button to an
+  // "unsaved changes" state until the user actually clicks Save.
+  let hasUnsavedChanges = false;
+  function markDirty(){
+    if (hasUnsavedChanges) return;
+    hasUnsavedChanges = true;
+    saveSnapshotBtn.classList.add('has-changes');
+  }
+  document.addEventListener('input', markDirty, true);
+  document.addEventListener('change', markDirty, true);
+
   saveSnapshotBtn.addEventListener('click', () => {
     const label = saveSnapshotBtn.querySelector('.save-label');
     const originalLabel = label.textContent;
     try {
       localStorage.setItem('ccs-dashboard-snapshot', '<!DOCTYPE html>\n' + document.documentElement.outerHTML);
+      hasUnsavedChanges = false;
+      saveSnapshotBtn.classList.remove('has-changes');
       saveSnapshotBtn.classList.add('just-saved');
       label.textContent = 'Saved!';
     } catch (e) {

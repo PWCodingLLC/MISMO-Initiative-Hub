@@ -78,7 +78,6 @@
   .domain-tile.intro-highlight{border-color:var(--tile-color); background:var(--tile-soft); transition:border-color .6s ease, background .6s ease;}
   .domain-tile.intro-highlight .tile-name{color:#101B33; transition:color .6s ease;}
   .domain-tile.intro-highlight .tile-desc{color:#4B5670; transition:color .6s ease;}
-  .domain-tile.intro-highlight .tile-count{color:#4B5670; transition:color .6s ease;}
   .domain-tile.intro-highlight .tile-icon-wrap{background:var(--tile-color); color:#fff; transition:background .6s ease, color .6s ease;}
   /* Slower, more gradual fade for the descending row phase specifically —
      the quicker ascending phase keeps the snappier .6s transition above,
@@ -86,7 +85,6 @@
   .domain-tile.intro-highlight-slow{border-color:var(--tile-color); background:var(--tile-soft); transition:border-color 1s ease, background 1s ease;}
   .domain-tile.intro-highlight-slow .tile-name{color:#101B33; transition:color 1s ease;}
   .domain-tile.intro-highlight-slow .tile-desc{color:#4B5670; transition:color 1s ease;}
-  .domain-tile.intro-highlight-slow .tile-count{color:#4B5670; transition:color 1s ease;}
   .domain-tile.intro-highlight-slow .tile-icon-wrap{background:var(--tile-color); color:#fff; transition:background 1s ease, color 1s ease;}
   .tile-top-row{display:flex; align-items:center; gap:12px;}
   .tile-icon-wrap{
@@ -99,8 +97,12 @@
   .domain-tile.active .tile-name{color:#101B33;}
   .tile-desc{font-size:12.5px; color:var(--ink-soft); line-height:1.5; flex:1;}
   .domain-tile.active .tile-desc{color:#4B5670;}
-  .tile-count{font-size:12px; color:var(--ink-soft); font-family:'IBM Plex Mono',monospace;}
-  .domain-tile.active .tile-count{color:#4B5670;}
+  .tile-count{
+    display:inline-flex; align-items:center; justify-content:center;
+    font-size:11px; font-weight:700; font-family:'IBM Plex Mono',monospace;
+    color:#fff; background:var(--tile-color); border:2px solid #fff;
+    border-radius:999px; padding:3px 10px; width:fit-content;
+  }
 
   .panel{
     background:var(--card); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow);

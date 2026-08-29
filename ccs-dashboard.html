@@ -232,10 +232,11 @@
     align-items:center;
     justify-content:space-between;
     gap:12px;
-    margin-bottom:16px;
+    margin-bottom:0;
     flex-wrap:wrap;
     background:var(--ink); color:#fff; padding:13px 20px; border-radius:var(--radius);
   }
+  .section-subtext{font-size:12.5px; color:var(--ink-soft); margin:8px 2px 16px;}
   .section-head h2{font-size:15px; font-family:'Space Grotesk',sans-serif; font-weight:600; letter-spacing:.02em; color:#fff;}
   .section-head .section-note{color:rgba(255,255,255,.65);}
   .section-note{font-size:12.5px; color:var(--ink-soft);}
@@ -1143,6 +1144,7 @@
         <button class="view-btn" data-view="kanban" aria-pressed="false">Kanban</button>
       </div>
     </div>
+    <p class="section-subtext">See what each stakeholder group needs to do to reach broad adoption.</p>
     <p class="roadmap-intro">Tasks are organized by stakeholder group so each side of the workgroup — AVM providers, GSEs, lenders, and LOS providers — can see and manage its own to-dos. Add, edit, or change the status of any task as work progresses.</p>
 
     <div class="card" style="padding:8px 20px 20px;">
@@ -1162,10 +1164,10 @@
       <h2>Stakeholder participation &amp; implementation</h2>
       <span class="section-note" id="adoptionNote">11 of 19 tracked orgs are piloting or live · funnel computed live from the roster</span>
     </div>
+    <p class="section-subtext">Who's involved, how critical they are, and their current implementation status.</p>
 
     <div class="stake-layout">
       <div class="card stake-card">
-        <h3>Stakeholder groups</h3>
         <table>
           <tr><th>Type</th><th>Benefit</th><th>Critical?</th><th>Role</th></tr>
           <tr><td><select class="type-select"><option value="AVM Provider" selected>AVM Provider</option><option value="GSE">GSE</option><option value="Lender">Lender</option></select></td><td contenteditable="true">Standardized way to communicate valuation confidence, marketed with assurance of following MISMO-prescribed standards</td><td><select class="crit-select is-star"><option value="star" selected>★</option><option value="line">—</option></select></td><td><select class="role-select"><option value="Driver">Driver</option><option value="Implementer" selected>Implementer</option></select></td></tr>
@@ -1176,7 +1178,7 @@
 
       <div class="card stake-card">
         <h3>Stakeholder Implementation Status</h3>
-        <p class="section-note" style="margin:-4px 0 12px;">Change any status in the roster below — the bars update to match.</p>
+        <p class="section-note" style="margin:-4px 0 12px;">Change any status in the roster below — the charts update to match.</p>
         <div id="funnelRoot"></div>
 
         <div class="funnel-legend">
@@ -1220,6 +1222,7 @@
       <h2>Governance, effort &amp; technical signals</h2>
       <span class="section-note">Meeting tracker · 55 people on file</span>
     </div>
+    <p class="section-subtext">Engagement and effort tracked across workgroup meetings.</p>
 
     <div class="gov-layout">
       <div class="card gov-card">

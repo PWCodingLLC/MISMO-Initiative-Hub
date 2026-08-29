@@ -171,14 +171,15 @@
 
   /* ---------- LOCK MODE ---------- */
   .lock-toggle-btn{
-    display:flex; align-items:center; gap:6px;
+    display:flex; align-items:center; gap:7px;
     font-family:'Inter',sans-serif; font-size:12.5px; font-weight:700;
     padding:7px 14px; border-radius:999px; border:1px solid var(--line);
     background:var(--card); color:var(--ink-soft); cursor:pointer;
   }
-  .lock-toggle-btn:hover{background:var(--brand-soft); border-color:var(--brand);}
-  .lock-toggle-btn.is-locked{background:var(--signal); border-color:var(--signal); color:#fff;}
-  .lock-toggle-btn.is-locked:hover{background:var(--signal-text); border-color:var(--signal-text);}
+  .lock-toggle-btn svg{flex:0 0 auto; display:block;}
+  .lock-toggle-btn:hover{background:var(--brand-soft); border-color:var(--brand); color:var(--brand-text);}
+  .lock-toggle-btn.is-locked{background:var(--ink); border-color:var(--ink); color:#fff;}
+  .lock-toggle-btn.is-locked:hover{background:#000; border-color:#000;}
 
   body.locked [contenteditable="true"]{
     pointer-events:none;
@@ -928,8 +929,8 @@
       </div>
     </div>
     <div class="masthead-right">
-      <button type="button" id="lockToggleBtn" class="lock-toggle-btn" aria-pressed="false" title="Lock this dashboard to prevent edits">
-        <span class="lock-icon">🔓</span><span class="lock-label">Unlocked</span>
+      <button type="button" id="lockToggleBtn" class="lock-toggle-btn" aria-pressed="true" title="Unlock to allow edits">
+        <span class="lock-icon" aria-hidden="true"></span><span class="lock-label">Locked</span>
       </button>
       <a class="back-to-hub" href="index.html">← Back to Initiative Hub</a>
       <span class="section-note mono">Draft v1 · not affiliated with Smartsheet</span>
@@ -1165,6 +1166,50 @@
 </footer>
 
 <script>
+  // --- Lock/unlock: defined first so isLocked exists before any initial render call runs.
+  // applyLockState() genuinely toggles the contenteditable attribute and .disabled property
+  // (not just CSS) and is called from renderRosterTable()/renderLane() too, so re-renders
+  // triggered by search, filtering, or status changes can't silently unlock fresh content. ---
+  let isLocked = true;
+  const lockToggleBtn = document.getElementById('lockToggleBtn');
+  const LOCK_ICON_LOCKED = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>';
+  const LOCK_ICON_UNLOCKED = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 7.75-1.5"></path></svg>';
+
+  function applyLockState(){
+    document.querySelectorAll('[contenteditable]').forEach(el => {
+      el.setAttribute('contenteditable', isLocked ? 'false' : 'true');
+    });
+    document.querySelectorAll(
+      'select.status-select, select.crit-select, select.role-select, select.type-select, select.deliv-status-select, input.type-input, input.deliv-date-input, .contact-input'
+    ).forEach(el => {
+      el.disabled = isLocked;
+    });
+    document.body.classList.toggle('locked', isLocked);
+  }
+
+  function updateLockUI(){
+    lockToggleBtn.classList.toggle('is-locked', isLocked);
+    lockToggleBtn.setAttribute('aria-pressed', isLocked ? 'true' : 'false');
+    lockToggleBtn.querySelector('.lock-icon').innerHTML = isLocked ? LOCK_ICON_LOCKED : LOCK_ICON_UNLOCKED;
+    lockToggleBtn.querySelector('.lock-label').textContent = isLocked ? 'Locked' : 'Unlocked';
+    lockToggleBtn.title = isLocked ? 'Unlock to allow edits' : 'Lock this dashboard to prevent edits';
+    applyLockState();
+  }
+
+  lockToggleBtn.addEventListener('click', () => {
+    isLocked = !isLocked;
+    if (isLocked){
+      // Close any in-progress edit forms cleanly before locking
+      editingContactIdx = null;
+      editingTaskIdx = null;
+      renderRosterTable();
+      renderLane();
+    }
+    updateLockUI();
+  });
+
+  updateLockUI();
+
   // Roadmap: lane data + compact/kanban renderer
   let laneData = {
     regulator: {
@@ -1390,6 +1435,7 @@
 
     laneRoot.innerHTML = html;
     saveLaneData();
+    applyLockState();
   }
 
   const tabButtons = document.querySelectorAll('.tab-btn');
@@ -1612,6 +1658,7 @@
     tbody.innerHTML = html;
     emptyMsg.style.display = visibleCount === 0 ? 'block' : 'none';
     saveRosterData();
+    applyLockState();
   }
 
   function renderFunnel(){
@@ -1879,32 +1926,6 @@
     });
   });
 
-  // Lock toggle: prevents accidental edits without touching any underlying data
-  const lockToggleBtn = document.getElementById('lockToggleBtn');
-  let isLocked = true;
-
-  function updateLockUI(){
-    document.body.classList.toggle('locked', isLocked);
-    lockToggleBtn.classList.toggle('is-locked', isLocked);
-    lockToggleBtn.setAttribute('aria-pressed', isLocked ? 'true' : 'false');
-    lockToggleBtn.querySelector('.lock-icon').textContent = isLocked ? '🔒' : '🔓';
-    lockToggleBtn.querySelector('.lock-label').textContent = isLocked ? 'Locked' : 'Unlocked';
-    lockToggleBtn.title = isLocked ? 'Unlock to allow edits' : 'Lock this dashboard to prevent edits';
-  }
-
-  lockToggleBtn.addEventListener('click', () => {
-    isLocked = !isLocked;
-    if (isLocked){
-      // Close any in-progress edit forms cleanly before locking
-      editingContactIdx = null;
-      editingTaskIdx = null;
-      renderRosterTable();
-      renderLane();
-    }
-    updateLockUI();
-  });
-
-  updateLockUI();
 </script>
 
 </body>

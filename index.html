@@ -74,6 +74,11 @@
   }
   .domain-tile:hover{transform:translateY(-2px);}
   .domain-tile.active{border-color:var(--tile-color); background:var(--tile-soft);}
+  .domain-tile.intro-highlight{border-color:var(--tile-color); background:var(--tile-soft); transition:border-color .2s ease, background .2s ease;}
+  .domain-tile.intro-highlight .tile-name{color:#101B33;}
+  .domain-tile.intro-highlight .tile-desc{color:#4B5670;}
+  .domain-tile.intro-highlight .tile-count{color:#4B5670;}
+  .domain-tile.intro-highlight .tile-icon-wrap{background:var(--tile-color); color:#fff;}
   .tile-top-row{display:flex; align-items:center; gap:12px;}
   .tile-icon-wrap{
     width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex:0 0 auto;
@@ -338,6 +343,23 @@
 
   renderTiles();
   renderPanel();
+
+  // Fun intro touch: briefly highlight each domain tile in turn on page load, purely
+  // visual — it never sets activeDomain or calls renderPanel, so it can't accidentally
+  // open a panel or leave a domain selected once it finishes.
+  function playIntroColorTour(){
+    const tiles = [...tileGrid.querySelectorAll('.domain-tile')];
+    const stepMs = 500;
+    tiles.forEach((tile, i) => {
+      setTimeout(() => {
+        tile.classList.add('intro-highlight');
+        setTimeout(() => {
+          tile.classList.remove('intro-highlight');
+        }, stepMs);
+      }, i * stepMs);
+    });
+  }
+  playIntroColorTour();
 
   // Dark mode: check for a saved preference (this is a real hosted site, not a
   // sandboxed preview, so localStorage works normally and persists across visits).

@@ -474,6 +474,23 @@
   // The tour now only ever runs when this button is clicked — nothing plays
   // automatically on page load, visuals or sound. A direct click is a genuine
   // user gesture, so audio is reliably allowed here every time.
+  // A freshly-created AudioContext can have a brief startup lag before its very
+  // first audible sound — the underlying audio hardware path needs a moment to
+  // spin up. Without accounting for this, the first descending tone on the very
+  // first play can noticeably lag behind its visual highlight. Playing an
+  // inaudible tone immediately after resume, then giving it a brief moment
+  // before the real tour starts, avoids that — but only needs to happen once.
+  let audioWarmedUp = false;
+  function primeAudio(ctx){
+    const osc = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+    gainNode.gain.value = 0.0001;
+    osc.connect(gainNode);
+    gainNode.connect(ctx.destination);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.02);
+  }
+
   const replayBtn = document.getElementById('replayTourBtn');
   if (replayBtn){
     replayBtn.addEventListener('click', async () => {
@@ -487,7 +504,13 @@
           // step rather than assuming this succeeded.
         }
       }
-      playIntroColorTour(true);
+      if (ctx && !audioWarmedUp){
+        audioWarmedUp = true;
+        primeAudio(ctx);
+        setTimeout(() => playIntroColorTour(true), 120);
+      } else {
+        playIntroColorTour(true);
+      }
     });
   }
 

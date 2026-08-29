@@ -434,15 +434,44 @@
 
   // A real click is a genuine user gesture, so this button reliably unlocks audio —
   // unlike the automatic run above, sound is guaranteed to work here.
+  function playWithUnlockedAudio(){
+    const ctx = getAudioContext();
+    if (ctx && ctx.state === 'suspended'){
+      ctx.resume().then(playIntroColorTour);
+    } else {
+      playIntroColorTour();
+    }
+  }
+
+  // The very first genuine click/tap/keypress anywhere on the page is a real user
+  // gesture, so browsers will allow audio here even though they blocked it on load.
+  // This re-runs the full tour (visuals + sound) once, the first time that happens —
+  // it's the closest thing to "just works automatically" that's actually possible.
+  let firstInteractionHandled = false;
+  function stopWatchingForFirstInteraction(){
+    firstInteractionHandled = true;
+    document.removeEventListener('click', unlockAndReplayOnce);
+    document.removeEventListener('keydown', unlockAndReplayOnce);
+    document.removeEventListener('touchstart', unlockAndReplayOnce);
+  }
+  function unlockAndReplayOnce(){
+    if (firstInteractionHandled) return;
+    stopWatchingForFirstInteraction();
+    playWithUnlockedAudio();
+  }
+  document.addEventListener('click', unlockAndReplayOnce);
+  document.addEventListener('keydown', unlockAndReplayOnce);
+  document.addEventListener('touchstart', unlockAndReplayOnce);
+
+  // The replay button always works on every click, independent of the once-only
+  // listener above — clicking it also cancels that listener so an unrelated later
+  // click elsewhere on the page doesn't unexpectedly replay the tour a second time.
   const replayBtn = document.getElementById('replayTourBtn');
   if (replayBtn){
-    replayBtn.addEventListener('click', () => {
-      const ctx = getAudioContext();
-      if (ctx && ctx.state === 'suspended'){
-        ctx.resume().then(playIntroColorTour);
-      } else {
-        playIntroColorTour();
-      }
+    replayBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (!firstInteractionHandled) stopWatchingForFirstInteraction();
+      playWithUnlockedAudio();
     });
   }
 

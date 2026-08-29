@@ -63,26 +63,30 @@
   .wrap{max-width:1100px; margin:0 auto; padding:28px 24px 70px;}
 
   /* Tile size restored to match the original mockup's markup exactly */
-  .tile-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:22px;}
+  .tile-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:22px;}
   @media (max-width:900px){.tile-grid{grid-template-columns:repeat(2,1fr);}}
   @media (max-width:500px){.tile-grid{grid-template-columns:1fr;}}
 
   .domain-tile{
     border:2px solid var(--line); border-radius:var(--radius); background:var(--card); cursor:pointer;
-    padding:18px 16px; display:flex; flex-direction:column; gap:24px; min-height:92px; text-align:left;
+    padding:22px 22px 20px; display:flex; flex-direction:column; gap:14px; min-height:150px; text-align:left;
     transition:border-color .15s ease, transform .15s ease, background .2s ease;
   }
   .domain-tile:hover{transform:translateY(-2px);}
   .domain-tile.active{border-color:var(--tile-color); background:var(--tile-soft);}
-  .tile-top-row{display:flex; align-items:center; gap:10px;}
+  .tile-top-row{display:flex; align-items:center; gap:12px;}
   .tile-icon-wrap{
-    width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center; flex:0 0 auto;
+    width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex:0 0 auto;
     background:var(--tile-soft); color:var(--tile-color); transition:background .15s ease, color .15s ease;
   }
   .domain-tile.active .tile-icon-wrap{background:var(--tile-color); color:#fff;}
-  .tile-icon-wrap svg{width:18px; height:18px;}
-  .tile-name{font-family:'Space Grotesk',sans-serif; font-size:15px; font-weight:700;}
+  .tile-icon-wrap svg{width:20px; height:20px;}
+  .tile-name{font-family:'Space Grotesk',sans-serif; font-size:16.5px; font-weight:700; color:var(--ink);}
+  .domain-tile.active .tile-name{color:#101B33;}
+  .tile-desc{font-size:12.5px; color:var(--ink-soft); line-height:1.5; flex:1;}
+  .domain-tile.active .tile-desc{color:#4B5670;}
   .tile-count{font-size:12px; color:var(--ink-soft); font-family:'IBM Plex Mono',monospace;}
+  .domain-tile.active .tile-count{color:#4B5670;}
 
   .panel{
     background:var(--card); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow);
@@ -236,19 +240,20 @@
   };
 
   const domainMeta = {
-    'Compliance': {color:'var(--teal)', soft:'#E3F5F3'},
-    'eMortgage': {color:'var(--gold)', soft:'#FDF0DE'},
-    'Servicing': {color:'var(--brand)', soft:'#EAF0FF'},
-    'Originations': {color:'var(--rose)', soft:'#FCE7EF'},
-    'Valuation': {color:'var(--violet)', soft:'#F1EBFD'},
-    'Artificial Intelligence': {color:'var(--fuchsia)', soft:'#FBE8FC'},
-    'Governance': {color:'var(--graphite)', soft:'#EEF1F4'}
+    'Compliance': {color:'var(--teal)', soft:'#E3F5F3', desc:'Standardized data for regulatory exams and compliance reporting.'},
+    'eMortgage': {color:'var(--gold)', soft:'#FDF0DE', desc:'Standards for eNotes, eClosing, and digital mortgage agreements.'},
+    'Servicing': {color:'var(--brand)', soft:'#EAF0FF', desc:'Data standards for the handoff from origination into loan servicing.'},
+    'Originations': {color:'var(--rose)', soft:'#FCE7EF', desc:'Standards used during loan origination and underwriting.'},
+    'Valuation': {color:'var(--violet)', soft:'#F1EBFD', desc:'Appraisal and automated valuation model (AVM) standards.'},
+    'Artificial Intelligence': {color:'var(--fuchsia)', soft:'#FBE8FC', desc:'Governance frameworks for responsible AI use in mortgage lending.'},
+    'Governance': {color:'var(--graphite)', soft:'#EEF1F4', desc:'Oversight and risk-management standards across MISMO\'s initiatives.'}
   };
   const domainOrder = ['Artificial Intelligence','Compliance','eMortgage','Governance','Originations','Servicing','Valuation'];
 
   const tileGrid = document.getElementById('tileGrid');
   const panelArea = document.getElementById('panelArea');
-  let activeDomain = domainOrder[0];
+
+  let activeDomain = null;
 
   function itemsFor(domain){
     return initiatives.filter(i => i.domains.includes(domain));
@@ -263,6 +268,7 @@
           <span class="tile-icon-wrap">${domainIcons[domain]}</span>
           <span class="tile-name">${domain}</span>
         </div>
+        <p class="tile-desc">${meta.desc}</p>
         <span class="tile-count">${count} initiative${count !== 1 ? 's' : ''}</span>
       </button>`;
     }).join('');
@@ -276,6 +282,10 @@
   }
 
   function renderPanel(){
+    if (!activeDomain){
+      panelArea.innerHTML = '';
+      return;
+    }
     const items = itemsFor(activeDomain);
     const meta = domainMeta[activeDomain];
     const cardsHtml = items.length ? items.map(item => `

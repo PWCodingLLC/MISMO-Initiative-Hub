@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MISMO Workgroup Meeting Calendar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#101B33;
+    --ink-soft:#4B5670;
+    --paper:#F1F3F9;
+    --card:#FFFFFF;
+    --line:#E2E6F0;
+    --brand:#125DAB;
+    --brand-soft:#E7EFF7;
+    --brand-text:#0E4680;
+    --success:#1D9A6C;
+    --success-soft:#E3F7EE;
+    --success-text:#0E7A54;
+    --amber:#F2A93B;
+    --amber-soft:#FDF2DF;
+    --amber-text:#9C6B0E;
+    --radius:12px;
+    --shadow:0 1px 2px rgba(16,27,51,.04), 0 4px 14px rgba(16,27,51,.05);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:'Inter',sans-serif; -webkit-font-smoothing:antialiased;
+  }
+  .masthead{
+    background:var(--ink); padding:20px 24px;
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px;
+  }
+  .masthead-left{display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
+  .masthead-title{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:19px; color:#fff;}
+  .masthead-sub{font-size:12.5px; color:rgba(255,255,255,.65);}
+  .back-to-hub{
+    font-family:'Inter',sans-serif; font-size:13px; font-weight:700;
+    color:#fff; text-decoration:none; white-space:nowrap;
+    padding:9px 18px; border:1px solid rgba(255,255,255,.3); border-radius:999px; background:rgba(255,255,255,.08);
+  }
+  .back-to-hub:hover{background:rgba(255,255,255,.16);}
+
+  .wrap{max-width:1280px; margin:0 auto; padding:26px 24px 70px;}
+
+  .cal-toolbar{
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px;
+    margin-bottom:18px;
+  }
+  .cal-nav{display:flex; align-items:center; gap:10px;}
+  .cal-nav-btn{
+    display:flex; align-items:center; justify-content:center;
+    width:36px; height:36px; border-radius:999px; border:1px solid var(--line); background:var(--card);
+    cursor:pointer; color:var(--ink);
+  }
+  .cal-nav-btn:hover{background:var(--brand-soft); border-color:var(--brand);}
+  .cal-month-label{font-family:'Space Grotesk',sans-serif; font-size:21px; font-weight:700; min-width:200px; text-align:center;}
+  .cal-today-btn{
+    font-family:'Inter',sans-serif; font-size:12.5px; font-weight:700; color:var(--brand-text);
+    background:var(--brand-soft); border:1px solid var(--brand); border-radius:999px; padding:8px 16px; cursor:pointer;
+  }
+  .cal-today-btn:hover{background:var(--brand); color:#fff;}
+  .cal-legend{display:flex; align-items:center; gap:14px; flex-wrap:wrap; font-size:12px; color:var(--ink-soft);}
+  .legend-dot{display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:5px; vertical-align:middle;}
+
+  .cal-grid-wrap{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+  .cal-weekday-row{display:grid; grid-template-columns:repeat(7,1fr); background:var(--ink);}
+  .cal-weekday-row span{
+    padding:10px 0; text-align:center; font-size:11px; font-weight:700; color:rgba(255,255,255,.75);
+    text-transform:uppercase; letter-spacing:.05em;
+  }
+  .cal-body{display:grid; grid-template-columns:repeat(7,1fr);}
+  .cal-day{
+    min-height:118px; border-right:1px solid var(--line); border-bottom:1px solid var(--line);
+    padding:7px 7px 8px; display:flex; flex-direction:column; gap:3px;
+  }
+  .cal-day:nth-child(7n){border-right:none;}
+  .cal-day.other-month{background:#FAFBFD;}
+  .cal-day.other-month .cal-date-num{color:#C4CAD8;}
+  .cal-day.is-today{background:var(--brand-soft);}
+  .cal-date-num{
+    font-family:'Space Grotesk',sans-serif; font-size:13px; font-weight:700; color:var(--ink);
+    margin-bottom:2px;
+  }
+  .cal-day.is-today .cal-date-num{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:22px; height:22px; border-radius:50%; background:var(--brand); color:#fff;
+  }
+  .cal-meetings{display:flex; flex-direction:column; gap:2px; overflow-y:auto; max-height:88px;}
+  .meeting-chip{
+    display:block; font-size:10px; line-height:1.3; padding:3px 5px; border-radius:4px;
+    background:var(--brand-soft); color:var(--brand-text); text-decoration:none;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    border-left:2.5px solid var(--brand);
+  }
+  .meeting-chip:hover{background:var(--brand); color:#fff;}
+  .meeting-chip.has-dashboard{
+    background:var(--success-soft); color:var(--success-text); border-left-color:var(--success); font-weight:700;
+  }
+  .meeting-chip.has-dashboard:hover{background:var(--success); color:#fff;}
+  .meeting-chip.on-hold{
+    background:var(--amber-soft); color:var(--amber-text); border-left-color:var(--amber); font-style:italic;
+  }
+
+  .cal-footnote{
+    margin-top:18px; font-size:12px; color:var(--ink-soft); max-width:820px; line-height:1.6;
+  }
+  .cal-footnote a{color:var(--brand-text);}
+
+  @media (max-width:760px){
+    .cal-day{min-height:84px; padding:5px;}
+    .cal-meetings{max-height:56px;}
+    .cal-weekday-row span{font-size:9.5px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="masthead-left">
+    <span class="masthead-title">MISMO Workgroup Meeting Calendar</span>
+    <span class="masthead-sub">All active workgroups &amp; communities of practice</span>
+  </div>
+  <a class="back-to-hub" href="index.html">← Back to Initiative Hub</a>
+</div>
+
+<div class="wrap">
+
+  <div class="cal-toolbar">
+    <div class="cal-nav">
+      <button type="button" class="cal-nav-btn" id="prevMonthBtn" aria-label="Previous month">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <span class="cal-month-label" id="monthLabel"></span>
+      <button type="button" class="cal-nav-btn" id="nextMonthBtn" aria-label="Next month">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+      <button type="button" class="cal-today-btn" id="todayBtn">Today</button>
+    </div>
+    <div class="cal-legend">
+      <span><span class="legend-dot" style="background:var(--success);"></span>Has a dashboard on this hub</span>
+      <span><span class="legend-dot" style="background:var(--brand);"></span>Other MISMO workgroup</span>
+      <span><span class="legend-dot" style="background:var(--amber);"></span>Meetings on hold</span>
+    </div>
+  </div>
+
+  <div class="cal-grid-wrap">
+    <div class="cal-weekday-row">
+      <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+    </div>
+    <div class="cal-body" id="calBody"></div>
+  </div>
+
+  <p class="cal-footnote">
+    Schedules sourced from MISMO's own <a href="https://www.mismo.org/get-involved/workgroups-schedule" target="_blank" rel="noopener">Workgroup Meeting Schedule</a> page. Click any meeting to open its Zoom link (or its dashboard, for the three workgroups tracked on this hub). Times are as published by MISMO and shown in Eastern Time; day-of-month occurrences (e.g. "2nd &amp; 4th Wednesday") are computed automatically for whichever month you're viewing, so a date shown here may shift if MISMO changes a workgroup's cadence.
+  </p>
+
+</div>
+
+<script>
+  // Real schedule data from MISMO's Workgroup Meeting Schedule page (both pages), fetched Aug 2026.
+  // day: 0=Sun..6=Sat. occurrences: 'weekly' or an array of 1-indexed occurrences in the month (e.g. [2,4] = 2nd & 4th).
+  const workgroups = [
+    {name:'API Community of Practice', day:2, occurrences:[4], time:'3–4pm ET', zoom:'https://mba-org.zoom.us/j/84065426860'},
+    {name:'Architecture Workgroup', day:4, occurrences:[2,4], time:'2–3pm ET', zoom:'https://mba-org.zoom.us/j/88437195732'},
+    {name:'AI Community of Practice', day:1, occurrences:[2,4], time:'3–4pm ET', zoom:'https://mba-org.zoom.us/j/83783587917'},
+    {name:'Automated Valuation Model DWG', day:1, occurrences:'weekly', time:'4–5pm ET', zoom:'https://mba-org.zoom.us/j/86553707201', dashboard:'ccs-dashboard.html'},
+    {name:'Business Glossary CoP', day:3, occurrences:[2,4], time:'2–3pm ET', zoom:'https://mba-org.zoom.us/j/87615051998'},
+    {name:'Business Process Model CoP', day:5, occurrences:[1,3], time:'10–11am ET', zoom:'https://mba-org.zoom.us/j/85418710620'},
+    {name:'Commercial &amp; Other RE Digital Notes DWG', day:4, occurrences:[2], time:'3–4pm ET', zoom:'https://mba-org.zoom.us/j/89506376242'},
+    {name:'Commercial CoP', day:4, occurrences:[2], time:'1–2pm ET', zoom:'https://mba-org.zoom.us/j/85450117105'},
+    {name:'Credit Reporting CoP', day:4, occurrences:[1,3], time:'4–5pm ET', zoom:'https://mba-org.zoom.us/j/81784509635'},
+    {name:'Data Governance &amp; Management CoP', day:3, occurrences:[3], time:'1–2pm ET', zoom:'https://mba-org.zoom.us/j/83318613468'},
+    {name:'Decision Modeling CoP', day:1, occurrences:[1,3], time:'4–5pm ET', zoom:'https://mba-org.zoom.us/j/81097644741'},
+    {name:'Digital Interoperability CoP', day:4, occurrences:[2], time:'1–2pm ET', zoom:'https://mba-org.zoom.us/j/88234890771'},
+    {name:'eHELOC DWG', day:4, occurrences:[2,4], time:'12–1pm ET', zoom:'https://mba-org.zoom.us/j/89724557553'},
+    {name:'eMortgage CoP', day:4, occurrences:[1], time:'1–2pm ET', zoom:'https://mba-org.zoom.us/j/86820338874'},
+    {name:'HERO CoP', day:2, occurrences:[1], time:'10–11am ET', zoom:'https://mba-org.zoom.us/j/89963965149'},
+    {name:'Housing Counseling DWG', day:3, occurrences:[2,4], time:'3–4pm ET', zoom:'https://mba-org.zoom.us/j/85930714859'},
+    {name:'Information Management', day:1, occurrences:'weekly', time:'2–3pm ET', zoom:'https://mba-org.zoom.us/j/83911697957'},
+    {name:'Loan Application Data Exchange DWG', day:2, occurrences:[4], time:'1–2pm ET', zoom:'https://mba-org.zoom.us/j/88023232957'},
+    {name:'MI Claim Submission DWG', day:2, occurrences:[1,3], time:'3–4pm ET', zoom:'https://mba-org.zoom.us/j/82404935190'},
+    {name:'Mortgage Compliance Dataset DWG', day:4, occurrences:[1,3], time:'3–4pm ET', zoom:'https://mba-org.zoom.us/j/88042907892', dashboard:'mcd-dashboard.html'},
+    {name:'Mortgage Insurance CoP', day:1, occurrences:[3], time:'1–2pm ET', zoom:'https://mba-org.zoom.us/j/87976028176'},
+    {name:'Origination CoP', day:3, occurrences:[1], time:'3–4pm ET', zoom:'https://mba-org.zoom.us/j/85990267275'},
+    {name:'Property &amp; Valuation Services CoP', day:5, occurrences:[2,4], time:'1–2pm ET', zoom:'https://mba-org.zoom.us/j/86087635705'},
+    {name:'Remote Online Notarization DWG', day:null, occurrences:[], time:'On hold', zoom:null, onHold:true},
+    {name:'Reverse Mortgage DWG', day:4, occurrences:[1,3], time:'1–2pm ET', zoom:'https://mba-org.zoom.us/j/86180371977'},
+    {name:'Secondary CoP', day:2, occurrences:[3], time:'3–4pm ET', zoom:'https://mba-org.zoom.us/j/89634843815'},
+    {name:'Servicing CoP', day:1, occurrences:[2,4], time:'1–2pm ET', zoom:'https://mba-org.zoom.us/j/86066078039'},
+    {name:'Servicing Transfers DWG', day:3, occurrences:[2,4], time:'1–2pm ET', zoom:'https://mba-org.zoom.us/j/87030588927', dashboard:'lbds-dashboard.html'},
+    {name:'TIE (Technology Impact &amp; Enablement) CoP', day:3, occurrences:[3], time:'2–3pm ET', zoom:'https://mba-org.zoom.us/j/88544460553'},
+    {name:'Title &amp; Closing CoP', day:1, occurrences:[2], time:'1–2pm ET', zoom:'https://mba-org.zoom.us/j/89444784294'},
+    {name:'Title &amp; Closing Docs to Data DWG', day:3, occurrences:[1,3], time:'2–3pm ET', zoom:'https://mba-org.zoom.us/j/84866528267'},
+    {name:'Title Pricing API DWG', day:3, occurrences:'weekly', time:'3:30–4:30pm ET', zoom:'https://mba-org.zoom.us/j/83150861941'},
+    {name:'VA Documents to Data DWG', day:3, occurrences:[3], time:'3–4pm ET', zoom:'https://mba-org.zoom.us/j/88489860437'},
+    {name:'Verifiable Profile SMART Doc DWG', day:3, occurrences:[1], time:'11am–12pm ET', zoom:'https://mba-org.zoom.us/j/86383676148'}
+  ];
+
+  function getWeekdayDatesInMonth(year, month, dayOfWeek){
+    const dates = [];
+    const d = new Date(year, month, 1);
+    while (d.getMonth() === month){
+      if (d.getDay() === dayOfWeek) dates.push(d.getDate());
+      d.setDate(d.getDate() + 1);
+    }
+    return dates;
+  }
+
+  function meetingsOnDate(year, month, dateNum){
+    const matches = [];
+    workgroups.forEach(wg => {
+      if (wg.onHold || wg.day === null) return;
+      const weekdayDates = getWeekdayDatesInMonth(year, month, wg.day);
+      let occursToday = false;
+      if (wg.occurrences === 'weekly'){
+        occursToday = weekdayDates.includes(dateNum);
+      } else {
+        const nthDates = wg.occurrences.map(n => weekdayDates[n-1]).filter(x => x !== undefined);
+        occursToday = nthDates.includes(dateNum);
+      }
+      if (occursToday) matches.push(wg);
+    });
+    return matches;
+  }
+
+  const today = new Date();
+  let viewYear = today.getFullYear();
+  let viewMonth = today.getMonth();
+
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+  function render(){
+    document.getElementById('monthLabel').textContent = monthNames[viewMonth] + ' ' + viewYear;
+    const body = document.getElementById('calBody');
+    body.innerHTML = '';
+
+    const firstOfMonth = new Date(viewYear, viewMonth, 1);
+    const startOffset = firstOfMonth.getDay(); // days to back up to reach Sunday
+    const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+    const daysInPrevMonth = new Date(viewYear, viewMonth, 0).getDate();
+
+    const totalCells = Math.ceil((startOffset + daysInMonth) / 7) * 7;
+
+    for (let i = 0; i < totalCells; i++){
+      const cell = document.createElement('div');
+      let cellDate, cellMonth, cellYear, otherMonth = false;
+
+      if (i < startOffset){
+        cellDate = daysInPrevMonth - startOffset + 1 + i;
+        cellMonth = viewMonth - 1; cellYear = viewYear;
+        otherMonth = true;
+      } else if (i >= startOffset + daysInMonth){
+        cellDate = i - startOffset - daysInMonth + 1;
+        cellMonth = viewMonth + 1; cellYear = viewYear;
+        otherMonth = true;
+      } else {
+        cellDate = i - startOffset + 1;
+        cellMonth = viewMonth; cellYear = viewYear;
+      }
+      let normMonth = cellMonth, normYear = cellYear;
+      if (normMonth < 0){ normMonth = 11; normYear--; }
+      if (normMonth > 11){ normMonth = 0; normYear++; }
+
+      cell.className = 'cal-day' + (otherMonth ? ' other-month' : '');
+      const isToday = !otherMonth && normYear === today.getFullYear() && normMonth === today.getMonth() && cellDate === today.getDate();
+      if (isToday) cell.className += ' is-today';
+
+      const dateEl = document.createElement('div');
+      dateEl.className = 'cal-date-num';
+      dateEl.textContent = cellDate;
+      cell.appendChild(dateEl);
+
+      const meetingsWrap = document.createElement('div');
+      meetingsWrap.className = 'cal-meetings';
+
+      const meetings = otherMonth ? [] : meetingsOnDate(normYear, normMonth, cellDate);
+      meetings.forEach(wg => {
+        const a = document.createElement('a');
+        a.className = 'meeting-chip' + (wg.dashboard ? ' has-dashboard' : '');
+        a.href = wg.dashboard || wg.zoom;
+        a.target = wg.dashboard ? '_self' : '_blank';
+        if (!wg.dashboard) a.rel = 'noopener';
+        a.title = wg.name.replace(/&amp;/g, '&') + ' — ' + wg.time;
+        a.innerHTML = wg.name;
+        meetingsWrap.appendChild(a);
+      });
+      cell.appendChild(meetingsWrap);
+      body.appendChild(cell);
+    }
+  }
+
+  document.getElementById('prevMonthBtn').addEventListener('click', () => {
+    viewMonth--;
+    if (viewMonth < 0){ viewMonth = 11; viewYear--; }
+    render();
+  });
+  document.getElementById('nextMonthBtn').addEventListener('click', () => {
+    viewMonth++;
+    if (viewMonth > 11){ viewMonth = 0; viewYear++; }
+    render();
+  });
+  document.getElementById('todayBtn').addEventListener('click', () => {
+    viewYear = today.getFullYear();
+    viewMonth = today.getMonth();
+    render();
+  });
+
+  render();
+</script>
+
+</body>
+</html>

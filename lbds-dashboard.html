@@ -1877,7 +1877,7 @@
 
   // Lock toggle: prevents accidental edits without touching any underlying data
   const lockToggleBtn = document.getElementById('lockToggleBtn');
-  let isLocked = false;
+  let isLocked = true;
 
   function updateLockUI(){
     document.body.classList.toggle('locked', isLocked);

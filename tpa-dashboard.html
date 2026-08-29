@@ -450,45 +450,34 @@
   .origin-line{font-size:12.5px; margin:0 0 6px; color:var(--ink-soft);}
   .origin-line strong{color:var(--ink); font-weight:600;}
 
-  /* ---------- ROADMAP TABS ---------- */
+  /* ---------- ROADMAP: COMMAND CENTER LAYOUT ---------- */
   .roadmap-intro{font-size:13.5px; color:var(--ink-soft); max-width:760px; margin-bottom:18px;}
-  .tab-row{
+  .lane-chip-row{
     display:flex;
-    gap:6px;
+    gap:8px;
     flex-wrap:wrap;
-    border-bottom:1px solid var(--line);
-    margin-bottom:20px;
+    margin-bottom:16px;
   }
-  .tab-btn{
-    font-family:'Space Grotesk',sans-serif;
-    font-size:13.5px;
+  .lane-chip-btn{
+    font-family:'Inter',sans-serif;
+    font-size:13px;
     font-weight:600;
-    background:none;
-    border:none;
+    background:var(--card);
+    border:1.5px solid var(--line);
     cursor:pointer;
-    padding:10px 16px;
+    padding:8px 16px;
+    border-radius:999px;
     color:var(--ink-soft);
-    border-bottom:2.5px solid transparent;
     display:flex;
     align-items:center;
     gap:6px;
-    margin-bottom:-1px;
   }
-  .tab-btn[aria-selected="true"]{
-    color:var(--ink);
-    border-bottom-color:var(--ink);
-  }
-  .tab-btn.tab-general{
-    background:var(--paper);
-    border-radius:6px 6px 0 0;
-    font-weight:700;
-  }
-  .tab-btn.tab-general[aria-selected="true"]{
+  .lane-chip-btn[aria-selected="true"]{
     background:var(--bar-bg);
+    border-color:var(--bar-bg);
     color:#fff;
-    border-bottom-color:var(--bar-bg);
   }
-  .tab-flag{
+  .lane-chip-flag{
     font-size:9.5px;
     background:var(--signal-soft);
     color:var(--signal-text);
@@ -497,8 +486,12 @@
     font-family:'IBM Plex Mono',monospace;
     font-weight:600;
   }
-  .tab-panel{display:none;}
-  .tab-panel.active{display:block;}
+  .lane-chip-btn[aria-selected="true"] .lane-chip-flag{background:rgba(255,255,255,.2); color:#fff;}
+
+  .command-layout{display:grid; grid-template-columns:260px 1fr; gap:14px;}
+  @media (max-width:760px){ .command-layout{grid-template-columns:1fr;} }
+  .side-card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:18px;}
+  .task-card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:6px 20px 20px;}
 
   .lane-grid{
     display:grid;
@@ -515,16 +508,6 @@
   }
   .lane-block ul{margin:0; padding-left:18px; font-size:13.5px;}
   .lane-block li{margin-bottom:6px;}
-  .inferred-note{
-    font-size:11.5px;
-    color:var(--signal-text);
-    background:var(--signal-soft);
-    padding:8px 10px;
-    border-radius:6px;
-    margin-bottom:10px;
-    display:flex;
-    gap:6px;
-  }
   .empty-note{
     font-size:12.5px;
     color:var(--ink-soft);
@@ -1021,8 +1004,8 @@
   .view-btn{font-family:'Inter',sans-serif; font-size:12px; font-weight:600; padding:6px 13px; border-radius:6px; border:none; background:none; color:var(--ink-soft); cursor:pointer;}
   .view-btn[aria-pressed="true"]{background:var(--card); color:var(--ink); box-shadow:var(--shadow);}
 
-  .goal-strip{display:flex; gap:26px; flex-wrap:wrap; padding:14px 2px 18px; border-bottom:1px solid var(--line); margin-bottom:16px;}
-  .goal-strip-group{flex:1; min-width:220px;}
+  .goal-strip{display:flex; flex-direction:column; gap:18px;}
+  .goal-strip-group{}
   .strip-label{display:block; font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-soft); font-weight:600; margin-bottom:8px;}
   .pill-row{display:flex; flex-wrap:wrap; gap:6px;}
   .pill-goal{background:var(--brand-soft); color:var(--brand-text); font-size:12px; font-weight:500; padding:5px 11px; border-radius:999px;}
@@ -1212,15 +1195,10 @@
     <p class="section-subtext">See what each stakeholder group needs to do to reach broad adoption.</p>
     <p class="roadmap-intro">Tasks are organized by stakeholder group. This initiative is still in Discovery — most lanes are empty until the Discovery workshop (August 2026) establishes a workgroup, roster, and real task list.</p>
 
-    <div class="card" style="padding:8px 20px 20px;">
-      <div class="tab-row" role="tablist" aria-label="Adoption lanes">
-        <button class="tab-btn tab-general" role="tab" aria-selected="true" data-tab="general">General</button>
-        <button class="tab-btn" role="tab" aria-selected="false" data-tab="originator">Mortgage Originator</button>
-        <button class="tab-btn" role="tab" aria-selected="false" data-tab="warehouse">Warehouse Lenders</button>
-        <button class="tab-btn" role="tab" aria-selected="false" data-tab="investor">Investors/Aggregators</button>
-        <button class="tab-btn" role="tab" aria-selected="false" data-tab="tech">eMortgage Technology Providers</button>
-      </div>
-      <div id="laneRoot"></div>
+    <div class="lane-chip-row" id="chipRow" role="tablist" aria-label="Adoption lanes"></div>
+    <div class="command-layout" id="commandLayout">
+      <div class="side-card" id="laneSidebar"></div>
+      <div class="task-card" id="laneMain"></div>
     </div>
   </section>
 
@@ -1384,31 +1362,26 @@
   // Roadmap: lane data + compact/kanban renderer
   let laneData = {
     general: {
-      flagged: false,
       goals: ['Complete the Discovery workshop at MISMO\'s Fall Summit (Aug 26, 2026) and determine whether to charter a formal Development Workgroup'],
       roadblocks: ['Not yet chartered as a workgroup — cadence, leadership, and scope are all TBD'],
       actions: []
     },
     originator: {
-      flagged: false,
       goals: ['Participate in the Discovery workshop at MISMO\'s Fall Summit (Aug 26, 2026)'],
       roadblocks: [],
       actions: []
     },
     warehouse: {
-      flagged: false,
       goals: ['Participate in the Discovery workshop at MISMO\'s Fall Summit (Aug 26, 2026)'],
       roadblocks: [],
       actions: []
     },
     investor: {
-      flagged: false,
       goals: ['Participate in the Discovery workshop at MISMO\'s Fall Summit (Aug 26, 2026)'],
       roadblocks: [],
       actions: []
     },
     tech: {
-      flagged: false,
       goals: ['Participate in the Discovery workshop at MISMO\'s Fall Summit (Aug 26, 2026)'],
       roadblocks: [],
       actions: []
@@ -1418,7 +1391,7 @@
   let currentLane = 'general';
   let currentView = 'compact';
   let editingTaskIdx = null; // null = none, 'new' = adding, number = editing that index
-  const laneRoot = document.getElementById('laneRoot');
+  const laneRoot = document.getElementById('commandLayout');
 
   const actionStatusOptions = [
     ['not-started', 'Not Started'],
@@ -1524,19 +1497,32 @@
     return { rosterFound, laneFound };
   }
 
+  const laneLabels = {
+    general: 'General',
+    originator: 'Mortgage Originator',
+    warehouse: 'Warehouse Lenders',
+    investor: 'Investors/Aggregators',
+    tech: 'eMortgage Technology Providers'
+  };
+
+  function renderChips(){
+    const chipRow = document.getElementById('chipRow');
+    chipRow.innerHTML = Object.keys(laneData).map(key => {
+      const hasRoadblocks = laneData[key].roadblocks.length > 0;
+      const flag = hasRoadblocks ? '<span class="lane-chip-flag">⚑</span>' : '';
+      const selected = key === currentLane ? 'true' : 'false';
+      return `<button class="lane-chip-btn" role="tab" aria-selected="${selected}" data-tab="${key}">${laneLabels[key] || key}${flag}</button>`;
+    }).join('');
+  }
+
   function renderLane(){
     const lane = laneData[currentLane];
+    const sidebar = document.getElementById('laneSidebar');
+    const main = document.getElementById('laneMain');
+
+    sidebar.innerHTML = `<div class="goal-strip">${renderPillGroup('Goals', lane.goals, 'goal')}${renderPillGroup('Roadblocks', lane.roadblocks, 'roadblock')}</div>`;
+
     let html = '';
-
-    if (lane.flagged){
-      html += `<div class="inferred-note">⚑ Source repeated the Servicer lane's goals here. Goals below are inferred from this lane's own action items, pending owner confirmation.</div>`;
-    }
-
-    html += `<div class="goal-strip">`;
-    html += renderPillGroup('Goals', lane.goals, 'goal');
-    html += renderPillGroup('Roadblocks', lane.roadblocks, 'roadblock');
-    html += `</div>`;
-
     if (currentView === 'compact'){
       if (lane.actions.length === 0 && editingTaskIdx !== 'new'){
         html += `<p class="empty-lane-note">No tasks yet for this stakeholder group.</p>`;
@@ -1596,20 +1582,18 @@
       html += `</div>`;
     }
 
-    laneRoot.innerHTML = html;
+    main.innerHTML = html;
     saveLaneData();
     applyLockState();
   }
 
-  const tabButtons = document.querySelectorAll('.tab-btn');
-  tabButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      tabButtons.forEach(b => b.setAttribute('aria-selected', 'false'));
-      btn.setAttribute('aria-selected', 'true');
-      currentLane = btn.getAttribute('data-tab');
-      editingTaskIdx = null;
-      renderLane();
-    });
+  document.getElementById('chipRow').addEventListener('click', (e) => {
+    const btn = e.target.closest('.lane-chip-btn');
+    if (!btn) return;
+    currentLane = btn.getAttribute('data-tab');
+    editingTaskIdx = null;
+    renderChips();
+    renderLane();
   });
 
   const viewButtons = document.querySelectorAll('.view-btn');
@@ -1623,6 +1607,7 @@
     });
   });
 
+  renderChips();
   renderLane();
 
   // Quick status changes on non-edit rows: update the data model and re-render
@@ -1971,6 +1956,7 @@
     if (!laneFound) saveLaneData();
   }
 
+  renderChips();
   renderLane();
   renderRosterTable();
   renderFunnel();

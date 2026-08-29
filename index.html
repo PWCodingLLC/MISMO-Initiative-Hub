@@ -141,12 +141,17 @@
   }
 
   .view-link{
-    display:inline-block; margin-top:14px; font-size:12.5px; font-weight:700; color:var(--brand); text-decoration:none;
+    display:inline-flex; align-items:center; gap:6px; margin-top:14px;
+    padding:10px 18px; border-radius:8px; border:none;
+    font-size:13px; font-weight:700; color:#fff; background:var(--brand);
+    text-decoration:none; transition:background .15s ease, transform .15s ease;
   }
+  .view-link:hover{background:var(--brand-text); transform:translateY(-1px);}
   .view-link-disabled{
-    display:inline-block; margin-top:14px; font-size:12.5px; font-weight:700; color:var(--ink-soft); font-style:italic;
+    display:inline-flex; align-items:center; margin-top:14px;
+    padding:10px 18px; border-radius:8px; border:1px dashed var(--line);
+    font-size:13px; font-weight:700; color:var(--ink-soft); font-style:italic;
   }
-  .view-link:hover{text-decoration:underline;}
   .empty-hint{font-size:13px; color:var(--ink-soft); text-align:center; padding:26px 0;}
 </style>
 </head>
@@ -389,7 +394,8 @@
   function playIntroColorTour(withSound){
     const tiles = [...tileGrid.querySelectorAll('.domain-tile')];
     // Group tiles into visual rows based on their actual rendered top offset,
-    // so this adapts correctly at any screen width (3 columns, 2, or 1).
+    // then sort each row left-to-right, so this adapts correctly at any screen
+    // width (3 columns, 2, or 1) rather than assuming a fixed grid shape.
     const rows = [];
     tiles.forEach(tile => {
       const top = tile.offsetTop;
@@ -400,10 +406,22 @@
       }
       row.tiles.push(tile);
     });
+    rows.forEach(row => row.tiles.sort((a, b) => a.offsetLeft - b.offsetLeft));
+
+    // Diagonal sweep: bottom-left tile -> middle tile -> top-right tile,
+    // computed from whatever the current row/column layout actually is.
+    const bottomRow = rows[rows.length - 1];
+    const topRow = rows[0];
+    const middleRow = rows[Math.floor(rows.length / 2)];
+    const bottomLeftTile = bottomRow.tiles[0];
+    const topRightTile = topRow.tiles[topRow.tiles.length - 1];
+    const middleTile = middleRow.tiles[Math.floor(middleRow.tiles.length / 2)];
+    const sweepTiles = [bottomLeftTile, middleTile, topRightTile];
+
     const stepMs = 1500;
 
-    // Descending tones, one per row, high to low — then a short ascending
-    // three-note flourish once every row has had its turn (Close Encounters-ish).
+    // Descending tones, one per step, high to low — then a short ascending
+    // three-note flourish once the sweep finishes (Close Encounters-ish).
     // Dropped one octave from the original pitch per feedback.
     const rowNotes = [440.00, 293.66, 220.00]; // A4, D4, A3
     const flourishNotes = [261.63, 329.63, 392.00]; // C4, E4, G4
@@ -415,21 +433,21 @@
     const ctx = withSound ? getAudioContext() : null;
     function audioIsLive(){ return ctx && ctx.state === 'running'; }
 
-    rows.forEach((row, i) => {
+    sweepTiles.forEach((tile, i) => {
       setTimeout(() => {
-        row.tiles.forEach(tile => tile.classList.add('intro-highlight'));
+        tile.classList.add('intro-highlight');
         if (audioIsLive()){
           const freq = rowNotes[i] || rowNotes[rowNotes.length - 1];
           playTone(freq, ctx.currentTime, 0.9, ctx);
         }
         setTimeout(() => {
-          row.tiles.forEach(tile => tile.classList.remove('intro-highlight'));
+          tile.classList.remove('intro-highlight');
         }, stepMs);
       }, i * stepMs);
     });
 
-    // Ascending flourish after the last row's highlight finishes.
-    const flourishStart = rows.length * stepMs + 200;
+    // Ascending flourish after the last tile's highlight finishes.
+    const flourishStart = sweepTiles.length * stepMs + 200;
     flourishNotes.forEach((freq, i) => {
       setTimeout(() => {
         if (audioIsLive()) playTone(freq, ctx.currentTime, 0.35, ctx);

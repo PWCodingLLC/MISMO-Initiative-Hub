@@ -779,6 +779,33 @@
   }
   .highlight-row{background:var(--signal-soft) !important;}
 
+  /* ---------- ROSTER: CARD GRID + SIDEBAR ---------- */
+  .roster-layout{display:grid; grid-template-columns:220px 1fr; gap:14px;}
+  @media (max-width:760px){ .roster-layout{grid-template-columns:1fr;} }
+  .roster-side-card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:18px; align-self:start;}
+  .roster-side-label{font-size:10.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:10px;}
+  .roster-big-stat{font-family:'IBM Plex Mono',monospace; font-size:32px; font-weight:700; line-height:1;}
+  .roster-big-stat-label{font-size:12px; color:var(--ink-soft); margin:2px 0 18px;}
+  .roster-status-row{display:flex; align-items:center; justify-content:space-between; padding:6px 0; font-size:12.5px;}
+  .roster-status-row .label{display:flex; align-items:center; gap:7px;}
+  .roster-status-dot{width:9px; height:9px; border-radius:3px; display:inline-block;}
+  .roster-status-val{font-family:'IBM Plex Mono',monospace; font-weight:600;}
+
+  .org-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:12px;}
+  @media (max-width:640px){ .org-grid{grid-template-columns:1fr;} }
+  .org-card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:16px 18px;}
+  .org-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:2px;}
+  .org-name{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:14.5px;}
+  .org-type-input{font-size:10.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-soft); margin-bottom:12px;}
+
+  .contact-card{background:var(--paper); border-radius:8px; padding:12px 14px; margin-bottom:12px;}
+  .contact-card .contact-block{min-width:0;}
+  .contact-card .contact-edit-form{min-width:0;}
+
+  .participants-label{font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-soft); margin-bottom:6px;}
+  .participant-chip{display:inline-block; background:var(--brand-soft); color:var(--brand-text); font-size:11px; padding:4px 10px; border-radius:999px; margin:0 5px 5px 0;}
+  .org-notes{font-size:11.5px; color:var(--ink-soft); border-top:1px solid var(--line); padding-top:9px; margin-top:10px; font-style:italic;}
+
   /* ---------- GOVERNANCE ---------- */
   .gov-layout{
     display:grid;
@@ -1240,19 +1267,17 @@
     <p class="section-subtext" style="margin:0 0 12px;">"Active participants" = attended at least 1/3 of the 17 workgroup meetings held in the past year (Aug 2025–Aug 2026), per the uploaded meeting tracker.</p>
     <div class="card" style="padding:18px;" id="roster">
       <div class="roster-controls">
-        <button class="chip-btn" data-type-filter="all" aria-pressed="true">All types</button>
+        <button class="chip-btn" data-type-filter="eMortgage Technology Providers" aria-pressed="true">Tech Providers</button>
+        <button class="chip-btn" data-type-filter="Investors/Aggregators" aria-pressed="false">Investors/Aggregators</button>
         <button class="chip-btn" data-type-filter="Mortgage Originator" aria-pressed="false">Mortgage Originator</button>
         <button class="chip-btn" data-type-filter="Warehouse Lenders" aria-pressed="false">Warehouse Lenders</button>
-        <button class="chip-btn" data-type-filter="Investors/Aggregators" aria-pressed="false">Investors/Aggregators</button>
-        <button class="chip-btn" data-type-filter="eMortgage Technology Providers" aria-pressed="false">Tech Providers</button>
+        <button class="chip-btn" data-type-filter="all" aria-pressed="false">All types</button>
         <input class="search-input" id="rosterSearch" type="text" placeholder="Search org or participant…">
       </div>
-      <table id="rosterTable">
-        <thead>
-          <tr><th>Type</th><th>Organization</th><th>Primary Contact</th><th>Status</th><th>Active participants</th><th>Notes</th></tr>
-        </thead>
-        <tbody id="rosterBody"></tbody>
-      </table>
+      <div class="roster-layout" id="rosterLayout">
+        <div class="roster-side-card" id="rosterSidebar"></div>
+        <div class="org-grid" id="orgGrid"></div>
+      </div>
       <p class="section-note" id="rosterEmpty" style="display:none; padding:14px 0 0;">No rows match this filter.</p>
       <datalist id="stakeholderTypeOptions">
         <option value="Mortgage Originator">
@@ -1776,29 +1801,64 @@
     </div>`;
   }
 
+  const statusColorVar = {
+    'not-applicable': '--slate', 'not-started': '--status-red', 'planned': '--status-orange',
+    'piloted': '--status-yellow', 'in-use': '--status-green'
+  };
+
+  function renderRosterSidebar(rows){
+    const sidebar = document.getElementById('rosterSidebar');
+    const label = activeType === 'all' ? 'All Orgs' : activeType;
+    const counts = {};
+    statusOptions.forEach(([key]) => counts[key] = 0);
+    rows.forEach(r => { if (counts[r.status] !== undefined) counts[r.status]++; });
+
+    let html = `<div class="roster-side-label">${label}</div><div class="roster-big-stat">${rows.length}</div><div class="roster-big-stat-label">orgs tracked</div><div class="roster-side-label">By status</div>`;
+    statusOptions.forEach(([key, statusLabel]) => {
+      if (counts[key] === 0) return;
+      html += `<div class="roster-status-row"><span class="label"><span class="roster-status-dot" style="background:var(${statusColorVar[key]});"></span>${statusLabel}</span><span class="roster-status-val">${counts[key]}</span></div>`;
+    });
+    sidebar.innerHTML = html;
+  }
+
   function renderRosterTable(){
-    const tbody = document.getElementById('rosterBody');
+    const orgGrid = document.getElementById('orgGrid');
     const q = searchInput.value.trim().toLowerCase();
     let html = '';
     let visibleCount = 0;
+    const visibleRows = [];
     rosterData.forEach((row, idx) => {
       const typeMatch = activeType === 'all' || row.type === activeType;
       const haystack = `${row.type} ${row.org} ${row.primaryContact} ${row.title||''} ${row.email||''} ${row.participants} ${row.notes}`.toLowerCase();
       const textMatch = q === '' || haystack.includes(q);
       if (!(typeMatch && textMatch)) return;
       visibleCount++;
+      visibleRows.push(row);
       const idAttr = row.rowId ? ` id="${row.rowId}"` : '';
-      html += `<tr data-type="${row.type}"${idAttr}>
-        <td><input class="type-input" list="stakeholderTypeOptions" data-roster-field="type" data-idx="${idx}" value="${row.type.replace(/"/g,'&quot;')}"></td>
-        <td contenteditable="true" data-roster-field="org" data-idx="${idx}">${row.org}</td>
-        <td class="primary-contact">${renderContactCell(idx, row)}</td>
-        <td>${renderStatusSelect(idx, row.status)}</td>
-        <td title="Attendance data — not editable">${row.participants}</td>
-        <td contenteditable="true" data-roster-field="notes" data-idx="${idx}">${row.notes}</td>
-      </tr>`;
+      // "No one met the threshold" messages can contain their own internal comma
+      // (e.g. two people tied for closest) — splitting those by comma would break
+      // one coherent sentence into two disconnected, confusing chips. Only split
+      // on comma for genuine multi-name participant lists.
+      const participantChips = row.participants.startsWith('No one met')
+        ? `<span class="participant-chip">${row.participants}</span>`
+        : row.participants.split(',').map(s =>
+            `<span class="participant-chip">${s.trim()}</span>`
+          ).join('');
+      html += `<div class="org-card" data-type="${row.type}"${idAttr}>
+        <div class="org-top">
+          <span class="org-name" contenteditable="true" data-roster-field="org" data-idx="${idx}">${row.org}</span>
+          ${renderStatusSelect(idx, row.status)}
+        </div>
+        <input class="type-input org-type-input" list="stakeholderTypeOptions" data-roster-field="type" data-idx="${idx}" value="${row.type.replace(/"/g,'&quot;')}">
+        <div class="contact-card">${renderContactCell(idx, row)}</div>
+        <div class="participants-label">Active Participants</div>
+        <div title="Attendance data — not editable">${participantChips}</div>
+        <div class="org-notes" contenteditable="true" data-roster-field="notes" data-idx="${idx}">${row.notes}</div>
+      </div>`;
     });
-    tbody.innerHTML = html;
+    orgGrid.innerHTML = html;
     emptyMsg.style.display = visibleCount === 0 ? 'block' : 'none';
+    renderRosterSidebar(visibleRows);
     saveRosterData();
     applyLockState();
   }
@@ -1878,7 +1938,7 @@
   const typeButtons = document.querySelectorAll('[data-type-filter]');
   const searchInput = document.getElementById('rosterSearch');
   const emptyMsg = document.getElementById('rosterEmpty');
-  let activeType = 'all';
+  let activeType = 'eMortgage Technology Providers';
 
   typeButtons.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -1891,7 +1951,7 @@
   searchInput.addEventListener('input', renderRosterTable);
 
   // Primary contact editing: click Edit to reveal name/title/email inputs for that row only
-  document.getElementById('rosterTable').addEventListener('click', async (e) => {
+  document.getElementById('rosterLayout').addEventListener('click', async (e) => {
     const editBtn = e.target.closest('.contact-edit-btn');
     if (editBtn){
       editingContactIdx = parseInt(editBtn.getAttribute('data-edit-idx'), 10);
@@ -1922,7 +1982,7 @@
 
   // Type / Organization / Notes are plain editable text — sync to the data model on blur
   // so edits survive the next re-render (filtering, searching, contact save/cancel).
-  document.getElementById('rosterTable').addEventListener('blur', async (e) => {
+  document.getElementById('rosterLayout').addEventListener('blur', async (e) => {
     const field = e.target.getAttribute && e.target.getAttribute('data-roster-field');
     if (!field) return;
     const idx = parseInt(e.target.getAttribute('data-idx'), 10);
@@ -1934,7 +1994,7 @@
 
   // Status changes: update the data model, then re-render the table row's own
   // select styling, the funnel bars, and the adoption stat — all from one source of truth.
-  document.getElementById('rosterTable').addEventListener('change', async (e) => {
+  document.getElementById('rosterLayout').addEventListener('change', async (e) => {
     if (!e.target.matches('select.status-select')) return;
     const idx = parseInt(e.target.getAttribute('data-idx'), 10);
     const newStatus = e.target.value;

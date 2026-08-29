@@ -758,9 +758,9 @@
   .empty-lane-note{font-size:13px; color:var(--ink-soft); font-style:italic; padding:18px 0; text-align:center; margin:0;}
   .primary-contact{vertical-align:top;}
   .funnel-empty-label{font-size:11px; color:var(--ink-soft); padding:2px 0 0; font-style:italic;}
-  .funnel-legend{display:flex; gap:14px; margin-top:12px; flex-wrap:wrap;}
-  .funnel-legend-item{display:flex; align-items:center; gap:6px; font-size:11.5px; color:var(--ink-soft);}
-  .legend-dot{width:9px; height:9px; border-radius:2px; display:inline-block;}
+  .funnel-legend{display:flex; gap:20px; margin-bottom:18px; flex-wrap:wrap;}
+  .funnel-legend-item{display:flex; align-items:center; gap:8px; font-size:14px; font-weight:600; color:var(--ink-soft);}
+  .legend-dot{width:13px; height:13px; border-radius:3px; display:inline-block;}
 
   .roster-controls{
     display:flex;
@@ -1260,8 +1260,6 @@
       <h3 class="card-dark-bar">Stakeholder Implementation Status</h3>
       <p class="section-subtext" style="margin:0 0 12px;">Change any status in the roster below — the charts update to match.</p>
       <div class="card stake-card">
-        <div id="funnelRoot"></div>
-
         <div class="funnel-legend">
           <div class="funnel-legend-item"><span class="legend-dot" style="background:var(--slate);"></span>Not Applicable</div>
           <div class="funnel-legend-item"><span class="legend-dot" style="background:var(--status-red);"></span>Not Started</div>
@@ -1269,6 +1267,8 @@
           <div class="funnel-legend-item"><span class="legend-dot" style="background:var(--status-yellow);"></span>Piloted</div>
           <div class="funnel-legend-item"><span class="legend-dot" style="background:var(--status-green);"></span>Implemented</div>
         </div>
+
+        <div id="funnelRoot"></div>
       </div>
     </div>
 

@@ -211,6 +211,29 @@
     return dates;
   }
 
+  // Parses a time string like "3–4pm ET" or "11am–12pm ET" or "3:30–4:30pm ET"
+  // into minutes-since-midnight for its start time, so meetings on the same day
+  // can be sorted chronologically. Borrows am/pm from the end of the range when
+  // the start doesn't state it explicitly (e.g. "3" in "3–4pm").
+  function startTimeToMinutes(timeStr){
+    const cleaned = timeStr.replace(' ET', '').trim();
+    const parts = cleaned.split('–');
+    const startPart = (parts[0] || '').trim();
+    const endPart = (parts[1] || '').trim();
+    let period = null;
+    if (/am/i.test(startPart)) period = 'am';
+    else if (/pm/i.test(startPart)) period = 'pm';
+    else if (/am/i.test(endPart)) period = 'am';
+    else if (/pm/i.test(endPart)) period = 'pm';
+    const match = startPart.match(/(\d+)(?::(\d+))?/);
+    if (!match) return 0;
+    let hour = parseInt(match[1], 10);
+    const minute = match[2] ? parseInt(match[2], 10) : 0;
+    if (period === 'pm' && hour !== 12) hour += 12;
+    if (period === 'am' && hour === 12) hour = 0;
+    return hour * 60 + minute;
+  }
+
   function meetingsOnDate(year, month, dateNum){
     const matches = [];
     workgroups.forEach(wg => {
@@ -225,6 +248,7 @@
       }
       if (occursToday) matches.push(wg);
     });
+    matches.sort((a, b) => startTimeToMinutes(a.time) - startTimeToMinutes(b.time));
     return matches;
   }
 
@@ -286,7 +310,7 @@
         a.target = wg.dashboard ? '_self' : '_blank';
         if (!wg.dashboard) a.rel = 'noopener';
         a.title = wg.name.replace(/&amp;/g, '&') + ' — ' + wg.time;
-        a.innerHTML = '<span class="chip-time">' + wg.time.replace(' ET', '') + '</span><span class="chip-name">' + wg.name + '</span>';
+        a.innerHTML = '<span class="chip-time">' + wg.time + '</span><span class="chip-name">' + wg.name + '</span>';
         meetingsWrap.appendChild(a);
       });
       cell.appendChild(meetingsWrap);

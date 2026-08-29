@@ -80,6 +80,14 @@
   .domain-tile.intro-highlight .tile-desc{color:#4B5670; transition:color .6s ease;}
   .domain-tile.intro-highlight .tile-count{color:#4B5670; transition:color .6s ease;}
   .domain-tile.intro-highlight .tile-icon-wrap{background:var(--tile-color); color:#fff; transition:background .6s ease, color .6s ease;}
+  /* Slower, more gradual fade for the descending row phase specifically —
+     the quicker ascending phase keeps the snappier .6s transition above,
+     since its 0.5s cadence doesn't leave room for a slower fade. */
+  .domain-tile.intro-highlight-slow{border-color:var(--tile-color); background:var(--tile-soft); transition:border-color 1s ease, background 1s ease;}
+  .domain-tile.intro-highlight-slow .tile-name{color:#101B33; transition:color 1s ease;}
+  .domain-tile.intro-highlight-slow .tile-desc{color:#4B5670; transition:color 1s ease;}
+  .domain-tile.intro-highlight-slow .tile-count{color:#4B5670; transition:color 1s ease;}
+  .domain-tile.intro-highlight-slow .tile-icon-wrap{background:var(--tile-color); color:#fff; transition:background 1s ease, color 1s ease;}
   .tile-top-row{display:flex; align-items:center; gap:12px;}
   .tile-icon-wrap{
     width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex:0 0 auto;
@@ -438,27 +446,27 @@
     const ctx = withSound ? getAudioContext() : null;
     function audioIsLive(){ return ctx && ctx.state === 'running'; }
 
-    function highlightGroup(tileGroup, freq, duration, holdMs){
-      tileGroup.forEach(tile => tile.classList.add('intro-highlight'));
+    function highlightGroup(tileGroup, freq, duration, holdMs, className){
+      tileGroup.forEach(tile => tile.classList.add(className));
       if (audioIsLive()) playTone(freq, ctx.currentTime, duration, ctx);
       setTimeout(() => {
-        tileGroup.forEach(tile => tile.classList.remove('intro-highlight'));
+        tileGroup.forEach(tile => tile.classList.remove(className));
       }, holdMs);
     }
 
-    // Descending: one row at a time, 1.5s apart.
+    // Descending: one row at a time, 1.5s apart — slower, more gradual fade.
     rows.forEach((row, i) => {
       setTimeout(() => {
-        highlightGroup(row.tiles, descendNotes[i] || descendNotes[descendNotes.length - 1], 0.9, descendMs);
+        highlightGroup(row.tiles, descendNotes[i] || descendNotes[descendNotes.length - 1], 0.9, descendMs, 'intro-highlight-slow');
       }, i * descendMs);
     });
 
     // Ascending: one diagonal group at a time, starting after the descending
-    // phase finishes, at a quicker cadence.
+    // phase finishes, at a quicker cadence — keeps the snappier fade.
     const ascendStart = rows.length * descendMs + 200;
     diagonalGroups.forEach((group, i) => {
       setTimeout(() => {
-        highlightGroup(group, ascendNotes[i] || ascendNotes[ascendNotes.length - 1], 0.35, ascendMs);
+        highlightGroup(group, ascendNotes[i] || ascendNotes[ascendNotes.length - 1], 0.35, ascendMs, 'intro-highlight');
       }, ascendStart + i * ascendMs);
     });
   }

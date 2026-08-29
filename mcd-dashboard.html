@@ -2247,16 +2247,46 @@
     });
   });
 
-  // Save: snapshot the entire current page (including all edits) to this browser's
-  // local storage. Restoring it is now an explicit, opt-in action (see the banner
-  // below) rather than automatic on every load — auto-restoring via document.write()
-  // on every page open was slow and would silently override any newly deployed
-  // version of this page with whatever was saved previously.
+  const GENERIC_FIELD_EXCLUDE = '#rosterLayout, #commandLayout';
+
+  function captureGenericFieldStates(){
+    const isExcluded = (el) => el.closest(GENERIC_FIELD_EXCLUDE) !== null;
+    const editable = [...document.querySelectorAll('[contenteditable="true"], [contenteditable="false"]')]
+      .filter(el => !isExcluded(el) && el.hasAttribute('data-roster-field') === false)
+      .filter(el => !el.parentElement || el.parentElement.closest('[contenteditable]') === null) // only outermost editable regions, skip nested spans
+      .map(el => el.innerHTML);
+    const selects = [...document.querySelectorAll('select')].filter(el => !isExcluded(el)).map(el => el.value);
+    const dates = [...document.querySelectorAll('input[type="date"]')].filter(el => !isExcluded(el)).map(el => el.value);
+    return { editable, selects, dates };
+  }
+
+  function applyGenericFieldStates(state){
+    if (!state) return;
+    const isExcluded = (el) => el.closest(GENERIC_FIELD_EXCLUDE) !== null;
+    const editableEls = [...document.querySelectorAll('[contenteditable="true"], [contenteditable="false"]')]
+      .filter(el => !isExcluded(el) && el.hasAttribute('data-roster-field') === false)
+      .filter(el => !el.parentElement || el.parentElement.closest('[contenteditable]') === null);
+    editableEls.forEach((el, i) => { if (state.editable && state.editable[i] !== undefined) el.innerHTML = state.editable[i]; });
+
+    const selectEls = [...document.querySelectorAll('select')].filter(el => !isExcluded(el));
+    selectEls.forEach((el, i) => {
+      if (state.selects && state.selects[i] !== undefined){
+        el.value = state.selects[i];
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
+
+    const dateEls = [...document.querySelectorAll('input[type="date"]')].filter(el => !isExcluded(el));
+    dateEls.forEach((el, i) => { if (state.dates && state.dates[i] !== undefined) el.value = state.dates[i]; });
+  }
+
   const saveSnapshotBtn = document.getElementById('saveSnapshotBtn');
   // Track unsaved changes: any edit, anywhere, flips the Save button to an
-  // "unsaved changes" state until the user actually clicks Save.
+  // "unsaved changes" state until the user actually clicks Save. Typing in the
+  // roster search box filters the view but isn't an edit, so it's excluded.
   let hasUnsavedChanges = false;
-  function markDirty(){
+  function markDirty(e){
+    if (e.target && e.target.id === 'rosterSearch') return;
     if (hasUnsavedChanges) return;
     hasUnsavedChanges = true;
     saveSnapshotBtn.classList.add('has-changes');
@@ -2268,7 +2298,12 @@
     const label = saveSnapshotBtn.querySelector('.save-label');
     const originalLabel = label.textContent;
     try {
-      localStorage.setItem('mcd-dashboard-snapshot', '<!DOCTYPE html>\n' + document.documentElement.outerHTML);
+      const snapshot = {
+        rosterData: rosterData,
+        laneData: laneData,
+        generic: captureGenericFieldStates()
+      };
+      localStorage.setItem('mcd-dashboard-snapshot', JSON.stringify(snapshot));
       hasUnsavedChanges = false;
       saveSnapshotBtn.classList.remove('has-changes');
       saveSnapshotBtn.classList.add('just-saved');
@@ -2283,27 +2318,52 @@
     }, 1800);
   });
 
-  // Opt-in restore: just check for a snapshot's existence (cheap) — only actually
-  // restore it if the user clicks the button.
+  // Show the "you have a saved snapshot" banner if one already existed when this
+  // page loaded (cheap check). The restore button's own listener is always attached
+  // below, independent of this — so restoring also works if you save and then want
+  // to restore again later in the same session, without needing a page reload first.
   (function(){
-    let savedSnapshot;
+    let savedSnapshotRaw;
     try {
-      savedSnapshot = localStorage.getItem('mcd-dashboard-snapshot');
+      savedSnapshotRaw = localStorage.getItem('mcd-dashboard-snapshot');
     } catch (e) {
       return;
     }
-    if (!savedSnapshot) return;
-    const banner = document.getElementById('restoreBanner');
-    banner.style.display = 'flex';
-    document.getElementById('restoreBtn').addEventListener('click', () => {
-      document.open();
-      document.write(savedSnapshot);
-      document.close();
-    });
-    document.getElementById('dismissRestoreBtn').addEventListener('click', () => {
-      banner.style.display = 'none';
-    });
+    if (!savedSnapshotRaw) return;
+    document.getElementById('restoreBanner').style.display = 'flex';
   })();
+
+  document.getElementById('restoreBtn').addEventListener('click', () => {
+    const banner = document.getElementById('restoreBanner');
+    let savedSnapshotRaw;
+    try {
+      savedSnapshotRaw = localStorage.getItem('mcd-dashboard-snapshot');
+    } catch (e) {
+      alert('Could not read saved data — this browser may be blocking local storage.');
+      return;
+    }
+    if (!savedSnapshotRaw) return;
+    let snapshot;
+    try {
+      snapshot = JSON.parse(savedSnapshotRaw);
+    } catch (e) {
+      alert('This saved snapshot is unreadable and can\'t be restored.');
+      return;
+    }
+    rosterData = snapshot.rosterData || rosterData;
+    laneData = snapshot.laneData || laneData;
+    renderChips();
+    renderLane();
+    renderRosterTable();
+    renderFunnel();
+    updateAdoptionNote();
+    applyGenericFieldStates(snapshot.generic);
+    applyLockState();
+    banner.style.display = 'none';
+  });
+  document.getElementById('dismissRestoreBtn').addEventListener('click', () => {
+    document.getElementById('restoreBanner').style.display = 'none';
+  });
 </script>
 
 </body>

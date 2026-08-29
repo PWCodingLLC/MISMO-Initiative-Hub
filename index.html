@@ -349,12 +349,24 @@
   // open a panel or leave a domain selected once it finishes.
   function playIntroColorTour(){
     const tiles = [...tileGrid.querySelectorAll('.domain-tile')];
+    // Group tiles into visual rows based on their actual rendered top offset,
+    // so this adapts correctly at any screen width (3 columns, 2, or 1).
+    const rows = [];
+    tiles.forEach(tile => {
+      const top = tile.offsetTop;
+      let row = rows.find(r => Math.abs(r.top - top) < 5);
+      if (!row){
+        row = { top, tiles: [] };
+        rows.push(row);
+      }
+      row.tiles.push(tile);
+    });
     const stepMs = 500;
-    tiles.forEach((tile, i) => {
+    rows.forEach((row, i) => {
       setTimeout(() => {
-        tile.classList.add('intro-highlight');
+        row.tiles.forEach(tile => tile.classList.add('intro-highlight'));
         setTimeout(() => {
-          tile.classList.remove('intro-highlight');
+          row.tiles.forEach(tile => tile.classList.remove('intro-highlight'));
         }, stepMs);
       }, i * stepMs);
     });

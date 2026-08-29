@@ -1008,12 +1008,12 @@
           <div class="meeting-tile">
             <span class="meeting-tile-icon">🔁</span>
             <span class="meeting-tile-label">Cadence</span>
-            <span class="meeting-tile-value" contenteditable="true">1st &amp; 3rd Thursday of the month</span>
+            <span class="meeting-tile-value" contenteditable="true">2nd &amp; 4th Wednesday of the month</span>
           </div>
           <div class="meeting-tile">
             <span class="meeting-tile-icon">🕒</span>
             <span class="meeting-tile-label">Time</span>
-            <span class="meeting-tile-value" contenteditable="true">3–4 PM</span>
+            <span class="meeting-tile-value" contenteditable="true">1–2 PM ET</span>
           </div>
           <div class="meeting-tile">
             <span class="meeting-tile-icon">🔗</span>
@@ -1902,9 +1902,9 @@
     let year = today.getFullYear();
     let month = today.getMonth();
     for (let i = 0; i < 6; i++){
-      const first = getNthWeekdayOfMonth(year, month, 4, 1);
-      const third = getNthWeekdayOfMonth(year, month, 4, 3);
-      const candidates = [first, third].filter(d => d >= today).sort((a, b) => a - b);
+      const second = getNthWeekdayOfMonth(year, month, 3, 2);
+      const fourth = getNthWeekdayOfMonth(year, month, 3, 4);
+      const candidates = [second, fourth].filter(d => d >= today).sort((a, b) => a - b);
       if (candidates.length) return candidates[0];
       month++;
       if (month > 11){ month = 0; year++; }
@@ -1925,8 +1925,8 @@
   if (icsBtn){
     icsBtn.addEventListener('click', () => {
       const meetingDate = findNextMeetingDate();
-      const dtstart = icsLocalDateTime(meetingDate, 15, 0);
-      const dtend = icsLocalDateTime(meetingDate, 16, 0);
+      const dtstart = icsLocalDateTime(meetingDate, 13, 0);
+      const dtend = icsLocalDateTime(meetingDate, 14, 0);
       const workgroupName = document.querySelector('.workgroup-tag').textContent.trim();
       const icsContent = [
         'BEGIN:VCALENDAR',
@@ -1937,9 +1937,9 @@
         'DTSTAMP:' + icsUTCNow(),
         'DTSTART:' + dtstart,
         'DTEND:' + dtend,
-        'RRULE:FREQ=MONTHLY;BYDAY=1TH,3TH',
+        'RRULE:FREQ=MONTHLY;BYDAY=2WE,4WE',
         'SUMMARY:' + workgroupName + ' Meeting',
-        'DESCRIPTION:Recurring workgroup meeting — 1st and 3rd Thursday of the month.',
+        'DESCRIPTION:Recurring workgroup meeting — 2nd and 4th Wednesday of the month.',
         'END:VEVENT',
         'END:VCALENDAR'
       ].join('\r\n');

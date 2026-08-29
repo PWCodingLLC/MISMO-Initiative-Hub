@@ -1131,7 +1131,7 @@
           </div>
           <div class="meeting-tile">
             <span class="meeting-tile-label-caption">Time</span>
-            <span class="meeting-tile-value" contenteditable="true">4–5 PM</span>
+            <span class="meeting-tile-value" contenteditable="true">4–5 PM ET</span>
           </div>
           <div class="meeting-tile">
             <span class="meeting-tile-label-caption">Zoom link</span>
@@ -1272,7 +1272,7 @@
     </div>
 
     <h3 class="card-dark-bar" style="margin:0 0 4px;">Stakeholder engagement roster</h3>
-    <p class="section-subtext" style="margin:0 0 12px;">"Active participants" = attended at least 1/3 of the 21 workgroup meetings held in the past year (Aug 2025–Aug 2026), per the uploaded meeting tracker.</p>
+    <p class="section-subtext" style="margin:0 0 12px;">"Active participants" = attended at least 1/3 of the 31 workgroup meetings held in the past year (Aug 2025–Aug 2026), per the uploaded meeting tracker.</p>
     <div class="card" style="padding:18px;" id="roster">
       <div class="roster-controls">
         <button class="chip-btn" data-type-filter="AVM Provider" aria-pressed="true">AVM Provider</button>
@@ -1830,6 +1830,31 @@
     'piloted': '--status-yellow', 'in-use': '--status-green'
   };
 
+  // Splits a participants string into individual chips. Two special cases are NOT
+  // split on comma, since they're a single narrative sentence rather than a list:
+  // (1) "No one met the threshold" messages, which can name 2+ tied people with their
+  // own internal comma; (2) a single person's entry that has explanatory commentary
+  // appended (which may itself contain a comma) rather than being a genuine second
+  // person. Boundary is detected by where a new "Name (" pattern starts, not by comma,
+  // so any trailing/embedded commentary — including its own commas — stays attached
+  // to the person it describes.
+  function splitParticipantChips(str){
+    if (str.startsWith('No one met')) return [str];
+    const boundaryRe = /[A-Z][A-Za-z.’''-]*(?:\s+[A-Za-z][A-Za-z.’''-]*)*\s\(/g;
+    const starts = [];
+    let m;
+    while ((m = boundaryRe.exec(str)) !== null) starts.push(m.index);
+    if (starts.length === 0) return [str];
+    const chips = [];
+    for (let i = 0; i < starts.length; i++){
+      const start = starts[i];
+      const end = i + 1 < starts.length ? starts[i + 1] : str.length;
+      chips.push(str.slice(start, end).replace(/,\s*$/, '').trim());
+    }
+    if (starts[0] > 0) chips.unshift(str.slice(0, starts[0]).replace(/,\s*$/, '').trim());
+    return chips.filter(c => c.length > 0);
+  }
+
   function renderRosterSidebar(rows){
     const sidebar = document.getElementById('rosterSidebar');
     const label = activeType === 'all' ? 'All Orgs' : activeType;
@@ -1863,11 +1888,9 @@
       // (e.g. two people tied for closest) — splitting those by comma would break
       // one coherent sentence into two disconnected, confusing chips. Only split
       // on comma for genuine multi-name participant lists.
-      const participantChips = row.participants.startsWith('No one met')
-        ? `<span class="participant-chip">${row.participants}</span>`
-        : row.participants.split(',').map(s =>
-            `<span class="participant-chip">${s.trim()}</span>`
-          ).join('');
+      const participantChips = splitParticipantChips(row.participants).map(s =>
+        `<span class="participant-chip">${s}</span>`
+      ).join('');
       html += `<div class="org-card" data-type="${row.type}"${idAttr}>
         <div class="org-top">
           <span class="org-name" contenteditable="true" data-roster-field="org" data-idx="${idx}">${row.org}</span>
@@ -2013,6 +2036,11 @@
     const val = e.target.tagName === 'INPUT' ? e.target.value.trim() : e.target.textContent.trim();
     await ensureLoaded();
     rosterData[idx][field] = val;
+    // Type edits change which funnel bucket this org counts toward, and any edit can
+    // change whether it's counted as piloted/live — keep the pies and adoption note
+    // in sync with every roster edit, not just status changes.
+    renderFunnel();
+    updateAdoptionNote();
     renderRosterTable();
   }, true);
 
@@ -2094,28 +2122,12 @@
   // Calendar invite (.ics) download — computes the next 1st or 3rd Thursday, 3-4 PM
   function pad2(n){ return String(n).padStart(2, '0'); }
 
-  function getNthWeekdayOfMonth(year, month, weekday, nth){
-    const first = new Date(year, month, 1);
-    const firstWeekday = first.getDay();
-    const dayOffset = (weekday - firstWeekday + 7) % 7;
-    const day = 1 + dayOffset + (nth - 1) * 7;
-    return new Date(year, month, day);
-  }
-
   function findNextMeetingDate(){
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    let year = today.getFullYear();
-    let month = today.getMonth();
-    for (let i = 0; i < 6; i++){
-      const first = getNthWeekdayOfMonth(year, month, 4, 1);
-      const third = getNthWeekdayOfMonth(year, month, 4, 3);
-      const candidates = [first, third].filter(d => d >= today).sort((a, b) => a - b);
-      if (candidates.length) return candidates[0];
-      month++;
-      if (month > 11){ month = 0; year++; }
-    }
-    return today;
+    // CCS meets weekly on Mondays (weekday 1) — find the next one on or after today.
+    const dayOffset = (1 - today.getDay() + 7) % 7;
+    return new Date(today.getFullYear(), today.getMonth(), today.getDate() + dayOffset);
   }
 
   function icsLocalDateTime(date, hour, minute){
@@ -2141,11 +2153,11 @@
         'BEGIN:VEVENT',
         'UID:' + Date.now() + '@initiative-dashboard',
         'DTSTAMP:' + icsUTCNow(),
-        'DTSTART:' + dtstart,
-        'DTEND:' + dtend,
-        'RRULE:FREQ=MONTHLY;BYDAY=1TH,3TH',
+        'DTSTART;TZID=America/New_York:' + dtstart,
+        'DTEND;TZID=America/New_York:' + dtend,
+        'RRULE:FREQ=WEEKLY;BYDAY=MO',
         'SUMMARY:' + workgroupName + ' Meeting',
-        'DESCRIPTION:Recurring workgroup meeting — 1st and 3rd Thursday of the month.',
+        'DESCRIPTION:Recurring workgroup meeting — weekly on Mondays.',
         'END:VEVENT',
         'END:VCALENDAR'
       ].join('\r\n');

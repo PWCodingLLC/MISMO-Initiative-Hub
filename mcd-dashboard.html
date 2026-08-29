@@ -1864,6 +1864,31 @@
     'piloted': '--status-yellow', 'in-use': '--status-green'
   };
 
+  // Splits a participants string into individual chips. Two special cases are NOT
+  // split on comma, since they're a single narrative sentence rather than a list:
+  // (1) "No one met the threshold" messages, which can name 2+ tied people with their
+  // own internal comma; (2) a single person's entry that has explanatory commentary
+  // appended (which may itself contain a comma) rather than being a genuine second
+  // person. Boundary is detected by where a new "Name (" pattern starts, not by comma,
+  // so any trailing/embedded commentary — including its own commas — stays attached
+  // to the person it describes.
+  function splitParticipantChips(str){
+    if (str.startsWith('No one met')) return [str];
+    const boundaryRe = /[A-Z][A-Za-z.’''-]*(?:\s+[A-Za-z][A-Za-z.’''-]*)*\s\(/g;
+    const starts = [];
+    let m;
+    while ((m = boundaryRe.exec(str)) !== null) starts.push(m.index);
+    if (starts.length === 0) return [str];
+    const chips = [];
+    for (let i = 0; i < starts.length; i++){
+      const start = starts[i];
+      const end = i + 1 < starts.length ? starts[i + 1] : str.length;
+      chips.push(str.slice(start, end).replace(/,\s*$/, '').trim());
+    }
+    if (starts[0] > 0) chips.unshift(str.slice(0, starts[0]).replace(/,\s*$/, '').trim());
+    return chips.filter(c => c.length > 0);
+  }
+
   function renderRosterSidebar(rows){
     const sidebar = document.getElementById('rosterSidebar');
     const label = activeType === 'all' ? 'All Orgs' : activeType;
@@ -1897,11 +1922,9 @@
       // (e.g. two people tied for closest) — splitting those by comma would break
       // one coherent sentence into two disconnected, confusing chips. Only split
       // on comma for genuine multi-name participant lists.
-      const participantChips = row.participants.startsWith('No one met')
-        ? `<span class="participant-chip">${row.participants}</span>`
-        : row.participants.split(',').map(s =>
-            `<span class="participant-chip">${s.trim()}</span>`
-          ).join('');
+      const participantChips = splitParticipantChips(row.participants).map(s =>
+        `<span class="participant-chip">${s}</span>`
+      ).join('');
       html += `<div class="org-card" data-type="${row.type}"${idAttr}>
         <div class="org-top">
           <span class="org-name" contenteditable="true" data-roster-field="org" data-idx="${idx}">${row.org}</span>
@@ -2047,6 +2070,11 @@
     const val = e.target.tagName === 'INPUT' ? e.target.value.trim() : e.target.textContent.trim();
     await ensureLoaded();
     rosterData[idx][field] = val;
+    // Type edits change which funnel bucket this org counts toward, and any edit can
+    // change whether it's counted as piloted/live — keep the pies and adoption note
+    // in sync with every roster edit, not just status changes.
+    renderFunnel();
+    updateAdoptionNote();
     renderRosterTable();
   }, true);
 

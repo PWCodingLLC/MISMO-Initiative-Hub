@@ -2231,8 +2231,8 @@
         'BEGIN:VEVENT',
         'UID:mcd-recurring-meeting@initiative-dashboard', // stable per-dashboard UID so re-downloading updates the same calendar event instead of duplicating it
         'DTSTAMP:' + icsUTCNow(),
-        'DTSTART:' + dtstart,
-        'DTEND:' + dtend,
+        'DTSTART;TZID=America/New_York:' + dtstart,
+        'DTEND;TZID=America/New_York:' + dtend,
         'RRULE:FREQ=MONTHLY;BYDAY=1TH,3TH',
         'SUMMARY:' + workgroupName + ' Meeting',
         'DESCRIPTION:Recurring workgroup meeting — 1st and 3rd Thursday of the month.',

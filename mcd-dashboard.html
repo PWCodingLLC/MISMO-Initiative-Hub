@@ -408,6 +408,16 @@
     color:var(--ink);
     border-bottom-color:var(--brand);
   }
+  .tab-btn.tab-general{
+    background:var(--brand-soft);
+    border-radius:6px 6px 0 0;
+    font-weight:700;
+  }
+  .tab-btn.tab-general[aria-selected="true"]{
+    background:var(--brand);
+    color:#fff;
+    border-bottom-color:var(--brand);
+  }
   .tab-flag{
     font-size:9.5px;
     background:var(--signal-soft);
@@ -1107,7 +1117,7 @@
   <!-- ROADMAP -->
   <section id="roadmap">
     <div class="section-head">
-      <h2>Roadmap to broad adoption</h2>
+      <h2>Adoption and Development Status</h2>
       <div class="view-toggle" role="group" aria-label="Layout format">
         <button class="view-btn" data-view="compact" aria-pressed="true">Compact</button>
         <button class="view-btn" data-view="kanban" aria-pressed="false">Kanban</button>
@@ -1117,7 +1127,8 @@
 
     <div class="card" style="padding:8px 20px 20px;">
       <div class="tab-row" role="tablist" aria-label="Stakeholder groups">
-        <button class="tab-btn" role="tab" aria-selected="true" data-tab="regulator">Regulator</button>
+        <button class="tab-btn tab-general" role="tab" aria-selected="true" data-tab="general">General</button>
+        <button class="tab-btn" role="tab" aria-selected="false" data-tab="regulator">Regulator</button>
         <button class="tab-btn" role="tab" aria-selected="false" data-tab="lender">Lender</button>
         <button class="tab-btn" role="tab" aria-selected="false" data-tab="los">LOS Provider</button>
         <button class="tab-btn" role="tab" aria-selected="false" data-tab="compliance">Compliance Vendor</button>
@@ -1267,6 +1278,12 @@
 
   // Roadmap: lane data + compact/kanban renderer
   let laneData = {
+    general: {
+      flagged: false,
+      goals: ['Drive consistent MCD adoption across regulators, lenders, LOS providers, and compliance vendors together — no single stakeholder group can move alone'],
+      roadblocks: [],
+      actions: []
+    },
     regulator: {
       flagged: false,
       goals: ['Coordinate multi-state testing and validate pass/fail consistency across compliance vendors'],
@@ -1307,7 +1324,7 @@
     }
   };
 
-  let currentLane = 'regulator';
+  let currentLane = 'general';
   let currentView = 'compact';
   let editingTaskIdx = null; // null = none, 'new' = adding, number = editing that index
   const laneRoot = document.getElementById('laneRoot');

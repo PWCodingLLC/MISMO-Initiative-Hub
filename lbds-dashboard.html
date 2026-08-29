@@ -408,6 +408,16 @@
     color:var(--ink);
     border-bottom-color:var(--brand);
   }
+  .tab-btn.tab-general{
+    background:var(--brand-soft);
+    border-radius:6px 6px 0 0;
+    font-weight:700;
+  }
+  .tab-btn.tab-general[aria-selected="true"]{
+    background:var(--brand);
+    color:#fff;
+    border-bottom-color:var(--brand);
+  }
   .tab-flag{
     font-size:9.5px;
     background:var(--signal-soft);
@@ -1109,7 +1119,7 @@
   <!-- ROADMAP -->
   <section id="roadmap">
     <div class="section-head">
-      <h2>Roadmap to broad adoption</h2>
+      <h2>Adoption and Development Status</h2>
       <div class="view-toggle" role="group" aria-label="Layout format">
         <button class="view-btn" data-view="compact" aria-pressed="true">Compact</button>
         <button class="view-btn" data-view="kanban" aria-pressed="false">Kanban</button>
@@ -1119,7 +1129,8 @@
 
     <div class="card" style="padding:8px 20px 20px;">
       <div class="tab-row" role="tablist" aria-label="Adoption lanes">
-        <button class="tab-btn" role="tab" aria-selected="true" data-tab="servicer">Servicer</button>
+        <button class="tab-btn tab-general" role="tab" aria-selected="true" data-tab="general">General</button>
+        <button class="tab-btn" role="tab" aria-selected="false" data-tab="servicer">Servicer</button>
         <button class="tab-btn" role="tab" aria-selected="false" data-tab="lender">Lender</button>
         <button class="tab-btn" role="tab" aria-selected="false" data-tab="regulator">Regulators <span class="tab-flag">⚑</span></button>
         <button class="tab-btn" role="tab" aria-selected="false" data-tab="los">LOS &amp; Servicing Systems <span class="tab-flag">⚑</span></button>
@@ -1265,6 +1276,12 @@
 
   // Roadmap: lane data + compact/kanban renderer
   let laneData = {
+    general: {
+      flagged: false,
+      goals: ['Drive consistent LBDS adoption across servicers, lenders, regulators, and LOS/servicing systems together — adoption starts with lenders generating the file, but requires all four groups to move in step'],
+      roadblocks: [],
+      actions: []
+    },
     servicer: {
       flagged: false,
       goals: ['Bring Mr. Cooper into workgroup meetings', 'Confirm a servicer test use case'],
@@ -1311,7 +1328,7 @@
     }
   };
 
-  let currentLane = 'servicer';
+  let currentLane = 'general';
   let currentView = 'compact';
   let editingTaskIdx = null; // null = none, 'new' = adding, number = editing that index
   const laneRoot = document.getElementById('laneRoot');

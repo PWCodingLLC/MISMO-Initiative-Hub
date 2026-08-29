@@ -166,6 +166,9 @@
     font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-soft);
   }
   .detail-text{font-size:13px; color:var(--ink); margin:0;}
+  .why-bullets{font-size:13px; color:var(--ink); margin:0; padding-left:16px;}
+  .why-bullets li{margin-bottom:4px;}
+  .why-bullets li:last-child{margin-bottom:0;}
 
   .card-cta{
     margin-top:auto;
@@ -243,7 +246,7 @@
       href: 'mcd-dashboard.html',
       sample: false,
       whatIsIt: 'A standard set of loan data fields and delivery file format that mortgage lenders and independent mortgage banks provide to regulators for the loan-level review portion of regulatory compliance examinations — designed to replace the Loan Examination File (LEF).',
-      whyWorking: 'Manual, inconsistent reviews slow examinations down. · Inconsistent formats break compliance technology. · Lenders want to catch issues before the exam.',
+      whyWorking: ['Manual, inconsistent reviews slow examinations down.', 'Inconsistent formats break compliance technology.', 'Lenders want to catch issues before the exam.'],
       whoBroughtIt: 'MISMO, in partnership with CSBS · sponsored by Asurity · Version 2.0 published Dec 11, 2025',
       estimatedSavings: 'No published $ estimate yet'
     },
@@ -254,7 +257,7 @@
       href: 'ccs-dashboard.html',
       sample: false,
       whatIsIt: 'A standardized probability score — the estimated likelihood an AVM value falls within ±10% of market value — that lets lenders and investors compare valuation risk across different AVM providers on one common scale, replacing inconsistent provider-specific confidence formats.',
-      whyWorking: 'Inconsistent scores make AVMs hard to compare. · The accurate alternative is too complex to adopt. · A 2024 federal rule raised the stakes.',
+      whyWorking: ['Inconsistent scores make AVMs hard to compare.', 'The accurate alternative is too complex to adopt.', 'A 2024 federal rule raised the stakes.'],
       whoBroughtIt: 'AVM providers & the Mortgage Bankers Association, in response to the CFPB\'s AVM quality control rule — though that rule is not currently being enforced · Reached Recommendation status April 21, 2026',
       estimatedSavings: 'No published $ figure — sources describe reduced QC costs and faster valuation decisions only'
     },
@@ -265,7 +268,7 @@
       href: null,
       sample: false,
       whatIsIt: 'An AI governance toolkit — five practical artifacts (Governance Policy, AI System Inventory, and System Risk Assessment now available; Performance & Fairness Testing and an Incident & Change Management Log deferred) built on the NIST AI Risk Management Framework and tailored to mortgage-specific rules like ECOA, the Fair Housing Act, and SR 11-7.',
-      whyWorking: 'No shared AI governance framework existed for mortgage lending specifically. · Fair lending laws raise real compliance risk for ungoverned AI use. · Industry asked MISMO to lead, rather than each lender building its own framework.',
+      whyWorking: ['No shared AI governance framework existed for mortgage lending specifically.', 'Fair lending laws raise real compliance risk for ungoverned AI use.', 'Industry asked MISMO to lead, rather than each lender building its own framework.'],
       whoBroughtIt: 'Industry participants seeking AI governance guidance — the idea originated with the MBA\'s Residential Board of Governors (RESBOG), which asked MISMO to lead · Released June 11, 2026 at MISMO\'s Spring Summit',
       estimatedSavings: 'No published $ figure — framed as a risk-management and compliance tool, not a cost-savings initiative'
     },
@@ -276,7 +279,7 @@
       href: null,
       sample: true,
       whatIsIt: 'A standardized tri-party agreement structure between lender, custodian, and warehouse lender defining the data and terms needed to establish bailee custody of an eNote during interim funding.',
-      whyWorking: 'Inconsistent bailee agreement terms slow down warehouse funding. · Manual custody handoffs create eNote tracking risk.',
+      whyWorking: ['Inconsistent bailee agreement terms slow down warehouse funding.', 'Manual custody handoffs create eNote tracking risk.'],
       whoBroughtIt: 'Warehouse lenders & eClosing technology providers · Started July 2023',
       estimatedSavings: '$15–$50 per loan in reduced manual agreement processing'
     },
@@ -287,7 +290,7 @@
       href: null,
       sample: true,
       whatIsIt: 'A standardized dataset defining what servicers report to investors — GSEs and private-label securitizers — on loan performance, remittance, and portfolio status each cycle.',
-      whyWorking: 'Inconsistent servicer-to-investor reporting formats slow reconciliation. · Manual reporting increases the risk of remittance errors.',
+      whyWorking: ['Inconsistent servicer-to-investor reporting formats slow reconciliation.', 'Manual reporting increases the risk of remittance errors.'],
       whoBroughtIt: 'GSEs & master servicers · Started January 2024',
       estimatedSavings: '$3–$18 per loan per reporting cycle in reduced reconciliation effort'
     },
@@ -298,7 +301,7 @@
       href: 'lbds-dashboard.html',
       sample: false,
       whatIsIt: 'A standardized, extensible dataset defining the core information needed to board newly originated loans into servicing systems consistently and reliably. First published piece of MISMO\'s broader Industry Transfer of Servicing Dataset (ITSD).',
-      whyWorking: 'Manual loan boarding drives up labor costs. · Rework and reconciliation delay activation. · Inconsistent data leaves borrowers with misdirected payments and account gaps.',
+      whyWorking: ['Manual loan boarding drives up labor costs.', 'Rework and reconciliation delay activation.', 'Inconsistent data leaves borrowers with misdirected payments and account gaps.'],
       whoBroughtIt: 'GSEs, NewRez & Flagstar · Started February 2023',
       estimatedSavings: '$17–$89 per loan'
     }
@@ -323,7 +326,7 @@
       }
     } else {
       body += `<div class="detail-block"><span class="detail-label">What is it</span><p class="detail-text">${item.whatIsIt}</p></div>`;
-      body += `<div class="detail-block"><span class="detail-label">Why MISMO is working on this</span><p class="detail-text">${item.whyWorking}</p></div>`;
+      body += `<div class="detail-block"><span class="detail-label">Why MISMO is working on this</span><ul class="why-bullets">${item.whyWorking.map(w => `<li>${w}</li>`).join('')}</ul></div>`;
       body += `<div class="detail-block"><span class="detail-label">Who brought it</span><p class="detail-text">${item.whoBroughtIt}</p></div>`;
       body += `<div class="detail-block"><span class="detail-label">Estimated savings</span><span class="snapshot-stat">${item.estimatedSavings}</span></div>`;
       if (isLive){

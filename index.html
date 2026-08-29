@@ -456,18 +456,23 @@
   let firstInteractionHandled = false;
   function stopWatchingForFirstInteraction(){
     firstInteractionHandled = true;
-    document.removeEventListener('click', unlockAndReplayOnce);
-    document.removeEventListener('keydown', unlockAndReplayOnce);
-    document.removeEventListener('touchstart', unlockAndReplayOnce);
+    document.removeEventListener('click', unlockAudioOnly);
+    document.removeEventListener('keydown', unlockAudioOnly);
+    document.removeEventListener('touchstart', unlockAudioOnly);
   }
-  function unlockAndReplayOnce(){
+  function unlockAudioOnly(){
     if (firstInteractionHandled) return;
     stopWatchingForFirstInteraction();
-    playWithUnlockedAudio();
+    // Quietly unlock audio so a later click on the replay button works —
+    // deliberately does NOT replay the visual tour, since a random click
+    // elsewhere on the page (like opening a domain) isn't a request to see
+    // the intro again.
+    const ctx = getAudioContext();
+    if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {});
   }
-  document.addEventListener('click', unlockAndReplayOnce);
-  document.addEventListener('keydown', unlockAndReplayOnce);
-  document.addEventListener('touchstart', unlockAndReplayOnce);
+  document.addEventListener('click', unlockAudioOnly);
+  document.addEventListener('keydown', unlockAudioOnly);
+  document.addEventListener('touchstart', unlockAudioOnly);
 
   // The replay button always works on every click, independent of the once-only
   // listener above — clicking it also cancels that listener so an unrelated later

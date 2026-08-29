@@ -964,8 +964,9 @@
   .meeting-banner-btn{
     font-family:'Inter',sans-serif; font-size:15px; font-weight:700; min-width:0;
     color:#fff; background:var(--bar-bg); border:none; padding:16px 18px; cursor:pointer;
-    display:flex; align-items:center; justify-content:center; text-align:center; white-space:normal;
+    display:flex; align-items:center; justify-content:center; gap:8px; text-align:center; white-space:normal;
   }
+  .meeting-banner-btn svg{flex:0 0 auto;}
   .meeting-banner-btn:hover{background:#000;}
 
   .meeting-tile.sponsor-tile{align-items:flex-start;}
@@ -1129,7 +1130,7 @@
             <span class="meeting-tile-value" contenteditable="true" data-placeholder="Add Zoom link">https://mba-org.zoom.us/j/88042907892</span>
           </div>
         </div>
-        <button type="button" class="meeting-banner-btn" id="icsDownloadBtn">📅 Add to calendar</button>
+        <button type="button" class="meeting-banner-btn" id="icsDownloadBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Add to calendar</button>
       </div>
     </section>
   </div>

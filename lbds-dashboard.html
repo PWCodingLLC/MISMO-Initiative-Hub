@@ -1,6 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+  // If a saved snapshot exists from this browser, restore it before anything else renders.
+  (function(){
+    try {
+      var saved = localStorage.getItem('lbds-dashboard-snapshot');
+      if (saved) {
+        document.open();
+        document.write(saved);
+        document.close();
+      }
+    } catch (e) {
+      // Local storage unavailable (private-mode restrictions, sandboxed preview, etc.) — just load normally.
+    }
+  })();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Loan Boarding Data Segment (LBDS) — Workgroup Dashboard</title>
@@ -180,6 +195,16 @@
   .lock-toggle-btn:hover{background:var(--brand-soft); border-color:var(--brand); color:var(--brand-text);}
   .lock-toggle-btn.is-locked{background:var(--ink); border-color:var(--ink); color:#fff;}
   .lock-toggle-btn.is-locked:hover{background:#000; border-color:#000;}
+
+  .save-toggle-btn{
+    display:flex; align-items:center; gap:7px;
+    font-family:'Inter',sans-serif; font-size:12.5px; font-weight:700;
+    padding:7px 14px; border-radius:999px; border:1px solid var(--line);
+    background:var(--card); color:var(--ink-soft); cursor:pointer;
+  }
+  .save-toggle-btn svg{flex:0 0 auto; display:block;}
+  .save-toggle-btn:hover{background:var(--brand-soft); border-color:var(--brand); color:var(--brand-text);}
+  .save-toggle-btn.just-saved{background:var(--success); border-color:var(--success); color:#fff;}
 
   body.locked [contenteditable="true"]{
     pointer-events:none;
@@ -928,6 +953,10 @@
       </div>
     </div>
     <div class="masthead-right">
+      <button type="button" id="saveSnapshotBtn" class="save-toggle-btn" title="Save your current edits so they survive a page refresh">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"></path><path d="M17 21v-8H7v8"></path><path d="M7 3v5h8"></path></svg>
+        <span class="save-label">Save</span>
+      </button>
       <button type="button" id="lockToggleBtn" class="lock-toggle-btn" aria-pressed="true" title="Unlock to allow edits">
         <span class="lock-icon" aria-hidden="true"></span><span class="lock-label">Locked</span>
       </button>
@@ -1921,6 +1950,26 @@
     });
   });
 
+  // Save: snapshot the entire current page (including all edits) to this browser's
+  // local storage. The restore script at the very top of <head> checks for this
+  // snapshot on every load and, if found, uses it instead of the shipped defaults.
+  const saveSnapshotBtn = document.getElementById('saveSnapshotBtn');
+  saveSnapshotBtn.addEventListener('click', () => {
+    const label = saveSnapshotBtn.querySelector('.save-label');
+    const originalLabel = label.textContent;
+    try {
+      localStorage.setItem('lbds-dashboard-snapshot', '<!DOCTYPE html>\n' + document.documentElement.outerHTML);
+      saveSnapshotBtn.classList.add('just-saved');
+      label.textContent = 'Saved!';
+    } catch (e) {
+      label.textContent = 'Save failed';
+      alert('Could not save — this browser may be blocking local storage (common in some private/incognito modes, or in a sandboxed preview). Try the real published link in a normal browser tab.');
+    }
+    setTimeout(() => {
+      saveSnapshotBtn.classList.remove('just-saved');
+      label.textContent = originalLabel;
+    }, 1800);
+  });
 </script>
 
 </body>

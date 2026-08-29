@@ -507,14 +507,14 @@
     gap:18px;
     margin-bottom:20px;
   }
-  .stake-card{padding:18px; overflow:hidden;}
+  .stake-card{padding:18px;}
   .stake-card h3{font-size:14px; margin-bottom:12px;}
   .card-dark-bar{
-    margin:-18px -18px 12px -18px;
     background:var(--ink); color:#fff;
     padding:13px 20px;
-    border-radius:var(--radius) var(--radius) 0 0;
+    border-radius:var(--radius);
     font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:14px; letter-spacing:.02em;
+    margin:0 0 12px;
   }
   .crit-star{color:var(--amber-text); font-weight:700;}
   .crit-select{
@@ -1177,9 +1177,9 @@
         </table>
       </div>
 
+      <h3 class="card-dark-bar">Stakeholder Implementation Status</h3>
+      <p class="section-subtext" style="margin:0 0 12px;">Change any status in the roster below — the charts update to match.</p>
       <div class="card stake-card">
-        <h3 class="card-dark-bar">Stakeholder Implementation Status</h3>
-        <p class="section-note" style="margin:0 0 12px;">Change any status in the roster below — the charts update to match.</p>
         <div id="funnelRoot"></div>
 
         <div class="funnel-legend">
@@ -1192,9 +1192,9 @@
       </div>
     </div>
 
-    <div class="card" style="padding:18px; overflow:hidden;" id="roster">
-      <h3 class="card-dark-bar" style="margin:-18px -18px 4px -18px;">Stakeholder engagement roster</h3>
-      <p class="section-note" style="margin:0 0 12px;">"Active participants" = attended at least 1/3 of the 17 workgroup meetings held in the past year (Aug 2025–Aug 2026), per the uploaded meeting tracker.</p>
+    <h3 class="card-dark-bar" style="margin:0 0 4px;">Stakeholder engagement roster</h3>
+    <p class="section-subtext" style="margin:0 0 12px;">"Active participants" = attended at least 1/3 of the 17 workgroup meetings held in the past year (Aug 2025–Aug 2026), per the uploaded meeting tracker.</p>
+    <div class="card" style="padding:18px;" id="roster">
       <div class="roster-controls">
         <button class="chip-btn" data-type-filter="all" aria-pressed="true">All types</button>
         <button class="chip-btn" data-type-filter="Mortgage Originator" aria-pressed="false">Mortgage Originator</button>

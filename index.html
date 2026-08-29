@@ -277,6 +277,7 @@
         activeDomain = btn.dataset.domain;
         renderTiles();
         renderPanel();
+        panelArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
     });
   }

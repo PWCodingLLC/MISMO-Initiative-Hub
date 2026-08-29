@@ -347,6 +347,37 @@
   // Fun intro touch: briefly highlight each domain tile in turn on page load, purely
   // visual — it never sets activeDomain or calls renderPanel, so it can't accidentally
   // open a panel or leave a domain selected once it finishes.
+  // Simple synth for the intro tour's tones — pure sine waves, soft envelope,
+  // no external audio files needed.
+  let audioCtx = null;
+  function getAudioContext(){
+    if (!audioCtx){
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return null;
+      audioCtx = new Ctx();
+    }
+    return audioCtx;
+  }
+
+  function playTone(freq, startTime, duration, ctx){
+    const osc = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, startTime);
+    osc.connect(gainNode);
+    gainNode.connect(ctx.destination);
+
+    // Soft attack/release so each tone feels muted rather than a hard beep.
+    const peak = 0.12;
+    gainNode.gain.setValueAtTime(0, startTime);
+    gainNode.gain.linearRampToValueAtTime(peak, startTime + 0.08);
+    gainNode.gain.setValueAtTime(peak, startTime + duration - 0.15);
+    gainNode.gain.linearRampToValueAtTime(0, startTime + duration);
+
+    osc.start(startTime);
+    osc.stop(startTime + duration);
+  }
+
   function playIntroColorTour(){
     const tiles = [...tileGrid.querySelectorAll('.domain-tile')];
     // Group tiles into visual rows based on their actual rendered top offset,
@@ -362,14 +393,39 @@
       row.tiles.push(tile);
     });
     const stepMs = 1500;
+
+    // Descending tones, one per row, high to low — then a short ascending
+    // three-note flourish once every row has had its turn (Close Encounters-ish).
+    const rowNotes = [880.00, 587.33, 440.00]; // A5, D5, A4
+    const flourishNotes = [523.25, 659.25, 783.99]; // C5, E5, G5
+
+    const ctx = getAudioContext();
+    if (ctx && ctx.state === 'suspended'){
+      ctx.resume().catch(() => { /* Autoplay blocked until a user interacts with the page — that's a browser policy, not a bug. */ });
+    }
+
     rows.forEach((row, i) => {
       setTimeout(() => {
         row.tiles.forEach(tile => tile.classList.add('intro-highlight'));
+        if (ctx){
+          const freq = rowNotes[i] || rowNotes[rowNotes.length - 1];
+          playTone(freq, ctx.currentTime, 0.9, ctx);
+        }
         setTimeout(() => {
           row.tiles.forEach(tile => tile.classList.remove('intro-highlight'));
         }, stepMs);
       }, i * stepMs);
     });
+
+    // Ascending flourish after the last row's highlight finishes.
+    const flourishStart = rows.length * stepMs + 200;
+    if (ctx){
+      flourishNotes.forEach((freq, i) => {
+        setTimeout(() => {
+          playTone(freq, ctx.currentTime, 0.35, ctx);
+        }, flourishStart + i * 220);
+      });
+    }
   }
   playIntroColorTour();
 

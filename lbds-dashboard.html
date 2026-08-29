@@ -35,9 +35,10 @@
     --slate-soft:#EEF0F4;
     --slate-text:#5B6478;
 
-    --status-red:#E5484D; --status-red-soft:#FDECEC; --status-red-text:#B42318;
-    --status-orange:#F0750E; --status-orange-soft:#FDF0E1; --status-orange-text:#B85A0A;
-    --status-yellow:#EAB308; --status-yellow-soft:#FEF9E7; --status-yellow-text:#946C00;
+    --status-red:#C1666B; --status-red-soft:#F5E6E7; --status-red-text:#8B3D42;
+    --status-orange:#C98A4B; --status-orange-soft:#F5EBDD; --status-orange-text:#8F5F2C;
+    --status-yellow:#C7A94D; --status-yellow-soft:#F5EFDA; --status-yellow-text:#8C7229;
+    --status-green:#5B8C6C; --status-green-soft:#E3EDE6; --status-green-text:#3D5F49;
 
     --dwg:#7C3AED;
     --dwg-soft:#F2EBFE;
@@ -566,7 +567,7 @@
   select.status-select.roster-status.not-started{background:var(--status-red-soft); color:var(--status-red-text);}
   select.status-select.roster-status.planned{background:var(--status-orange-soft); color:var(--status-orange-text);}
   select.status-select.roster-status.piloted{background:var(--status-yellow-soft); color:var(--status-yellow-text);}
-  select.status-select.roster-status.in-use{background:var(--success-soft); color:var(--success-text);}
+  select.status-select.roster-status.in-use{background:var(--status-green-soft); color:var(--status-green-text);}
 
   .contact-block{display:flex; flex-direction:column; gap:2px; min-width:150px;}
   .contact-name{font-weight:600;}
@@ -1182,7 +1183,7 @@
           <div class="funnel-legend-item"><span class="legend-dot" style="background:var(--status-red);"></span>Not Started</div>
           <div class="funnel-legend-item"><span class="legend-dot" style="background:var(--status-orange);"></span>Planned</div>
           <div class="funnel-legend-item"><span class="legend-dot" style="background:var(--status-yellow);"></span>Piloted</div>
-          <div class="funnel-legend-item"><span class="legend-dot" style="background:var(--success);"></span>Implemented</div>
+          <div class="funnel-legend-item"><span class="legend-dot" style="background:var(--status-green);"></span>Implemented</div>
         </div>
       </div>
     </div>
@@ -1752,7 +1753,7 @@
       if (counts[cat]) counts[cat][row.status]++;
     });
 
-    const order = [['not-applicable','--slate'], ['not-started','--status-red'], ['planned','--status-orange'], ['piloted','--status-yellow'], ['in-use','--success']];
+    const order = [['not-applicable','--slate'], ['not-started','--status-red'], ['planned','--status-orange'], ['piloted','--status-yellow'], ['in-use','--status-green']];
     const root = document.getElementById('funnelRoot');
     let html = '';
     funnelCategories.forEach((cat, i) => {

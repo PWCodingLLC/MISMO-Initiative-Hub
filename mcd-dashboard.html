@@ -865,16 +865,16 @@
     max-width:1180px; margin:22px auto 0; padding:0 24px;
   }
   .meeting-banner{
-    display:flex; align-items:center; gap:0; flex-wrap:wrap;
+    display:grid; grid-template-columns:repeat(7, 1fr); align-items:stretch;
     background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
     box-shadow:var(--shadow); padding:0; overflow:hidden;
   }
   .meeting-banner-label{
-    flex:0 0 auto; background:var(--ink); color:#fff; font-family:'Space Grotesk',sans-serif;
-    font-weight:700; font-size:16px; padding:16px 22px; align-self:stretch;
-    display:flex; align-items:center; letter-spacing:.02em;
+    background:var(--ink); color:#fff; font-family:'Space Grotesk',sans-serif;
+    font-weight:700; font-size:16px; padding:16px 18px;
+    display:flex; align-items:center; letter-spacing:.02em; min-width:0;
   }
-  .meeting-tile-row{display:grid; grid-template-columns:repeat(5, 1fr); flex:1; min-width:0;}
+  .meeting-tile-row{display:contents;}
   .meeting-tile{
     padding:14px 18px; border-right:1px solid var(--line); min-width:0;
     display:flex; flex-direction:column; gap:3px;
@@ -888,22 +888,22 @@
     color:var(--ink-soft); border-bottom:1.5px solid var(--line); padding-bottom:5px; margin-bottom:6px; display:block;
   }
   .meeting-banner-btn{
-    flex:0 0 auto; align-self:stretch; font-family:'Inter',sans-serif; font-size:15px; font-weight:700;
-    color:#fff; background:var(--brand); border:none; padding:0 22px; cursor:pointer; white-space:nowrap;
+    font-family:'Inter',sans-serif; font-size:15px; font-weight:700; min-width:0;
+    color:#fff; background:var(--brand); border:none; padding:16px 18px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; text-align:center; white-space:normal;
   }
   .meeting-banner-btn:hover{background:var(--brand-text);}
 
   .meeting-tile.sponsor-tile{align-items:flex-start;}
   .sponsor-tile-logo{height:34px; width:auto; max-width:100%; object-fit:contain; align-self:center; margin-top:6px;}
   @media (max-width:900px){
-    .meeting-banner{flex-direction:column; align-items:stretch;}
+    .meeting-banner{grid-template-columns:repeat(3, 1fr);}
     .meeting-banner-label{padding:12px 18px;}
-    .meeting-tile-row{grid-template-columns:repeat(3, 1fr);}
     .meeting-tile{border-right:none; border-bottom:1px solid var(--line);}
     .meeting-banner-btn{padding:12px 18px;}
   }
   @media (max-width:560px){
-    .meeting-tile-row{grid-template-columns:repeat(2, 1fr);}
+    .meeting-banner{grid-template-columns:repeat(2, 1fr);}
   }
 
   .savings-placeholder{text-align:center; padding:10px 0 4px;}

@@ -35,6 +35,10 @@
     --slate-soft:#EEF0F4;
     --slate-text:#5B6478;
 
+    --status-red:#E5484D; --status-red-soft:#FDECEC; --status-red-text:#B42318;
+    --status-orange:#F0750E; --status-orange-soft:#FDF0E1; --status-orange-text:#B85A0A;
+    --status-yellow:#EAB308; --status-yellow-soft:#FEF9E7; --status-yellow-text:#946C00;
+
     --dwg:#7C3AED;
     --dwg-soft:#F2EBFE;
 
@@ -555,6 +559,14 @@
   select.status-select.in-progress{background:var(--brand-soft); color:var(--brand-text);}
   select.status-select.blocked{background:var(--signal-soft); color:var(--signal-text);}
   select.status-select.complete{background:var(--success-soft); color:var(--success-text);}
+
+  /* Roster/adoption status colors — scoped separately from task status colors above,
+     since both systems share the "not-started" value but should not share its color. */
+  select.status-select.roster-status.not-applicable{background:var(--slate-soft); color:var(--slate-text);}
+  select.status-select.roster-status.not-started{background:var(--status-red-soft); color:var(--status-red-text);}
+  select.status-select.roster-status.planned{background:var(--status-orange-soft); color:var(--status-orange-text);}
+  select.status-select.roster-status.piloted{background:var(--status-yellow-soft); color:var(--status-yellow-text);}
+  select.status-select.roster-status.in-use{background:var(--success-soft); color:var(--success-text);}
 
   .contact-block{display:flex; flex-direction:column; gap:2px; min-width:150px;}
   .contact-name{font-weight:600;}
@@ -1159,10 +1171,11 @@
         <div id="funnelRoot"></div>
 
         <div class="funnel-legend">
-          <div class="funnel-legend-item"><span class="legend-dot" style="background:var(--slate);"></span>Not started</div>
-          <div class="funnel-legend-item"><span class="legend-dot" style="background:var(--brand);"></span>Planned</div>
-          <div class="funnel-legend-item"><span class="legend-dot" style="background:var(--amber);"></span>Piloted</div>
-          <div class="funnel-legend-item"><span class="legend-dot" style="background:var(--success);"></span>In use</div>
+          <div class="funnel-legend-item"><span class="legend-dot" style="background:var(--slate);"></span>Not Applicable</div>
+          <div class="funnel-legend-item"><span class="legend-dot" style="background:var(--status-red);"></span>Not Started</div>
+          <div class="funnel-legend-item"><span class="legend-dot" style="background:var(--status-orange);"></span>Planned</div>
+          <div class="funnel-legend-item"><span class="legend-dot" style="background:var(--status-yellow);"></span>Piloted</div>
+          <div class="funnel-legend-item"><span class="legend-dot" style="background:var(--success);"></span>Implemented</div>
         </div>
       </div>
     </div>
@@ -1588,10 +1601,11 @@
   ];
 
   const statusOptions = [
+    ['not-applicable', 'Not Applicable'],
     ['not-started', 'Not Started'],
     ['planned', 'Planned'],
     ['piloted', 'Piloted'],
-    ['in-use', 'In Use']
+    ['in-use', 'Implemented']
   ];
 
   const funnelCategories = ['AVM Provider', 'GSE', 'Lender'];
@@ -1603,7 +1617,7 @@
     const opts = statusOptions.map(([key, label]) =>
       `<option value="${key}" ${key === status ? 'selected' : ''}>${label}</option>`
     ).join('');
-    return `<select class="status-select ${status}" data-idx="${idx}" aria-label="Adoption status">${opts}</select>`;
+    return `<select class="status-select roster-status ${status}" data-idx="${idx}" aria-label="Adoption status">${opts}</select>`;
   }
 
   let editingContactIdx = null;
@@ -1660,18 +1674,18 @@
 
   function renderFunnel(){
     const counts = {};
-    funnelCategories.forEach(cat => counts[cat] = {'not-started':0, 'planned':0, 'piloted':0, 'in-use':0});
+    funnelCategories.forEach(cat => counts[cat] = {'not-applicable':0, 'not-started':0, 'planned':0, 'piloted':0, 'in-use':0});
     rosterData.forEach(row => {
       const cat = funnelCategoryFor(row.type);
       if (counts[cat]) counts[cat][row.status]++;
     });
 
-    const order = [['not-started','--slate'], ['planned','--brand'], ['piloted','--amber'], ['in-use','--success']];
+    const order = [['not-applicable','--slate'], ['not-started','--status-red'], ['planned','--status-orange'], ['piloted','--status-yellow'], ['in-use','--success']];
     const root = document.getElementById('funnelRoot');
     let html = '';
     funnelCategories.forEach((cat, i) => {
       const c = counts[cat];
-      const total = c['not-started'] + c['planned'] + c['piloted'] + c['in-use'];
+      const total = c['not-applicable'] + c['not-started'] + c['planned'] + c['piloted'] + c['in-use'];
       const lastStyle = i === funnelCategories.length - 1 ? ' style="margin-bottom:0;"' : '';
       html += `<div class="funnel-row"${lastStyle}>`;
       html += `<div class="funnel-row-top"><span>${cat}</span><span>${total > 0 ? total + ' org' + (total > 1 ? 's' : '') + ' tracked' : 'no roster data yet'}</span></div>`;

@@ -1377,6 +1377,14 @@
     return (str || '').replace(/"/g, '&quot;');
   }
 
+  // For text inserted into innerHTML display contexts (not attribute values) — prevents
+  // a stray < or & in a typed goal/task/note from being interpreted as markup. Safe to
+  // round-trip with contenteditable: browsers already escape these when serializing typed
+  // text back out via .textContent, so re-escaping on display never double-encodes edits.
+  function escapeHtml(str){
+    return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
   function renderActionStatusSelect(laneKey, idx, status){
     const opts = actionStatusOptions.map(([key, label]) =>
       `<option value="${key}" ${key === status ? 'selected' : ''}>${label}</option>`
@@ -1414,7 +1422,7 @@
   function renderPillGroup(label, items, kind){
     const pillClass = kind === 'goal' ? 'pill-goal' : 'pill-block';
     let inner = items.map((text, i) =>
-      `<span class="${pillClass}" contenteditable="true" data-pill-kind="${kind}" data-pill-idx="${i}">${text}</span><button type="button" class="pill-remove" data-pill-remove="${kind}:${i}" title="Remove">×</button>`
+      `<span class="${pillClass}" contenteditable="true" data-pill-kind="${kind}" data-pill-idx="${i}">${escapeHtml(text)}</span><button type="button" class="pill-remove" data-pill-remove="${kind}:${i}" title="Remove">×</button>`
     ).join('');
     inner += `<button type="button" class="pill-add-btn" data-pill-add="${kind}">+ Add</button>`;
     return `<div class="goal-strip-group"><span class="strip-label">${label}</span><div class="pill-row">${inner}</div></div>`;
@@ -1510,7 +1518,7 @@
             html += taskEditRowHtml(i, a);
           } else {
             const doneClass = a.status === 'complete' ? 'done-task' : '';
-            html += `<tr><td class="${doneClass}">${a.task}</td><td>${a.owner}</td><td>${renderActionStatusSelect(currentLane, i, a.status)}</td><td class="task-icons"><button type="button" class="icon-btn" data-edit-task="${i}" title="Edit">✎</button><button type="button" class="icon-btn" data-remove-task="${i}" title="Remove">🗑</button></td></tr>`;
+            html += `<tr><td class="${doneClass}">${escapeHtml(a.task)}</td><td>${escapeHtml(a.owner)}</td><td>${renderActionStatusSelect(currentLane, i, a.status)}</td><td class="task-icons"><button type="button" class="icon-btn" data-edit-task="${i}" title="Edit">✎</button><button type="button" class="icon-btn" data-remove-task="${i}" title="Remove">🗑</button></td></tr>`;
           }
         });
         if (editingTaskIdx === 'new'){
@@ -1546,8 +1554,8 @@
               html += taskEditCardHtml(idx, a);
             } else {
               html += `<div class="kanban-card${a.status === 'complete' ? ' done-task' : ''}">
-                <div class="kanban-task">${a.task}</div>
-                <div class="kanban-owner">${a.owner}</div>
+                <div class="kanban-task">${escapeHtml(a.task)}</div>
+                <div class="kanban-owner">${escapeHtml(a.owner)}</div>
                 ${renderActionStatusSelect(currentLane, idx, a.status)}
                 <div class="kanban-card-actions"><button type="button" class="icon-btn" data-edit-task="${idx}" title="Edit">✎</button><button type="button" class="icon-btn" data-remove-task="${idx}" title="Remove">🗑</button></div>
               </div>`;
@@ -1584,7 +1592,7 @@
     });
   });
 
-  // Dark mode is the default for this dashboard — only switches to light if the
+  // Light mode is the default for this dashboard — only switches to dark if the
   // user has explicitly chosen it before (saved in localStorage). Uses a
   // dashboard-specific storage key so each dashboard remembers its own choice
   // independently.
@@ -1601,7 +1609,7 @@
   try {
     savedDashboardTheme = localStorage.getItem('ccs-dashboard-theme') || 'light';
   } catch (e) {
-    // Local storage unavailable — just default to dark.
+    // Local storage unavailable — just default to light.
   }
   applyDashboardTheme(savedDashboardTheme);
   if (themeToggleBtn){
@@ -1820,9 +1828,9 @@
         </div>
       </div>`;
     }
-    const titleHtml = row.title ? `<div class="contact-sub">${row.title}</div>` : `<div class="contact-sub placeholder">Add title</div>`;
-    const emailHtml = row.email ? `<div class="contact-sub"><a href="mailto:${row.email}">${row.email}</a></div>` : `<div class="contact-sub placeholder">Add email</div>`;
-    const nameHtml = row.primaryContact ? `<div class="contact-name">${row.primaryContact}</div>` : `<div class="contact-name placeholder">Add primary contact</div>`;
+    const titleHtml = row.title ? `<div class="contact-sub">${escapeHtml(row.title)}</div>` : `<div class="contact-sub placeholder">Add title</div>`;
+    const emailHtml = row.email ? `<div class="contact-sub"><a href="mailto:${escapeAttr(row.email)}">${escapeHtml(row.email)}</a></div>` : `<div class="contact-sub placeholder">Add email</div>`;
+    const nameHtml = row.primaryContact ? `<div class="contact-name">${escapeHtml(row.primaryContact)}</div>` : `<div class="contact-name placeholder">Add primary contact</div>`;
     return `<div class="contact-block">
       ${nameHtml}
       ${titleHtml}
@@ -1899,14 +1907,14 @@
       ).join('');
       html += `<div class="org-card" data-type="${row.type}"${idAttr}>
         <div class="org-top">
-          <span class="org-name" contenteditable="true" data-roster-field="org" data-idx="${idx}">${row.org}</span>
+          <span class="org-name" contenteditable="true" data-roster-field="org" data-idx="${idx}">${escapeHtml(row.org)}</span>
           ${renderStatusSelect(idx, row.status)}
         </div>
         <input class="type-input org-type-input" list="stakeholderTypeOptions" data-roster-field="type" data-idx="${idx}" value="${row.type.replace(/"/g,'&quot;')}">
         <div class="contact-card">${renderContactCell(idx, row)}</div>
         <div class="participants-label">Active Participants</div>
         <div title="Attendance data — not editable">${participantChips}</div>
-        <div class="org-notes" contenteditable="true" data-roster-field="notes" data-idx="${idx}">${row.notes}</div>
+        <div class="org-notes" contenteditable="true" data-roster-field="notes" data-idx="${idx}">${escapeHtml(row.notes)}</div>
       </div>`;
     });
     orgGrid.innerHTML = html;
@@ -2125,7 +2133,7 @@
     `;
     lb.appendChild(row);
   });
-  // Calendar invite (.ics) download — computes the next 1st or 3rd Thursday, 3-4 PM
+  // Calendar invite (.ics) download — computes the next Monday, 4-5 PM
   function pad2(n){ return String(n).padStart(2, '0'); }
 
   function findNextMeetingDate(){

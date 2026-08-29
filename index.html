@@ -408,23 +408,30 @@
     });
     rows.forEach(row => row.tiles.sort((a, b) => a.offsetLeft - b.offsetLeft));
 
-    // Diagonal sweep: bottom-left tile -> middle tile -> top-right tile,
-    // computed from whatever the current row/column layout actually is.
-    const bottomRow = rows[rows.length - 1];
-    const topRow = rows[0];
-    const middleRow = rows[Math.floor(rows.length / 2)];
-    const bottomLeftTile = bottomRow.tiles[0];
-    const topRightTile = topRow.tiles[topRow.tiles.length - 1];
-    const middleTile = middleRow.tiles[Math.floor(middleRow.tiles.length / 2)];
-    const sweepTiles = [bottomLeftTile, middleTile, topRightTile];
+    // Ascending phase groups: split tiles by position relative to the main
+    // diagonal (top-left to bottom-right) of the row/column grid — below it,
+    // on it, then above it. With a 3x3 layout this is exactly:
+    //   below: eMortgage, Secondary, Servicing
+    //   on:    Artificial Intelligence, Governance, Valuation
+    //   above: Compliance, Credit Reporting, Originations
+    const belowDiagonal = [], onDiagonal = [], aboveDiagonal = [];
+    rows.forEach((row, r) => {
+      row.tiles.forEach((tile, c) => {
+        if (r > c) belowDiagonal.push(tile);
+        else if (r === c) onDiagonal.push(tile);
+        else aboveDiagonal.push(tile);
+      });
+    });
+    const diagonalGroups = [belowDiagonal, onDiagonal, aboveDiagonal].filter(g => g.length);
 
-    const stepMs = 1500;
+    const descendMs = 1500;
+    const ascendMs = 500; // quicker cadence for the ascending phase
 
-    // Descending tones, one per step, high to low — then a short ascending
-    // three-note flourish once the sweep finishes (Close Encounters-ish).
-    // Dropped one octave from the original pitch per feedback.
-    const rowNotes = [440.00, 293.66, 220.00]; // A4, D4, A3
-    const flourishNotes = [261.63, 329.63, 392.00]; // C4, E4, G4
+    // Descending tones (one per row, high to low), then ascending tones
+    // (one per diagonal group, low to high) — Close Encounters-ish.
+    // Dropped one octave from the original pitch per earlier feedback.
+    const descendNotes = [440.00, 293.66, 220.00]; // A4, D4, A3
+    const ascendNotes = [261.63, 329.63, 392.00]; // C4, E4, G4
 
     // withSound is only ever true when this was called from a real click/tap/keypress
     // (see the button and first-interaction handlers below) — the automatic on-load
@@ -433,25 +440,28 @@
     const ctx = withSound ? getAudioContext() : null;
     function audioIsLive(){ return ctx && ctx.state === 'running'; }
 
-    sweepTiles.forEach((tile, i) => {
+    function highlightGroup(tileGroup, freq, duration, holdMs){
+      tileGroup.forEach(tile => tile.classList.add('intro-highlight'));
+      if (audioIsLive()) playTone(freq, ctx.currentTime, duration, ctx);
       setTimeout(() => {
-        tile.classList.add('intro-highlight');
-        if (audioIsLive()){
-          const freq = rowNotes[i] || rowNotes[rowNotes.length - 1];
-          playTone(freq, ctx.currentTime, 0.9, ctx);
-        }
-        setTimeout(() => {
-          tile.classList.remove('intro-highlight');
-        }, stepMs);
-      }, i * stepMs);
+        tileGroup.forEach(tile => tile.classList.remove('intro-highlight'));
+      }, holdMs);
+    }
+
+    // Descending: one row at a time, 1.5s apart.
+    rows.forEach((row, i) => {
+      setTimeout(() => {
+        highlightGroup(row.tiles, descendNotes[i] || descendNotes[descendNotes.length - 1], 0.9, descendMs);
+      }, i * descendMs);
     });
 
-    // Ascending flourish after the last tile's highlight finishes.
-    const flourishStart = sweepTiles.length * stepMs + 200;
-    flourishNotes.forEach((freq, i) => {
+    // Ascending: one diagonal group at a time, starting after the descending
+    // phase finishes, at a quicker cadence.
+    const ascendStart = rows.length * descendMs + 200;
+    diagonalGroups.forEach((group, i) => {
       setTimeout(() => {
-        if (audioIsLive()) playTone(freq, ctx.currentTime, 0.35, ctx);
-      }, flourishStart + i * 220);
+        highlightGroup(group, ascendNotes[i] || ascendNotes[ascendNotes.length - 1], 0.35, ascendMs);
+      }, ascendStart + i * ascendMs);
     });
   }
   playIntroColorTour(false);

@@ -787,8 +787,8 @@
   /* Two columns within the ONE goals-strip bubble — no nested card borders/backgrounds,
      just plain columns, since .side-card/.task-card styling belongs to the (now removed)
      standalone Roadmap section, not this embedded view. */
-  .roster-command-layout{display:grid; grid-template-columns:220px 1fr; gap:20px;}
-  @media (max-width:640px){ .roster-command-layout{grid-template-columns:1fr;} }
+  .roster-command-layout{display:flex; flex-direction:column; gap:16px;}
+  #rosterLaneSidebar{padding-bottom:16px; border-bottom:1px solid var(--line);}
 
   .search-input{
     margin-left:auto;

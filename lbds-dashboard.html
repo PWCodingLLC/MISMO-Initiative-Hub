@@ -232,9 +232,9 @@
     gap:10px;
   }
   .back-to-hub{
-    font-family:'Inter',sans-serif; font-size:14.5px; font-weight:700;
+    font-family:'Inter',sans-serif; font-size:12.5px; font-weight:700;
     color:var(--brand-text); text-decoration:none;
-    padding:10px 20px; border:1px solid var(--line); border-radius:999px; background:var(--card);
+    padding:7px 14px; border:1px solid var(--line); border-radius:999px; background:var(--card);
   }
   .back-to-hub:hover{background:var(--brand-soft); border-color:var(--brand);}
   .masthead-actions-row{display:flex; flex-direction:row; gap:8px;}
@@ -1116,13 +1116,13 @@
       </div>
     </div>
     <div class="masthead-right">
-      <a class="back-to-hub" href="index.html">← Back to Initiative Hub</a>
       <span class="section-note mono">Draft v1 · not affiliated with Smartsheet</span>
     </div>
   </div>
 </div>
 
 <div class="floating-actions">
+  <a class="back-to-hub" href="index.html">← Back to Initiative Hub</a>
   <button type="button" id="lockToggleBtn" class="lock-toggle-btn" aria-pressed="true" title="Unlock to allow edits">
     <span class="lock-icon" aria-hidden="true"></span><span class="lock-label">Locked</span>
   </button>
@@ -2046,7 +2046,7 @@
     }
 
     const summary = e.target.closest('.list-row-summary');
-    if (summary && !e.target.closest('[contenteditable]') && !e.target.closest('select')){
+    if (summary && !e.target.closest('[contenteditable="true"]') && !e.target.closest('select:not(:disabled)')){
       const idx = parseInt(summary.getAttribute('data-toggle-idx'), 10);
       if (expandedRowIndices.has(idx)) expandedRowIndices.delete(idx);
       else expandedRowIndices.add(idx);

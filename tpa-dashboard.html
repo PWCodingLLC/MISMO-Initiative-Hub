@@ -775,6 +775,7 @@
   }
 
   .savings-value-row{display:flex; justify-content:space-between; font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:18px; margin-bottom:10px;}
+  .savings-divider{border-top:1px solid var(--line); margin-top:14px; padding-top:14px;}
   .savings-track{height:6px; background:var(--line); border-radius:4px; position:relative; margin:0 6px 16px;}
   .savings-fill{position:absolute; left:14%; right:8%; top:0; height:100%; background:var(--bar-bg); border-radius:4px;}
   .savings-handle{position:absolute; top:50%; width:14px; height:14px; background:var(--bar-bg); border:2px solid #fff; border-radius:50%; transform:translate(-50%,-50%); box-shadow:0 0 0 1px var(--bar-bg);}
@@ -937,17 +938,17 @@
               <strong>Status:</strong>
               <span id="kpi-status" class="status-chip-inline warn" contenteditable="true">⚑ Proposed — Discovery workshop scheduled, not yet chartered as a workgroup</span>
             </p>
-          </div>
 
-          <div class="overview-card">
-            <h3 class="overview-head">Estimated per agreement savings</h3>
-            <div class="savings-value-row"><span contenteditable="true">$17,000</span><span contenteditable="true">$45,000</span></div>
-            <div class="savings-track">
-              <div class="savings-fill"></div>
-              <div class="savings-handle" style="left:14%;"></div>
-              <div class="savings-handle" style="left:92%;"></div>
+            <div class="savings-divider">
+              <h3 class="overview-head">Estimated per agreement savings</h3>
+              <div class="savings-value-row"><span contenteditable="true">$17,000</span><span contenteditable="true">$45,000</span></div>
+              <div class="savings-track">
+                <div class="savings-fill"></div>
+                <div class="savings-handle" style="left:14%;"></div>
+                <div class="savings-handle" style="left:92%;"></div>
+              </div>
+              <a href="#why-card" class="savings-btn">See the cost breakdown ↓</a>
             </div>
-            <a href="#why-card" class="savings-btn">See the cost breakdown ↓</a>
           </div>
 
           <div class="overview-card">

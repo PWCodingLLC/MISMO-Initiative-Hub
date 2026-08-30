@@ -613,9 +613,9 @@
   .role-select:hover{background:var(--brand-soft); border-color:var(--brand);}
   .role-select:focus{outline:none; background:var(--card); border-color:var(--brand); box-shadow:0 0 0 2px var(--brand);}
   .type-select{
-    font-family:inherit; font-size:11px; font-weight:600; color:var(--ink);
+    font-family:inherit; font-size:14px; font-weight:700; color:var(--brand-text);
     border:1px solid transparent; background:transparent; cursor:pointer;
-    padding:3px 6px; border-radius:6px; max-width:100%; min-width:185px;
+    padding:4px 7px; border-radius:6px; max-width:100%; min-width:185px;
     white-space:normal; word-wrap:break-word;
   }
   .type-select:hover{background:var(--brand-soft); border-color:var(--brand);}
@@ -779,7 +779,7 @@
     align-items:center;
     margin-bottom:14px;
   }
-  .current-type-label{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:18px; color:var(--ink);}
+  .current-type-label{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:24px; color:var(--ink);}
 
   /* Goals/Roadblocks/Tasks strip embedded in the roster, above the org list. Reads and
      writes the same laneData used by the Adoption and Development Status section — see
@@ -1311,10 +1311,6 @@
           <div class="goals-strip" id="rosterGoalsStrip">
             <div class="goals-strip-head">
               <span class="current-type-label" id="currentTypeLabel"></span>
-              <div class="view-toggle" role="group" aria-label="Layout format">
-                <button class="view-btn" data-view="compact" aria-pressed="true">Compact</button>
-                <button class="view-btn" data-view="kanban" aria-pressed="false">Kanban</button>
-              </div>
             </div>
             <div class="roster-command-layout" id="rosterCommandLayout">
               <div id="rosterLaneSidebar"></div>
@@ -1445,7 +1441,7 @@
 
   updateLockUI();
 
-  // Roadmap: lane data + compact/kanban renderer
+  // Roadmap: lane data + task table renderer, embedded in the roster
   let laneData = {
     general: {
       goals: ['Drive consistent MCD adoption across regulators, lenders, LOS providers, and compliance vendors together — no single stakeholder group can move alone'],
@@ -1488,7 +1484,6 @@
   };
 
   let currentLane = 'compliance';
-  let currentView = 'compact';
   let editingTaskIdx = null; // null = none, 'new' = adding, number = editing that index
   const laneRoot = document.getElementById('rosterCommandLayout');
 
@@ -1533,19 +1528,6 @@
       <td><select class="contact-input" data-task-field="status">${taskStatusOptionsHtml(action.status)}</select></td>
       <td class="task-icons"><button type="button" class="contact-save-btn" data-save-task="${idx}">Save</button><button type="button" class="contact-cancel-btn" data-cancel-task="${idx}">Cancel</button></td>
     </tr>`;
-  }
-
-  function taskEditCardHtml(idx, action){
-    return `<div class="kanban-card-edit task-edit-container">
-      <input class="contact-input task-input" type="text" data-task-field="task" placeholder="Task" value="${escapeAttr(action.task)}">
-      <input class="contact-input task-input" type="text" data-task-field="owner" placeholder="Owner" value="${escapeAttr(action.owner)}">
-      <div class="kanban-date-note">${action.dateAssigned ? 'Assigned ' + escapeHtml(action.dateAssigned) : 'Date will be set on save'}</div>
-      <select class="contact-input task-input" data-task-field="status">${taskStatusOptionsHtml(action.status)}</select>
-      <div class="contact-edit-actions">
-        <button type="button" class="contact-save-btn" data-save-task="${idx}">Save</button>
-        <button type="button" class="contact-cancel-btn" data-cancel-task="${idx}">Cancel</button>
-      </div>
-    </div>`;
   }
 
   function renderPillGroup(label, items, kind){
@@ -1623,81 +1605,31 @@
     sidebar.innerHTML = `<div class="goal-strip">${renderPillGroup('Goals', lane.goals, 'goal')}${renderPillGroup('Roadblocks', lane.roadblocks, 'roadblock')}</div>`;
 
     let html = '';
-    if (currentView === 'compact'){
-      if (lane.actions.length === 0 && editingTaskIdx !== 'new'){
-        html += `<p class="empty-lane-note">No tasks yet for this stakeholder group.</p>`;
-      } else {
-        html += `<table class="action-table-full"><tr><th>Task</th><th>Owner</th><th>Date Assigned</th><th>Status</th><th></th></tr>`;
-        lane.actions.forEach((a, i) => {
-          if (i === editingTaskIdx){
-            html += taskEditRowHtml(i, a);
-          } else {
-            const doneClass = a.status === 'complete' ? 'done-task' : '';
-            html += `<tr><td class="${doneClass}">${escapeHtml(a.task)}</td><td>${escapeHtml(a.owner)}</td><td class="task-date-cell">${escapeHtml(a.dateAssigned || '—')}</td><td>${renderActionStatusSelect(currentLane, i, a.status)}</td><td class="task-icons"><button type="button" class="icon-btn" data-edit-task="${i}" title="Edit">✎</button><button type="button" class="icon-btn" data-remove-task="${i}" title="Remove">🗑</button></td></tr>`;
-          }
-        });
-        if (editingTaskIdx === 'new'){
-          html += taskEditRowHtml('new', {task:'', owner:'', status:'not-started'});
-        }
-        html += `</table>`;
-      }
-      if (editingTaskIdx === null){
-        html += `<button type="button" class="add-task-btn" data-add-task>+ Add task</button>`;
-      }
+    if (lane.actions.length === 0 && editingTaskIdx !== 'new'){
+      html += `<p class="empty-lane-note">No tasks yet for this stakeholder group.</p>`;
     } else {
-      const cols = [
-        {key:'not-started', label:'Not Started'},
-        {key:'in-progress', label:'In Progress'},
-        {key:'blocked', label:'Blocked'},
-        {key:'complete', label:'Complete'}
-      ];
-      if (editingTaskIdx === null){
-        html += `<button type="button" class="add-task-btn" data-add-task style="margin-bottom:14px;">+ Add task</button>`;
-      } else if (editingTaskIdx === 'new'){
-        html += `<div class="kanban-add-wrap">${taskEditCardHtml('new', {task:'', owner:'', status:'not-started'})}</div>`;
-      }
-      html += `<div class="kanban-grid">`;
-      cols.forEach(col => {
-        const items = lane.actions.filter(a => a.status === col.key);
-        html += `<div class="kanban-col"><div class="kanban-col-head"><span class="status-chip ${col.key}">${col.label}</span><span class="kanban-count">${items.length}</span></div>`;
-        if (items.length === 0){
-          html += `<div class="kanban-empty">—</div>`;
+      html += `<table class="action-table-full"><tr><th>Task</th><th>Owner</th><th>Date Assigned</th><th>Status</th><th></th></tr>`;
+      lane.actions.forEach((a, i) => {
+        if (i === editingTaskIdx){
+          html += taskEditRowHtml(i, a);
         } else {
-          items.forEach(a => {
-            const idx = lane.actions.indexOf(a);
-            if (idx === editingTaskIdx){
-              html += taskEditCardHtml(idx, a);
-            } else {
-              html += `<div class="kanban-card${a.status === 'complete' ? ' done-task' : ''}">
-                <div class="kanban-task">${escapeHtml(a.task)}</div>
-                <div class="kanban-owner">${escapeHtml(a.owner)}</div>
-                <div class="kanban-date-note">${a.dateAssigned ? 'Assigned ' + escapeHtml(a.dateAssigned) : ''}</div>
-                ${renderActionStatusSelect(currentLane, idx, a.status)}
-                <div class="kanban-card-actions"><button type="button" class="icon-btn" data-edit-task="${idx}" title="Edit">✎</button><button type="button" class="icon-btn" data-remove-task="${idx}" title="Remove">🗑</button></div>
-              </div>`;
-            }
-          });
+          const doneClass = a.status === 'complete' ? 'done-task' : '';
+          html += `<tr><td class="${doneClass}">${escapeHtml(a.task)}</td><td>${escapeHtml(a.owner)}</td><td class="task-date-cell">${escapeHtml(a.dateAssigned || '—')}</td><td>${renderActionStatusSelect(currentLane, i, a.status)}</td><td class="task-icons"><button type="button" class="icon-btn" data-edit-task="${i}" title="Edit">✎</button><button type="button" class="icon-btn" data-remove-task="${i}" title="Remove">🗑</button></td></tr>`;
         }
-        html += `</div>`;
       });
-      html += `</div>`;
+      if (editingTaskIdx === 'new'){
+        html += taskEditRowHtml('new', {task:'', owner:'', status:'not-started'});
+      }
+      html += `</table>`;
+    }
+    if (editingTaskIdx === null){
+      html += `<button type="button" class="add-task-btn" data-add-task>+ Add task</button>`;
     }
 
     main.innerHTML = html;
     saveLaneData();
     applyLockState();
   }
-
-  const viewButtons = document.querySelectorAll('.view-btn');
-  viewButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      viewButtons.forEach(b => b.setAttribute('aria-pressed', 'false'));
-      btn.setAttribute('aria-pressed', 'true');
-      currentView = btn.getAttribute('data-view');
-      editingTaskIdx = null;
-      renderLane();
-    });
-  });
 
   renderLane();
 

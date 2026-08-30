@@ -838,11 +838,27 @@
   .savings-placeholder .note{font-size:11.5px; color:var(--ink-soft); margin:4px 0 12px;}
 
   .roi-link{
-    display:block; text-align:center; font-size:12px; font-weight:600;
-    color:var(--ink-soft); text-decoration:none; margin-top:8px;
+    display:inline-flex; align-items:center; gap:5px; text-align:left; font-size:12px; font-weight:600;
+    color:var(--brand-text); text-decoration:none; margin-top:8px; cursor:pointer; background:none; border:none; padding:0; font-family:inherit;
   }
   .roi-link:hover{text-decoration:underline;}
-  .roi-link.disabled{color:var(--slate-text); pointer-events:none; font-style:italic; font-weight:500;}
+  .roi-chevron{font-size:10px; transition:transform .15s ease;}
+  .roi-chevron.open{transform:rotate(180deg);}
+
+  .video-frame-card{padding:0; overflow:hidden;}
+  .video-frame-head{background:var(--paper); padding:9px 14px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-soft); border-bottom:1px solid var(--line);}
+  .video-embed-wrap{position:relative; padding-bottom:56.25%; height:0;}
+  .video-embed-wrap iframe{position:absolute; top:0; left:0; width:100%; height:100%; border:none;}
+
+  .savings-divider{border-top:1px solid var(--line); margin-top:14px; padding-top:14px;}
+  .savings-fig{font-family:'Space Grotesk',sans-serif; font-size:26px; font-weight:700; color:var(--ink);}
+  .savings-per-loan-note{font-size:11.5px; color:var(--ink-soft);}
+  .roi-sample-tag{font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--slate-text); background:var(--slate-soft); padding:2px 7px; border-radius:5px; margin-left:8px;}
+  .roi-detail{display:none; margin-top:12px; padding-top:12px; border-top:1px solid var(--line);}
+  .roi-detail.open{display:block;}
+  .roi-detail-row{display:flex; justify-content:space-between; font-size:12px; padding:5px 0;}
+  .roi-detail-row.total{border-top:1px solid var(--line); margin-top:4px; padding-top:8px; font-weight:700;}
+  .roi-sample-note{font-size:11px; color:var(--ink-soft); font-style:italic; margin:10px 0 8px;}
 
   .deliverables-table{font-size:12.5px; width:100%;}
   .deliverables-table th{font-size:10px; padding:6px 8px;}
@@ -982,7 +998,8 @@
             </ol>
           </div>
 
-          <div class="overview-card" style="padding:0; overflow:hidden;">
+          <div class="overview-card video-frame-card">
+            <div class="video-frame-head">Overview video</div>
             <div class="video-embed-wrap">
               <iframe src="https://www.youtube.com/embed/udRz2GbwKEI?si=u231L_8herTD6yCk" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
             </div>
@@ -999,15 +1016,29 @@
               <strong>Status:</strong>
               <span class="status-chip-inline" style="background:var(--success-soft); color:var(--success-text);" contenteditable="true">Published — Version 2.0</span>
             </p>
-          </div>
 
-          <div class="overview-card">
-            <h3 class="overview-head">Estimated per loan savings</h3>
-            <div class="savings-placeholder">
-              <span class="fig" contenteditable="true">$0</span>
-              <p class="note">No published estimate yet — placeholder pending real data</p>
+            <div class="savings-divider">
+              <h3 class="overview-head">Estimated per loan savings <span class="roi-sample-tag">Sample</span></h3>
+              <div style="display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;">
+                <span class="savings-fig" contenteditable="true">$47</span>
+                <span class="savings-per-loan-note">per loan, illustrative estimate</span>
+              </div>
+              <button type="button" class="roi-link" id="roiToggle" onclick="
+                var d = document.getElementById('roiDetail');
+                var c = document.getElementById('roiChevron');
+                var open = d.classList.toggle('open');
+                c.classList.toggle('open', open);
+                document.getElementById('roiToggleText').textContent = open ? 'Hide breakdown' : 'View ROI breakdown';
+              "><span id="roiToggleText">View ROI breakdown</span> <span class="roi-chevron" id="roiChevron">▾</span></button>
+              <div class="roi-detail" id="roiDetail">
+                <div class="roi-detail-row"><span>Reduced manual review time</span><span>$28</span></div>
+                <div class="roi-detail-row"><span>Fewer post-closing corrections</span><span>$11</span></div>
+                <div class="roi-detail-row"><span>Faster investor delivery cycle</span><span>$8</span></div>
+                <div class="roi-detail-row total"><span>Estimated total per loan</span><span>$47</span></div>
+                <p class="roi-sample-note">Sample breakdown for demonstration — figures are placeholders, not a published MISMO estimate.</p>
+                <a href="mcd-sample-roi-model.pdf" target="_blank" rel="noopener" class="roi-link" style="margin-top:0;">View sample ROI model (PDF) ↗</a>
+              </div>
             </div>
-            <span class="roi-link disabled">ROI model not yet published</span>
           </div>
 
           <div class="overview-card" id="deliverables-card">

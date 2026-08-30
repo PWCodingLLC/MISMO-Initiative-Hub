@@ -1803,7 +1803,7 @@
   // to the person it describes.
   function splitParticipantChips(str){
     if (str.startsWith('No one met')) return [str];
-    const boundaryRe = /[A-Z][A-Za-z.’''-]*(?:\s+[A-Za-z][A-Za-z.’''-]*)*\s\(/g;
+    const boundaryRe = /\p{Lu}[\p{L}.’''-]*(?:\s+\p{L}[\p{L}.’''-]*)*\s\(/gu;
     const starts = [];
     let m;
     while ((m = boundaryRe.exec(str)) !== null) starts.push(m.index);

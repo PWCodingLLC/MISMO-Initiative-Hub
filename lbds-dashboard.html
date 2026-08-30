@@ -1779,7 +1779,7 @@
     {type:'Servicer', org:'Midland Mortgage', status:'impl-planned', primaryContact:'Melissa Croom', title:'', email:'', participants:'Melissa Croom (13/17)', notes:'Tracked under parent company "MidFirst Bank" in the meeting tracker', roadblocks:'', targetDate:''},
     {type:'Servicer', org:'Guild Mortgage', status:'implemented', primaryContact:'Rebekah Valdez-Pound', title:'', email:'', participants:'No one met the 1/3 attendance threshold — closest: Susan Jarvis (4/17), Rebekah Valdez-Pound (4/17)', notes:'—', roadblocks:'', targetDate:''},
     {type:'Servicer', org:'Cenlar', status:'not-planned', primaryContact:'Nicole Mastropiero', title:'', email:'', participants:'Nicole Mastropiero (6/17)', notes:'—', roadblocks:'', targetDate:''},
-    {type:'Servicer', org:'Mr. Cooper', status:'impl-planned', primaryContact:'Pallavi Chakrabarti', title:'', email:'', participants:'No one met the 1/3 attendance threshold — closest: Pallavi Chakrabarti (0/17)', notes:'Real contact name found in meeting tracker — replaces earlier placeholder', roadblocks:'', targetDate:'', rowId:'mrcooper'},
+    {type:'Servicer', org:'Mr. Cooper', status:'impl-planned', primaryContact:'Pallavi Chakrabarti', title:'', email:'', participants:'No one met the 1/3 attendance threshold — closest: Pallavi Chakrabarti (0/17)', notes:'Real contact name found in meeting tracker — replaces earlier placeholder', roadblocks:'', targetDate:''},
     {type:'Servicing Technology Provider', org:'ICE', status:'not-planned', primaryContact:'Haris Jusic', title:'', email:'', participants:'No one met the 1/3 attendance threshold — closest: Haris Jusic (2/17)', notes:'—', roadblocks:'', targetDate:''},
     {type:'Servicing Technology Provider', org:'Sagent', status:'not-planned', primaryContact:'Barbara Bowser', title:'', email:'', participants:'Barbara Bowser (15/17)', notes:'—', roadblocks:'', targetDate:''}
   ];
@@ -1846,7 +1846,7 @@
   // to the person it describes.
   function splitParticipantChips(str){
     if (str.startsWith('No one met')) return [str];
-    const boundaryRe = /[A-Z][A-Za-z.’''-]*(?:\s+[A-Za-z][A-Za-z.’''-]*)*\s\(/g;
+    const boundaryRe = /\p{Lu}[\p{L}.’''-]*(?:\s+\p{L}[\p{L}.’''-]*)*\s\(/gu;
     const starts = [];
     let m;
     while ((m = boundaryRe.exec(str)) !== null) starts.push(m.index);

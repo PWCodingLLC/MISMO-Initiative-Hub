@@ -621,15 +621,7 @@
   .type-input:hover{background:var(--brand-soft); border-color:var(--line);}
   .type-input:focus{background:var(--card); border-color:var(--brand); outline:none; box-shadow:0 0 0 2px var(--brand);}
 
-  #funnelRoot{display:grid; grid-template-columns:repeat(3, 1fr); gap:16px 12px;}
-  @media (max-width:700px){#funnelRoot{grid-template-columns:repeat(2, 1fr);}}
-  @media (max-width:420px){#funnelRoot{grid-template-columns:1fr;}}
-  .pie-item{border:1px solid var(--line); border-radius:10px; padding:16px; display:flex; flex-direction:column; align-items:center; gap:10px; background:var(--card);}
-  .pie-name{font-size:12.5px; font-weight:700; text-align:center; line-height:1.3; color:var(--ink);}
-  .pie-total{font-size:11px; color:var(--ink-soft); font-family:'IBM Plex Mono',monospace;}
-  .pie-empty{width:90px; height:90px; border-radius:50%; border:1px dashed var(--line);}
-  .funnel-row-top span:first-child{font-weight:600;}
-  .funnel-row-top span:last-child{color:var(--ink-soft); font-family:'IBM Plex Mono',monospace; font-size:11.5px;}
+
 
   select.status-select{
     font-family:'Inter',sans-serif;
@@ -651,11 +643,11 @@
 
   /* Roster/adoption status colors — scoped separately from task status colors above,
      since both systems share the "not-started" value but should not share its color. */
-  select.status-select.roster-status.not-applicable{background:var(--slate-soft); color:var(--slate-text);}
-  select.status-select.roster-status.not-started{background:var(--status-red-soft); color:var(--status-red-text);}
-  select.status-select.roster-status.planned{background:var(--status-orange-soft); color:var(--status-orange-text);}
-  select.status-select.roster-status.piloted{background:var(--status-yellow-soft); color:var(--status-yellow-text);}
-  select.status-select.roster-status.in-use{background:var(--status-green-soft); color:var(--status-green-text);}
+  select.status-select.roster-status.na{background:var(--slate-soft); color:var(--slate-text);}
+  select.status-select.roster-status.not-planned{background:var(--status-red-soft); color:var(--status-red-text);}
+  select.status-select.roster-status.pilot-planned{background:var(--status-orange-soft); color:var(--status-orange-text);}
+  select.status-select.roster-status.impl-planned{background:var(--status-yellow-soft); color:var(--status-yellow-text);}
+  select.status-select.roster-status.implemented{background:var(--status-green-soft); color:var(--status-green-text);}
 
   .contact-block{display:flex; flex-direction:column; gap:2px; min-width:150px;}
   .contact-name{font-weight:600;}
@@ -771,9 +763,9 @@
   .empty-lane-note{font-size:13px; color:var(--ink-soft); font-style:italic; padding:18px 0; text-align:center; margin:0;}
   .primary-contact{vertical-align:top;}
   .funnel-empty-label{font-size:11px; color:var(--ink-soft); padding:2px 0 0; font-style:italic;}
-  .funnel-legend{display:flex; gap:20px; margin-bottom:18px; flex-wrap:wrap;}
-  .funnel-legend-item{display:flex; align-items:center; gap:8px; font-size:14px; font-weight:600; color:var(--ink-soft);}
-  .legend-dot{width:13px; height:13px; border-radius:3px; display:inline-block;}
+  .side-legend{padding:14px; border-top:1px solid var(--line); margin-top:4px; display:flex; flex-direction:column; gap:7px;}
+  .legend-item{display:flex; align-items:center; gap:8px; font-size:11px; color:var(--ink-soft);}
+  .legend-dot{width:9px; height:9px; border-radius:3px; display:inline-block; flex:0 0 auto;}
 
   .roster-controls{
     display:flex;
@@ -781,22 +773,6 @@
     flex-wrap:wrap;
     align-items:center;
     margin-bottom:14px;
-  }
-  .chip-btn{
-    font-family:'Inter',sans-serif;
-    font-size:12px;
-    font-weight:600;
-    padding:6px 12px;
-    border-radius:999px;
-    border:1px solid var(--line);
-    background:var(--card);
-    color:var(--ink-soft);
-    cursor:pointer;
-  }
-  .chip-btn[aria-pressed="true"]{
-    background:var(--bar-bg);
-    border-color:var(--bar-bg);
-    color:#fff;
   }
   .search-input{
     margin-left:auto;
@@ -811,32 +787,49 @@
   }
   .highlight-row{background:var(--signal-soft) !important;}
 
-  /* ---------- ROSTER: CARD GRID + SIDEBAR ---------- */
-  .roster-layout{display:grid; grid-template-columns:220px 1fr; gap:14px;}
+  /* ---------- ROSTER: TYPE SIDEBAR + EXPANDABLE LIST ---------- */
+  .roster-layout{display:grid; grid-template-columns:250px 1fr; gap:14px;}
   @media (max-width:760px){ .roster-layout{grid-template-columns:1fr;} }
-  .roster-side-card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:18px; align-self:start;}
-  .roster-side-label{font-size:10.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:10px;}
-  .roster-big-stat{font-family:'IBM Plex Mono',monospace; font-size:32px; font-weight:700; line-height:1;}
-  .roster-big-stat-label{font-size:12px; color:var(--ink-soft); margin:2px 0 18px;}
-  .roster-status-row{display:flex; align-items:center; justify-content:space-between; padding:6px 0; font-size:12.5px;}
-  .roster-status-row .label{display:flex; align-items:center; gap:7px;}
-  .roster-status-dot{width:9px; height:9px; border-radius:3px; display:inline-block;}
-  .roster-status-val{font-family:'IBM Plex Mono',monospace; font-weight:600;}
+  .roster-side-card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:6px; align-self:start;}
+  .roster-side-label{font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft); padding:12px 14px 6px;}
+  .type-row{padding:10px 14px; border-bottom:1px solid var(--line); cursor:pointer;}
+  .type-row:last-of-type{border-bottom:none;}
+  .type-row:hover{background:var(--paper);}
+  .type-row.active{background:var(--brand-soft);}
+  .type-row-top{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px; gap:8px;}
+  .type-name{font-size:12.5px; font-weight:700;}
+  .type-count{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink-soft); flex:0 0 auto;}
+  .mini-bar{display:flex; height:6px; border-radius:3px; overflow:hidden; background:var(--slate-soft);}
+  .mini-seg{height:100%;}
 
-  .org-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:12px;}
-  @media (max-width:640px){ .org-grid{grid-template-columns:1fr;} }
-  .org-card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:16px 18px;}
-  .org-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:2px;}
-  .org-name{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:14.5px;}
-  .org-type-input{font-size:10.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-soft); margin-bottom:12px;}
+  .roster-list{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:4px;}
+  .list-row{border-bottom:1px solid var(--line);}
+  .list-row:last-child{border-bottom:none;}
+  .list-row-summary{display:flex; align-items:center; gap:14px; padding:13px 16px; cursor:pointer;}
+  .list-row-summary:hover{background:var(--paper);}
+  .expand-caret{color:var(--ink-soft); flex:0 0 auto; transition:transform .15s ease;}
+  .list-row.expanded .expand-caret{transform:rotate(90deg);}
+  .list-org-name{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13.5px; flex:1;}
 
-  .contact-card{background:var(--paper); border-radius:8px; padding:12px 14px; margin-bottom:12px;}
+  .list-drawer{display:none; padding:4px 16px 18px 46px; background:var(--paper);}
+  .list-row.expanded .list-drawer{display:block;}
+  .drawer-grid{display:grid; grid-template-columns:1fr 1.3fr; gap:20px;}
+  @media (max-width:640px){ .drawer-grid{grid-template-columns:1fr;} }
+  .drawer-label{font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-soft); margin:10px 0 4px;}
+  .drawer-label:first-of-type{margin-top:0;}
+  .drawer-value{font-size:12.5px;}
+  .drawer-value.empty{font-style:italic; color:var(--ink-soft);}
+  .date-note{font-size:11.5px; color:var(--ink-soft); margin-top:8px; padding-top:8px; border-top:1px solid var(--line);}
+  .date-note strong{color:var(--ink); font-weight:600;}
+  .roadblock-box{background:var(--status-red-soft); color:var(--status-red-text); font-size:12px; padding:8px 11px; border-radius:8px; margin-bottom:12px;}
+  .notes-text{font-size:12.5px; color:var(--ink-soft); font-style:italic;}
+
+  .contact-card{background:var(--card); border-radius:8px; padding:12px 14px;}
   .contact-card .contact-block{min-width:0;}
   .contact-card .contact-edit-form{min-width:0;}
 
   .participants-label{font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-soft); margin-bottom:6px;}
   .participant-chip{display:inline-block; background:var(--brand-soft); color:var(--brand-text); font-size:11px; padding:4px 10px; border-radius:999px; margin:0 5px 5px 0;}
-  .org-notes{font-size:11.5px; color:var(--ink-soft); border-top:1px solid var(--line); padding-top:9px; margin-top:10px; font-style:italic;}
 
   /* ---------- GOVERNANCE ---------- */
   .gov-layout{
@@ -1296,36 +1289,17 @@
           <tr><td><select class="type-select"><option value="Aggregator/Investor">Aggregator/Investor</option><option value="Lender">Lender</option><option value="LOS Providers">LOS Providers</option><option value="Regulator">Regulator</option><option value="Servicer">Servicer</option><option value="Servicing System" selected>Servicing System</option></select></td><td contenteditable="true">Seamless boarding from LOS to servicing platform</td><td><select class="crit-select"><option value="star">★</option><option value="line" selected>—</option></select></td><td><select class="role-select"><option value="Driver">Driver</option><option value="Implementer" selected>Implementer</option></select></td></tr>
         </table>
       </div>
-
-      <h3 class="card-dark-bar">Stakeholder Implementation Status</h3>
-      <p class="section-subtext" style="margin:0 0 12px;">Change any status in the roster below — the charts update to match.</p>
-      <div class="card stake-card">
-        <div class="funnel-legend">
-          <div class="funnel-legend-item"><span class="legend-dot" style="background:var(--slate);"></span>Not Applicable</div>
-          <div class="funnel-legend-item"><span class="legend-dot" style="background:var(--status-red);"></span>Not Started</div>
-          <div class="funnel-legend-item"><span class="legend-dot" style="background:var(--status-orange);"></span>Planned</div>
-          <div class="funnel-legend-item"><span class="legend-dot" style="background:var(--status-yellow);"></span>Piloted</div>
-          <div class="funnel-legend-item"><span class="legend-dot" style="background:var(--status-green);"></span>Implemented</div>
-        </div>
-
-        <div id="funnelRoot"></div>
-      </div>
     </div>
 
     <h3 class="card-dark-bar" style="margin:0 0 4px; text-transform:uppercase;">Stakeholder engagement roster</h3>
     <p class="section-subtext" style="margin:0 0 12px;">"Active participants" = attended at least 1/3 of the 17 workgroup meetings held in the past year (Aug 2025–Aug 2026), per the uploaded meeting tracker.</p>
     <div class="card" style="padding:18px;" id="roster">
       <div class="roster-controls">
-        <button class="chip-btn" data-type-filter="Lender" aria-pressed="true">Lender</button>
-        <button class="chip-btn" data-type-filter="Regulator" aria-pressed="false">Regulator</button>
-        <button class="chip-btn" data-type-filter="Servicer" aria-pressed="false">Servicer</button>
-        <button class="chip-btn" data-type-filter="Servicing Technology Provider" aria-pressed="false">Tech Provider</button>
-        <button class="chip-btn" data-type-filter="all" aria-pressed="false">All types</button>
         <input class="search-input" id="rosterSearch" type="text" placeholder="Search org or participant…">
       </div>
       <div class="roster-layout" id="rosterLayout">
         <div class="roster-side-card" id="rosterSidebar"></div>
-        <div class="org-grid" id="orgGrid"></div>
+        <div class="roster-list" id="rosterList"></div>
       </div>
       <p class="section-note" id="rosterEmpty" style="display:none; padding:14px 0 0;">No rows match this filter.</p>
       <datalist id="stakeholderTypeOptions">
@@ -1405,7 +1379,7 @@
   }
 
   // applyLockState() genuinely toggles the contenteditable attribute and .disabled property
-  // (not just CSS) and is called from renderRosterTable()/renderLane() too, so re-renders
+  // (not just CSS) and is called from renderRosterList()/renderLane() too, so re-renders
   // triggered by search, filtering, or status changes can't silently unlock fresh content. ---
   let isLocked = true;
   const lockToggleBtn = document.getElementById('lockToggleBtn');
@@ -1438,7 +1412,7 @@
     if (isLocked){
       editingContactIdx = null;
       editingTaskIdx = null;
-      renderRosterTable();
+      renderRosterList();
       renderLane();
     }
     updateLockUI();
@@ -1837,34 +1811,35 @@
   }, true);
 
   // Shared roster data — drives both the engagement table and the funnel bars
+  // Status values use the current 5-tier system: na (No Implementation Necessary),
+  // not-planned (No Implementation Planned), pilot-planned (Pilot Planned — pairs with
+  // targetDate as a planned pilot date), impl-planned (Implementation Planned — pairs
+  // with targetDate as a planned implementation date), implemented (Implemented).
+  // roadblocks and targetDate are both new fields with no real source data yet for any
+  // org here — left empty rather than inferred from notes text.
   let rosterData = [
-    {type:'Lender', org:'Chase', status:'not-started', primaryContact:'Mary Jane Jimenez', title:'', email:'', participants:'Mary Jane Jimenez (10/17), Carey Agarwal (8/17), Joseph Smurro (7/17)', notes:'—'},
-    {type:'Lender', org:'Newrez', status:'not-started', primaryContact:'Joseph Prince', title:'', email:'', participants:'Joseph Prince (15/17)', notes:'—'},
-    {type:'Lender', org:'PrimeLending', status:'in-use', primaryContact:'Rusty Emory', title:'', email:'', participants:'No one met the 1/3 attendance threshold — closest: Rusty Emory (3/17)', notes:'Planning a test use with Loancare, waiting on a loan package'},
-    {type:'Regulator', org:'Fannie Mae', status:'not-started', primaryContact:'Mark Friend', title:'', email:'', participants:'Mark Friend (12/17)', notes:'—'},
-    {type:'Regulator', org:'Freddie Mac', status:'piloted', primaryContact:'John Emans', title:'', email:'', participants:'John Emans (15/17), Tong Zhang (15/17), Prerana Karki (14/17), Anthony Burlbaugh (13/17), Victoria Morrison (7/17)', notes:'Freddie Mac is actively implementing LBDS'},
-    {type:'Regulator', org:'FHFA', status:'not-started', primaryContact:'Adam Elaroussi', title:'', email:'', participants:'Adam Elaroussi (12/17)', notes:'—'},
-    {type:'Servicer', org:'ServiceMac', status:'planned', primaryContact:'Rachael Macaulay', title:'Co-Chair, LBDS', email:'', participants:'Rachael Macaulay (15/17)', notes:'Planning a test use with PrimeLending'},
-    {type:'Servicer', org:'Midland Mortgage', status:'piloted', primaryContact:'Melissa Croom', title:'', email:'', participants:'Melissa Croom (13/17)', notes:'Tracked under parent company "MidFirst Bank" in the meeting tracker'},
-    {type:'Servicer', org:'Guild Mortgage', status:'in-use', primaryContact:'Rebekah Valdez-Pound', title:'', email:'', participants:'No one met the 1/3 attendance threshold — closest: Susan Jarvis (4/17), Rebekah Valdez-Pound (4/17)', notes:'—'},
-    {type:'Servicer', org:'Cenlar', status:'not-started', primaryContact:'Nicole Mastropiero', title:'', email:'', participants:'Nicole Mastropiero (6/17)', notes:'—'},
-    {type:'Servicer', org:'Mr. Cooper', status:'piloted', primaryContact:'Pallavi Chakrabarti', title:'', email:'', participants:'No one met the 1/3 attendance threshold — closest: Pallavi Chakrabarti (0/17)', notes:'Real contact name found in meeting tracker — replaces earlier placeholder', rowId:'mrcooper'},
-    {type:'Servicing Technology Provider', org:'ICE', status:'not-started', primaryContact:'Haris Jusic', title:'', email:'', participants:'No one met the 1/3 attendance threshold — closest: Haris Jusic (2/17)', notes:'—'},
-    {type:'Servicing Technology Provider', org:'Sagent', status:'not-started', primaryContact:'Barbara Bowser', title:'', email:'', participants:'Barbara Bowser (15/17)', notes:'—'}
+    {type:'Lender', org:'Chase', status:'not-planned', primaryContact:'Mary Jane Jimenez', title:'', email:'', participants:'Mary Jane Jimenez (10/17), Carey Agarwal (8/17), Joseph Smurro (7/17)', notes:'—', roadblocks:'', targetDate:''},
+    {type:'Lender', org:'Newrez', status:'not-planned', primaryContact:'Joseph Prince', title:'', email:'', participants:'Joseph Prince (15/17)', notes:'—', roadblocks:'', targetDate:''},
+    {type:'Lender', org:'PrimeLending', status:'implemented', primaryContact:'Rusty Emory', title:'', email:'', participants:'No one met the 1/3 attendance threshold — closest: Rusty Emory (3/17)', notes:'Planning a test use with Loancare, waiting on a loan package', roadblocks:'', targetDate:''},
+    {type:'Regulator', org:'Fannie Mae', status:'not-planned', primaryContact:'Mark Friend', title:'', email:'', participants:'Mark Friend (12/17)', notes:'—', roadblocks:'', targetDate:''},
+    {type:'Regulator', org:'Freddie Mac', status:'impl-planned', primaryContact:'John Emans', title:'', email:'', participants:'John Emans (15/17), Tong Zhang (15/17), Prerana Karki (14/17), Anthony Burlbaugh (13/17), Victoria Morrison (7/17)', notes:'Freddie Mac is actively implementing LBDS', roadblocks:'', targetDate:''},
+    {type:'Regulator', org:'FHFA', status:'not-planned', primaryContact:'Adam Elaroussi', title:'', email:'', participants:'Adam Elaroussi (12/17)', notes:'—', roadblocks:'', targetDate:''},
+    {type:'Servicer', org:'ServiceMac', status:'pilot-planned', primaryContact:'Rachael Macaulay', title:'Co-Chair, LBDS', email:'', participants:'Rachael Macaulay (15/17)', notes:'Planning a test use with PrimeLending', roadblocks:'', targetDate:''},
+    {type:'Servicer', org:'Midland Mortgage', status:'impl-planned', primaryContact:'Melissa Croom', title:'', email:'', participants:'Melissa Croom (13/17)', notes:'Tracked under parent company "MidFirst Bank" in the meeting tracker', roadblocks:'', targetDate:''},
+    {type:'Servicer', org:'Guild Mortgage', status:'implemented', primaryContact:'Rebekah Valdez-Pound', title:'', email:'', participants:'No one met the 1/3 attendance threshold — closest: Susan Jarvis (4/17), Rebekah Valdez-Pound (4/17)', notes:'—', roadblocks:'', targetDate:''},
+    {type:'Servicer', org:'Cenlar', status:'not-planned', primaryContact:'Nicole Mastropiero', title:'', email:'', participants:'Nicole Mastropiero (6/17)', notes:'—', roadblocks:'', targetDate:''},
+    {type:'Servicer', org:'Mr. Cooper', status:'impl-planned', primaryContact:'Pallavi Chakrabarti', title:'', email:'', participants:'No one met the 1/3 attendance threshold — closest: Pallavi Chakrabarti (0/17)', notes:'Real contact name found in meeting tracker — replaces earlier placeholder', roadblocks:'', targetDate:'', rowId:'mrcooper'},
+    {type:'Servicing Technology Provider', org:'ICE', status:'not-planned', primaryContact:'Haris Jusic', title:'', email:'', participants:'No one met the 1/3 attendance threshold — closest: Haris Jusic (2/17)', notes:'—', roadblocks:'', targetDate:''},
+    {type:'Servicing Technology Provider', org:'Sagent', status:'not-planned', primaryContact:'Barbara Bowser', title:'', email:'', participants:'Barbara Bowser (15/17)', notes:'—', roadblocks:'', targetDate:''}
   ];
 
   const statusOptions = [
-    ['not-applicable', 'Not Applicable'],
-    ['not-started', 'Not Started'],
-    ['planned', 'Planned'],
-    ['piloted', 'Piloted'],
-    ['in-use', 'Implemented']
+    ['na', 'No Implementation Necessary'],
+    ['not-planned', 'No Implementation Planned'],
+    ['pilot-planned', 'Pilot Planned'],
+    ['impl-planned', 'Implementation Planned'],
+    ['implemented', 'Implemented']
   ];
-
-  const funnelCategories = ['Servicer', 'Lender', 'Regulator', 'LOS Providers', 'Aggregator/Investor', 'Servicing System'];
-  function funnelCategoryFor(type){
-    return type === 'Servicing Technology Provider' ? 'LOS Providers' : type;
-  }
 
   function renderStatusSelect(idx, status){
     const opts = statusOptions.map(([key, label]) =>
@@ -1898,8 +1873,8 @@
   }
 
   const statusColorVar = {
-    'not-applicable': '--slate', 'not-started': '--status-red', 'planned': '--status-orange',
-    'piloted': '--status-yellow', 'in-use': '--status-green'
+    'na': '--slate', 'not-planned': '--status-red', 'pilot-planned': '--status-orange',
+    'impl-planned': '--status-yellow', 'implemented': '--status-green'
   };
 
   // Splits a participants string into individual chips. Two special cases are NOT
@@ -1927,154 +1902,153 @@
     return chips.filter(c => c.length > 0);
   }
 
-  function renderRosterSidebar(rows){
-    const sidebar = document.getElementById('rosterSidebar');
-    const label = activeType === 'all' ? 'All Orgs' : activeType;
-    const counts = {};
-    statusOptions.forEach(([key]) => counts[key] = 0);
-    rows.forEach(r => { if (counts[r.status] !== undefined) counts[r.status]++; });
+  // Fixed left-to-right color order for every status breakdown bar, regardless of which
+  // statuses are actually present for a given type — grey, red, orange, yellow, green.
+  const STATUS_ORDER = ['na', 'not-planned', 'pilot-planned', 'impl-planned', 'implemented'];
 
-    let html = `<div class="roster-side-label">${label}</div><div class="roster-big-stat">${rows.length}</div><div class="roster-big-stat-label">orgs tracked</div><div class="roster-side-label">By status</div>`;
-    statusOptions.forEach(([key, statusLabel]) => {
-      if (counts[key] === 0) return;
-      html += `<div class="roster-status-row"><span class="label"><span class="roster-status-dot" style="background:var(${statusColorVar[key]});"></span>${statusLabel}</span><span class="roster-status-val">${counts[key]}</span></div>`;
+  // Shows every stakeholder type at once with its own status breakdown bar — this is the
+  // primary way to navigate the roster now (click a type to filter the list on the right),
+  // replacing the old row of filter chips. Always computed from the FULL rosterData, not
+  // the currently-filtered list, so every type's true total is always visible here.
+  function renderTypeSidebar(){
+    const sidebar = document.getElementById('rosterSidebar');
+    const allTypes = [...new Set(rosterData.map(r => r.type))].sort((a, b) => a.localeCompare(b));
+    let html = '<div class="roster-side-label">At a glance — every type</div>';
+    allTypes.forEach(type => {
+      const rows = rosterData.filter(r => r.type === type);
+      const counts = {};
+      STATUS_ORDER.forEach(key => counts[key] = 0);
+      rows.forEach(r => { if (counts[r.status] !== undefined) counts[r.status]++; });
+      const total = rows.length;
+      const segs = STATUS_ORDER.filter(key => counts[key] > 0).map(key =>
+        `<div class="mini-seg" style="width:${(counts[key] / total * 100).toFixed(1)}%; background:var(${statusColorVar[key]});"></div>`
+      ).join('');
+      html += `<div class="type-row ${type === activeType ? 'active' : ''}" data-type-select="${escapeAttr(type)}">
+        <div class="type-row-top"><span class="type-name">${escapeHtml(type)}</span><span class="type-count">${total}</span></div>
+        <div class="mini-bar">${segs}</div>
+      </div>`;
     });
+    html += `<div class="side-legend">
+      <div class="legend-item"><span class="legend-dot" style="background:var(--slate);"></span>No Implementation Necessary</div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--status-red);"></span>No Implementation Planned</div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--status-orange);"></span>Pilot Planned</div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--status-yellow);"></span>Implementation Planned</div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--status-green);"></span>Implemented</div>
+    </div>`;
     sidebar.innerHTML = html;
   }
 
-  function renderRosterTable(){
-    const orgGrid = document.getElementById('orgGrid');
+  // Tracks which rows (by their index in rosterData) currently have their detail drawer
+  // open — persists across re-renders (status changes, edits, search) within the session,
+  // but isn't part of rosterData itself since it's view state, not data.
+  let expandedRowIndices = new Set();
+
+  function renderRosterList(){
+    const listRoot = document.getElementById('rosterList');
     const q = searchInput.value.trim().toLowerCase();
-    let html = '';
     let visibleCount = 0;
-    const visibleRows = [];
+    const matchingRows = [];
     rosterData.forEach((row, idx) => {
-      const typeMatch = activeType === 'all' || row.type === activeType;
-      const haystack = `${row.type} ${row.org} ${row.primaryContact} ${row.title||''} ${row.email||''} ${row.participants} ${row.notes}`.toLowerCase();
+      const typeMatch = row.type === activeType;
+      const haystack = `${row.type} ${row.org} ${row.primaryContact} ${row.title||''} ${row.email||''} ${row.participants} ${row.notes} ${row.roadblocks||''}`.toLowerCase();
       const textMatch = q === '' || haystack.includes(q);
-      if (!(typeMatch && textMatch)) return;
+      if (typeMatch && textMatch) matchingRows.push({ row, idx });
+    });
+    // Alphabetical by org name, per the current navigation convention.
+    matchingRows.sort((a, b) => a.row.org.localeCompare(b.row.org));
+
+    let html = '';
+    matchingRows.forEach(({ row, idx }) => {
       visibleCount++;
-      visibleRows.push(row);
+      const isExpanded = expandedRowIndices.has(idx);
       const idAttr = row.rowId ? ` id="${row.rowId}"` : '';
-      // "No one met the threshold" messages can contain their own internal comma
-      // (e.g. two people tied for closest) — splitting those by comma would break
-      // one coherent sentence into two disconnected, confusing chips. Only split
-      // on comma for genuine multi-name participant lists.
-      const participantChips = splitParticipantChips(row.participants).map(s =>
-        `<span class="participant-chip">${s}</span>`
-      ).join('');
-      html += `<div class="org-card" data-type="${row.type}"${idAttr}>
-        <div class="org-top">
-          <span class="org-name" contenteditable="true" data-roster-field="org" data-idx="${idx}">${escapeHtml(row.org)}</span>
+      let drawerHtml = '';
+      if (isExpanded){
+        const participantChips = splitParticipantChips(row.participants).map(s =>
+          `<span class="participant-chip">${s}</span>`
+        ).join('');
+        let dateHtml = '';
+        if (row.status === 'pilot-planned'){
+          dateHtml = `<div class="date-note"><strong>Planned pilot date:</strong> <input type="date" class="roster-date-input" data-idx="${idx}" value="${escapeAttr(row.targetDate || '')}"></div>`;
+        } else if (row.status === 'impl-planned'){
+          dateHtml = `<div class="date-note"><strong>Planned implementation date:</strong> <input type="date" class="roster-date-input" data-idx="${idx}" value="${escapeAttr(row.targetDate || '')}"></div>`;
+        }
+        const roadblocksDisplay = row.roadblocks ? escapeHtml(row.roadblocks) : 'None noted';
+        drawerHtml = `<div class="list-drawer">
+          <div class="drawer-grid">
+            <div class="drawer-contact-block">
+              <input class="type-input org-type-input" list="stakeholderTypeOptions" data-roster-field="type" data-idx="${idx}" value="${escapeAttr(row.type)}" style="margin-bottom:10px;">
+              ${renderContactCell(idx, row)}
+              ${dateHtml}
+            </div>
+            <div>
+              <div class="drawer-label" style="margin-top:0;">Roadblocks</div>
+              <div class="drawer-value ${row.roadblocks ? '' : 'empty'}" contenteditable="true" data-roster-field="roadblocks" data-idx="${idx}">${roadblocksDisplay}</div>
+              <div class="drawer-label">Active Participants</div>
+              <div class="drawer-value" title="Attendance data — not editable">${participantChips}</div>
+              <div class="drawer-label">Notes</div>
+              <div class="notes-text" contenteditable="true" data-roster-field="notes" data-idx="${idx}">${escapeHtml(row.notes)}</div>
+            </div>
+          </div>
+        </div>`;
+      }
+      html += `<div class="list-row ${isExpanded ? 'expanded' : ''}"${idAttr} data-row-idx="${idx}">
+        <div class="list-row-summary" data-toggle-idx="${idx}">
+          <svg class="expand-caret" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          <span class="list-org-name" contenteditable="true" data-roster-field="org" data-idx="${idx}">${escapeHtml(row.org)}</span>
           ${renderStatusSelect(idx, row.status)}
         </div>
-        <input class="type-input org-type-input" list="stakeholderTypeOptions" data-roster-field="type" data-idx="${idx}" value="${row.type.replace(/"/g,'&quot;')}">
-        <div class="contact-card">${renderContactCell(idx, row)}</div>
-        <div class="participants-label">Active Participants</div>
-        <div title="Attendance data — not editable">${participantChips}</div>
-        <div class="org-notes" contenteditable="true" data-roster-field="notes" data-idx="${idx}">${escapeHtml(row.notes)}</div>
+        ${drawerHtml}
       </div>`;
     });
-    orgGrid.innerHTML = html;
+
+    listRoot.innerHTML = html;
     emptyMsg.style.display = visibleCount === 0 ? 'block' : 'none';
-    renderRosterSidebar(visibleRows);
+    renderTypeSidebar();
     saveRosterData();
     applyLockState();
   }
 
-  function polarToCartesian(cx, cy, r, angleDeg){
-    const rad = (angleDeg - 90) * Math.PI / 180;
-    return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
-  }
-
-  function wedgePath(cx, cy, r, startAngle, endAngle){
-    // A full 360° arc can't be drawn as a single SVG arc — split it into two halves.
-    if (endAngle - startAngle >= 359.99){
-      const mid = startAngle + 180;
-      return wedgePath(cx, cy, r, startAngle, mid) + ' ' + wedgePath(cx, cy, r, mid, endAngle);
-    }
-    const start = polarToCartesian(cx, cy, r, endAngle);
-    const end = polarToCartesian(cx, cy, r, startAngle);
-    const largeArcFlag = endAngle - startAngle <= 180 ? '0' : '1';
-    return `M ${cx} ${cy} L ${start.x.toFixed(2)} ${start.y.toFixed(2)} A ${r} ${r} 0 ${largeArcFlag} 0 ${end.x.toFixed(2)} ${end.y.toFixed(2)} Z`;
-  }
-
-  // Every individual organization gets its own wedge (rather than one wedge per status),
-  // with a stroke around each wedge so adjacent same-color orgs stay visually distinct.
-  function buildOrgPie(counts, order, size){
-    const r = size / 2 - 2;
-    const cx = size / 2, cy = size / 2;
-    const totalOrgs = order.reduce((sum, [key]) => sum + counts[key], 0);
-    if (totalOrgs === 0){
-      return `<div class="pie-empty"></div>`;
-    }
-    const anglePerOrg = 360 / totalOrgs;
-    let angle = 0;
-    let paths = '';
-    order.forEach(([key, cssVar]) => {
-      for (let i = 0; i < counts[key]; i++){
-        const start = angle;
-        const end = angle + anglePerOrg;
-        paths += `<path d="${wedgePath(cx, cy, r, start, end)}" fill="var(${cssVar})" stroke="var(--card)" stroke-width="1.5"/>`;
-        angle = end;
-      }
-    });
-    return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${paths}</svg>`;
-  }
-
-  function renderFunnel(){
-    const counts = {};
-    funnelCategories.forEach(cat => counts[cat] = {'not-applicable':0, 'not-started':0, 'planned':0, 'piloted':0, 'in-use':0});
-    rosterData.forEach(row => {
-      const cat = funnelCategoryFor(row.type);
-      if (counts[cat]) counts[cat][row.status]++;
-    });
-
-    const order = [['not-applicable','--slate'], ['not-started','--status-red'], ['planned','--status-orange'], ['piloted','--status-yellow'], ['in-use','--status-green']];
-    const root = document.getElementById('funnelRoot');
-    let html = '';
-    funnelCategories.forEach(cat => {
-      const c = counts[cat];
-      const total = c['not-applicable'] + c['not-started'] + c['planned'] + c['piloted'] + c['in-use'];
-      const pieHtml = buildOrgPie(c, order, 90);
-      html += `<div class="pie-item">
-        <div class="pie-name">${cat}</div>
-        ${pieHtml}
-        <div class="pie-total">${total > 0 ? total + ' org' + (total > 1 ? 's' : '') + ' tracked' : 'no roster data yet'}</div>
-      </div>`;
-    });
-    root.innerHTML = html;
-  }
-
   function updateAdoptionNote(){
     const total = rosterData.length;
-    const pilotedOrLive = rosterData.filter(r => r.status === 'piloted' || r.status === 'in-use').length;
+    const implementedOrPlanned = rosterData.filter(r => r.status === 'impl-planned' || r.status === 'implemented').length;
     document.getElementById('adoptionNote').textContent =
-      `${pilotedOrLive} of ${total} tracked orgs are piloting or live · funnel computed live from the roster`;
+      `${implementedOrPlanned} of ${total} tracked orgs have implemented or have implementation planned · computed live from the roster`;
   }
 
   // Roster filtering
-  const typeButtons = document.querySelectorAll('[data-type-filter]');
   const searchInput = document.getElementById('rosterSearch');
   const emptyMsg = document.getElementById('rosterEmpty');
+  // Must be whichever type sorts first alphabetically — matches the sidebar's own
+  // default-selection convention (see the Roadmap lane chips for the same pattern).
   let activeType = 'Lender';
 
-  typeButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      typeButtons.forEach(b => b.setAttribute('aria-pressed', 'false'));
-      btn.setAttribute('aria-pressed', 'true');
-      activeType = btn.getAttribute('data-type-filter');
-      renderRosterTable();
-    });
-  });
-  searchInput.addEventListener('input', renderRosterTable);
+  searchInput.addEventListener('input', renderRosterList);
 
-  // Primary contact editing: click Edit to reveal name/title/email inputs for that row only
+  // Combined click handling for the roster area: sidebar type navigation, row
+  // expand/collapse, and primary-contact edit/save/cancel all live here since they're
+  // all delegated (the rows and drawers they target are rebuilt on every render).
   document.getElementById('rosterLayout').addEventListener('click', async (e) => {
+    const typeRow = e.target.closest('[data-type-select]');
+    if (typeRow){
+      activeType = typeRow.getAttribute('data-type-select');
+      renderRosterList();
+      return;
+    }
+
+    const summary = e.target.closest('.list-row-summary');
+    if (summary && !e.target.closest('[contenteditable]') && !e.target.closest('select')){
+      const idx = parseInt(summary.getAttribute('data-toggle-idx'), 10);
+      if (expandedRowIndices.has(idx)) expandedRowIndices.delete(idx);
+      else expandedRowIndices.add(idx);
+      renderRosterList();
+      return;
+    }
+
     const editBtn = e.target.closest('.contact-edit-btn');
     if (editBtn){
       editingContactIdx = parseInt(editBtn.getAttribute('data-edit-idx'), 10);
-      renderRosterTable();
+      renderRosterList();
       return;
     }
     const saveBtn = e.target.closest('.contact-save-btn');
@@ -2089,45 +2063,52 @@
       rosterData[idx].title = titleVal;
       rosterData[idx].email = emailVal;
       editingContactIdx = null;
-      renderRosterTable();
+      renderRosterList();
       return;
     }
     const cancelBtn = e.target.closest('.contact-cancel-btn');
     if (cancelBtn){
       editingContactIdx = null;
-      renderRosterTable();
+      renderRosterList();
     }
   });
 
-  // Type / Organization / Notes are plain editable text — sync to the data model on blur
-  // so edits survive the next re-render (filtering, searching, contact save/cancel).
+  // Type / Organization / Notes / Roadblocks are plain editable text — sync to the data
+  // model on blur so edits survive the next re-render (filtering, searching, expand/collapse).
   document.getElementById('rosterLayout').addEventListener('blur', async (e) => {
     const field = e.target.getAttribute && e.target.getAttribute('data-roster-field');
     if (!field) return;
     const idx = parseInt(e.target.getAttribute('data-idx'), 10);
-    const val = e.target.tagName === 'INPUT' ? e.target.value.trim() : e.target.textContent.trim();
+    let val = e.target.tagName === 'INPUT' ? e.target.value.trim() : e.target.textContent.trim();
+    // Roadblocks shows "None noted" as its own empty-state text (not a real placeholder
+    // attribute) — clicking in and back out without changing anything shouldn't save that
+    // literal string as if it were a real roadblock.
+    if (field === 'roadblocks' && val === 'None noted') val = '';
     await ensureLoaded();
     rosterData[idx][field] = val;
-    // Type edits change which funnel bucket this org counts toward, and any edit can
-    // change whether it's counted as piloted/live — keep the pies and adoption note
-    // in sync with every roster edit, not just status changes.
-    renderFunnel();
     updateAdoptionNote();
-    renderRosterTable();
+    renderRosterList();
   }, true);
 
-  // Status changes: update the data model, then re-render the table row's own
-  // select styling, the funnel bars, and the adoption stat — all from one source of truth.
+  // Status changes: update the data model, then re-render — this naturally shows or hides
+  // the planned-date field in the drawer too, since that's computed from the current status
+  // on every render rather than toggled separately.
   document.getElementById('rosterLayout').addEventListener('change', async (e) => {
-    if (!e.target.matches('select.status-select')) return;
-    const idx = parseInt(e.target.getAttribute('data-idx'), 10);
-    const newStatus = e.target.value;
-    await ensureLoaded();
-    rosterData[idx].status = newStatus;
-    renderFunnel();
-    updateAdoptionNote();
-    saveRosterData();
-    renderRosterTable();
+    if (e.target.matches('select.status-select')){
+      const idx = parseInt(e.target.getAttribute('data-idx'), 10);
+      const newStatus = e.target.value;
+      await ensureLoaded();
+      rosterData[idx].status = newStatus;
+      updateAdoptionNote();
+      renderRosterList();
+      return;
+    }
+    if (e.target.matches('.roster-date-input')){
+      const idx = parseInt(e.target.getAttribute('data-idx'), 10);
+      await ensureLoaded();
+      rosterData[idx].targetDate = e.target.value;
+      saveRosterData();
+    }
   });
 
   // Pure viewing never touches window.storage — only the first actual edit does.
@@ -2137,8 +2118,7 @@
     const { rosterFound, laneFound } = await loadSharedData();
     hasLoadedFromStorage = true;
     renderLane();
-    renderRosterTable();
-    renderFunnel();
+    renderRosterList();
     updateAdoptionNote();
     // If this is the very first edit ever made (nothing in shared storage yet), seed it
     // with the current defaults so every subsequent viewer/editor starts from the same baseline.
@@ -2148,8 +2128,7 @@
 
   renderChips();
   renderLane();
-  renderRosterTable();
-  renderFunnel();
+  renderRosterList();
   updateAdoptionNote();
 
   // Stakeholder Groups "Critical?" dropdown: keep the star gold-colored when selected
@@ -2400,8 +2379,7 @@
     laneData = snapshot.laneData || laneData;
     renderChips();
     renderLane();
-    renderRosterTable();
-    renderFunnel();
+    renderRosterList();
     updateAdoptionNote();
     applyGenericFieldStates(snapshot.generic);
     applyLockState();

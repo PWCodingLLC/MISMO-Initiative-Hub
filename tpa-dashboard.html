@@ -48,8 +48,8 @@
     --slate-text:#5B6478;
 
     --status-red:#C1666B; --status-red-soft:#F5E6E7; --status-red-text:#8B3D42;
-    --status-orange:#C98A4B; --status-orange-soft:#F5EBDD; --status-orange-text:#8F5F2C;
-    --status-yellow:#C7A94D; --status-yellow-soft:#F5EFDA; --status-yellow-text:#8C7229;
+    --status-orange:#C16C33; --status-orange-soft:#F2E6DE; --status-orange-text:#834821;
+    --status-yellow:#D6B751; --status-yellow-soft:#F5EFDB; --status-yellow-text:#826217;
     --status-green:#5B8C6C; --status-green-soft:#E3EDE6; --status-green-text:#3D5F49;
 
     --dwg:#7C3AED;
@@ -96,8 +96,8 @@
     --slate-text:#B8C0D4;
 
     --status-red:#D9838A; --status-red-soft:#3D2226; --status-red-text:#E8A5AA;
-    --status-orange:#D9A06B; --status-orange-soft:#3D2E1C; --status-orange-text:#E8B583;
-    --status-yellow:#D9BC6B; --status-yellow-soft:#3D341C; --status-yellow-text:#E8CE85;
+    --status-orange:#DA9262; --status-orange-soft:#472F1F; --status-orange-text:#EDAD82;
+    --status-yellow:#E5CB76; --status-yellow-soft:#473E1F; --status-yellow-text:#F0DA94;
     --status-green:#8FD4A8; --status-green-soft:#1F3527; --status-green-text:#ABE8BE;
 
     --dwg:#9D6FF0;
@@ -232,9 +232,10 @@
     gap:10px;
   }
   .back-to-hub{
-    font-family:'Inter',sans-serif; font-size:12.5px; font-weight:700;
+    font-family:'Inter',sans-serif; font-size:11px; font-weight:700;
     color:var(--brand-text); text-decoration:none;
-    padding:7px 14px; border:1px solid var(--line); border-radius:999px; background:var(--card);
+    padding:5px 10px; border:1px solid var(--line); border-radius:999px; background:var(--card);
+    margin-bottom:6px;
   }
   .back-to-hub:hover{background:var(--brand-soft); border-color:var(--brand);}
   .masthead-actions-row{display:flex; flex-direction:row; gap:8px;}
@@ -318,14 +319,16 @@
   /* ---------- SECTIONS GENERIC ---------- */
   section{margin-top:44px;}
   .section-head{
+    position:relative;
     display:flex;
     align-items:center;
-    justify-content:space-between;
+    justify-content:center;
     gap:12px;
     margin-bottom:0;
     flex-wrap:wrap;
     background:var(--header-bg); color:var(--header-text); padding:13px 20px; border-radius:var(--radius);
   }
+  .section-head .section-note{position:absolute; right:20px; top:50%; transform:translateY(-50%); max-width:40%; text-align:right;}
   .section-subtext{font-size:12.5px; color:var(--ink-soft); margin:8px 2px 16px;}
   .section-head h2{font-size:19px; font-family:'Space Grotesk',sans-serif; font-weight:600; letter-spacing:.02em; text-transform:uppercase; color:var(--header-text);}
   .section-head .section-note{color:var(--header-text-soft);}
@@ -588,6 +591,7 @@
     border-radius:var(--radius);
     font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:19px; letter-spacing:.02em; text-transform:uppercase;
     margin:0 0 12px;
+    text-align:center;
   }
   .crit-star{color:var(--amber-text); font-weight:700;}
   .crit-select{
@@ -775,6 +779,18 @@
     align-items:center;
     margin-bottom:14px;
   }
+  .current-type-label{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:18px; color:var(--ink);}
+
+  /* Goals/Roadblocks/Tasks strip embedded in the roster, above the org list. Reads and
+     writes the same laneData used by the (now removed) Adoption and Development Status
+     section — see ROSTER_TYPE_TO_LANE below for how a roster type maps to its lane key. */
+  .goals-strip{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:18px 20px; margin-bottom:24px;}
+  .goals-strip-head{display:flex; align-items:center; justify-content:flex-end; gap:12px; flex-wrap:wrap; margin-bottom:14px;}
+  /* Goals/Roadblocks stack ABOVE Tasks within the ONE goals-strip bubble - no nested
+     card borders/backgrounds, just a thin divider between the two sections. */
+  .roster-command-layout{display:flex; flex-direction:column; gap:16px;}
+  #rosterLaneSidebar{padding-bottom:16px; border-bottom:1px solid var(--line);}
+
   .search-input{
     margin-left:auto;
     font-family:inherit;
@@ -987,7 +1003,7 @@
   .meeting-banner-label{
     background:var(--header-bg); color:var(--header-text); font-family:'Space Grotesk',sans-serif;
     font-weight:600; font-size:19px; text-transform:uppercase; padding:16px 18px;
-    display:flex; align-items:center; letter-spacing:.02em; min-width:0;
+    display:flex; align-items:center; justify-content:center; letter-spacing:.02em; min-width:0;
   }
   .meeting-tile-row{display:contents;}
   .meeting-tile{
@@ -1066,8 +1082,8 @@
   .view-btn{font-family:'Inter',sans-serif; font-size:12px; font-weight:600; padding:6px 13px; border-radius:6px; border:none; background:none; color:var(--ink-soft); cursor:pointer;}
   .view-btn[aria-pressed="true"]{background:var(--card); color:var(--ink); box-shadow:var(--shadow);}
 
-  .goal-strip{display:flex; flex-direction:column; gap:18px;}
-  .goal-strip-group{}
+  .goal-strip{display:flex; flex-direction:row; gap:24px;}
+  .goal-strip-group{flex:1; min-width:0;}
   .strip-label{display:block; font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-soft); font-weight:600; margin-bottom:8px;}
   .pill-row{display:flex; flex-wrap:wrap; gap:6px;}
   .pill-goal{background:var(--brand-soft); color:var(--brand-text); font-size:12px; font-weight:500; padding:5px 11px; border-radius:999px;}
@@ -1084,6 +1100,8 @@
   .kanban-card:last-child{margin-bottom:0;}
   .kanban-task{font-weight:600; margin-bottom:3px;}
   .kanban-owner{color:var(--ink-soft); font-size:11px;}
+  .kanban-date-note{color:var(--ink-soft); font-size:10.5px; font-family:'IBM Plex Mono',monospace;}
+  .task-date-cell{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--ink-soft); white-space:nowrap;}
   .kanban-empty{font-size:11.5px; color:var(--ink-soft); font-style:italic; text-align:center; padding:14px 0;}
 
   footer{
@@ -1246,25 +1264,6 @@
     </div>
   </section>
 
-  <!-- ROADMAP -->
-  <section id="roadmap">
-    <div class="section-head">
-      <h2>Adoption and Development Status</h2>
-      <div class="view-toggle" role="group" aria-label="Layout format">
-        <button class="view-btn" data-view="compact" aria-pressed="true">Compact</button>
-        <button class="view-btn" data-view="kanban" aria-pressed="false">Kanban</button>
-      </div>
-    </div>
-    <p class="section-subtext">See what each stakeholder group needs to do to reach broad adoption.</p>
-    <p class="roadmap-intro">Tasks are organized by stakeholder group. This initiative is still in Discovery — most lanes are empty until the Discovery workshop (August 2026) establishes a workgroup, roster, and real task list.</p>
-
-    <div class="lane-chip-row" id="chipRow" role="tablist" aria-label="Adoption lanes"></div>
-    <div class="command-layout" id="commandLayout">
-      <div class="side-card" id="laneSidebar"></div>
-      <div class="task-card" id="laneMain"></div>
-    </div>
-  </section>
-
   <!-- STAKEHOLDERS -->
   <section id="stakeholders">
     <div class="section-head">
@@ -1293,7 +1292,22 @@
       </div>
       <div class="roster-layout" id="rosterLayout">
         <div class="roster-side-card" id="rosterSidebar"></div>
-        <div class="roster-list" id="rosterList"></div>
+        <div>
+          <div class="goals-strip" id="rosterGoalsStrip">
+            <div class="goals-strip-head">
+              <span class="current-type-label" id="currentTypeLabel"></span>
+              <div class="view-toggle" role="group" aria-label="Layout format">
+                <button class="view-btn" data-view="compact" aria-pressed="true">Compact</button>
+                <button class="view-btn" data-view="kanban" aria-pressed="false">Kanban</button>
+              </div>
+            </div>
+            <div class="roster-command-layout" id="rosterCommandLayout">
+              <div id="rosterLaneSidebar"></div>
+              <div id="rosterLaneMain"></div>
+            </div>
+          </div>
+          <div class="roster-list" id="rosterList"></div>
+        </div>
       </div>
       <p class="section-note" id="rosterEmpty" style="display:none; padding:14px 0 0;">No rows match this filter.</p>
       <datalist id="stakeholderTypeOptions">
@@ -1432,7 +1446,7 @@
   let currentLane = 'tech';
   let currentView = 'compact';
   let editingTaskIdx = null; // null = none, 'new' = adding, number = editing that index
-  const laneRoot = document.getElementById('commandLayout');
+  const laneRoot = document.getElementById('rosterCommandLayout');
 
   const actionStatusOptions = [
     ['not-started', 'Not Started'],
@@ -1471,6 +1485,7 @@
     return `<tr class="task-edit-container">
       <td><input class="contact-input" type="text" data-task-field="task" placeholder="Task" value="${escapeAttr(action.task)}"></td>
       <td><input class="contact-input" type="text" data-task-field="owner" placeholder="Owner" value="${escapeAttr(action.owner)}"></td>
+      <td class="task-date-cell">${escapeHtml(action.dateAssigned || 'Set on save')}</td>
       <td><select class="contact-input" data-task-field="status">${taskStatusOptionsHtml(action.status)}</select></td>
       <td class="task-icons"><button type="button" class="contact-save-btn" data-save-task="${idx}">Save</button><button type="button" class="contact-cancel-btn" data-cancel-task="${idx}">Cancel</button></td>
     </tr>`;
@@ -1480,6 +1495,7 @@
     return `<div class="kanban-card-edit task-edit-container">
       <input class="contact-input task-input" type="text" data-task-field="task" placeholder="Task" value="${escapeAttr(action.task)}">
       <input class="contact-input task-input" type="text" data-task-field="owner" placeholder="Owner" value="${escapeAttr(action.owner)}">
+      <div class="kanban-date-note">${action.dateAssigned ? 'Assigned ' + escapeHtml(action.dateAssigned) : 'Date will be set on save'}</div>
       <select class="contact-input task-input" data-task-field="status">${taskStatusOptionsHtml(action.status)}</select>
       <div class="contact-edit-actions">
         <button type="button" class="contact-save-btn" data-save-task="${idx}">Save</button>
@@ -1554,26 +1570,10 @@
     tech: 'eMortgage Technology Providers'
   };
 
-  function renderChips(){
-    const chipRow = document.getElementById('chipRow');
-    // Alphabetical by label, with "general" always sorted last.
-    const orderedKeys = Object.keys(laneData).sort((a, b) => {
-      if (a === 'general') return 1;
-      if (b === 'general') return -1;
-      return (laneLabels[a] || a).localeCompare(laneLabels[b] || b);
-    });
-    chipRow.innerHTML = orderedKeys.map(key => {
-      const hasRoadblocks = laneData[key].roadblocks.length > 0;
-      const flag = hasRoadblocks ? '<span class="lane-chip-flag">⚑</span>' : '';
-      const selected = key === currentLane ? 'true' : 'false';
-      return `<button class="lane-chip-btn" role="tab" aria-selected="${selected}" data-tab="${key}">${laneLabels[key] || key}${flag}</button>`;
-    }).join('');
-  }
-
   function renderLane(){
     const lane = laneData[currentLane];
-    const sidebar = document.getElementById('laneSidebar');
-    const main = document.getElementById('laneMain');
+    const sidebar = document.getElementById('rosterLaneSidebar');
+    const main = document.getElementById('rosterLaneMain');
 
     sidebar.innerHTML = `<div class="goal-strip">${renderPillGroup('Goals', lane.goals, 'goal')}${renderPillGroup('Roadblocks', lane.roadblocks, 'roadblock')}</div>`;
 
@@ -1582,13 +1582,13 @@
       if (lane.actions.length === 0 && editingTaskIdx !== 'new'){
         html += `<p class="empty-lane-note">No tasks yet for this stakeholder group.</p>`;
       } else {
-        html += `<table class="action-table-full"><tr><th>Task</th><th>Owner</th><th>Status</th><th></th></tr>`;
+        html += `<table class="action-table-full"><tr><th>Task</th><th>Owner</th><th>Date Assigned</th><th>Status</th><th></th></tr>`;
         lane.actions.forEach((a, i) => {
           if (i === editingTaskIdx){
             html += taskEditRowHtml(i, a);
           } else {
             const doneClass = a.status === 'complete' ? 'done-task' : '';
-            html += `<tr><td class="${doneClass}">${escapeHtml(a.task)}</td><td>${escapeHtml(a.owner)}</td><td>${renderActionStatusSelect(currentLane, i, a.status)}</td><td class="task-icons"><button type="button" class="icon-btn" data-edit-task="${i}" title="Edit">✎</button><button type="button" class="icon-btn" data-remove-task="${i}" title="Remove">🗑</button></td></tr>`;
+            html += `<tr><td class="${doneClass}">${escapeHtml(a.task)}</td><td>${escapeHtml(a.owner)}</td><td class="task-date-cell">${escapeHtml(a.dateAssigned || '—')}</td><td>${renderActionStatusSelect(currentLane, i, a.status)}</td><td class="task-icons"><button type="button" class="icon-btn" data-edit-task="${i}" title="Edit">✎</button><button type="button" class="icon-btn" data-remove-task="${i}" title="Remove">🗑</button></td></tr>`;
           }
         });
         if (editingTaskIdx === 'new'){
@@ -1626,6 +1626,7 @@
               html += `<div class="kanban-card${a.status === 'complete' ? ' done-task' : ''}">
                 <div class="kanban-task">${escapeHtml(a.task)}</div>
                 <div class="kanban-owner">${escapeHtml(a.owner)}</div>
+                <div class="kanban-date-note">${a.dateAssigned ? 'Assigned ' + escapeHtml(a.dateAssigned) : ''}</div>
                 ${renderActionStatusSelect(currentLane, idx, a.status)}
                 <div class="kanban-card-actions"><button type="button" class="icon-btn" data-edit-task="${idx}" title="Edit">✎</button><button type="button" class="icon-btn" data-remove-task="${idx}" title="Remove">🗑</button></div>
               </div>`;
@@ -1642,15 +1643,6 @@
     applyLockState();
   }
 
-  document.getElementById('chipRow').addEventListener('click', (e) => {
-    const btn = e.target.closest('.lane-chip-btn');
-    if (!btn) return;
-    currentLane = btn.getAttribute('data-tab');
-    editingTaskIdx = null;
-    renderChips();
-    renderLane();
-  });
-
   const viewButtons = document.querySelectorAll('.view-btn');
   viewButtons.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -1662,7 +1654,6 @@
     });
   });
 
-  renderChips();
   renderLane();
 
   // Quick status changes on non-edit rows: update the data model and re-render
@@ -1711,8 +1702,14 @@
       }
       const rawIdx = saveBtn.getAttribute('data-save-task');
       await ensureLoaded();
-      const newAction = {task: taskVal, owner: ownerVal || 'Unassigned', status: statusVal, label: actionStatusLabels[statusVal]};
-      if (rawIdx === 'new'){
+      const isNewTask = rawIdx === 'new';
+      // Date is stamped automatically at creation and never re-set on later edits —
+      // it records when the task was first assigned, not when it was last touched.
+      const dateAssigned = isNewTask
+        ? new Date().toLocaleDateString('en-US')
+        : laneData[currentLane].actions[parseInt(rawIdx, 10)].dateAssigned;
+      const newAction = {task: taskVal, owner: ownerVal || 'Unassigned', status: statusVal, label: actionStatusLabels[statusVal], dateAssigned};
+      if (isNewTask){
         laneData[currentLane].actions.push(newAction);
       } else {
         laneData[currentLane].actions[parseInt(rawIdx, 10)] = newAction;
@@ -1817,6 +1814,13 @@
         </div>
       </div>`;
     }
+    const hasAnyContactInfo = row.primaryContact || row.title || row.email;
+    if (!hasAnyContactInfo){
+      return `<div class="contact-block">
+        <div class="contact-name placeholder">No contact information</div>
+        <button type="button" class="contact-edit-btn" data-edit-idx="${idx}">✎ Edit</button>
+      </div>`;
+    }
     const titleHtml = row.title ? `<div class="contact-sub">${escapeHtml(row.title)}</div>` : `<div class="contact-sub placeholder">Add title</div>`;
     const emailHtml = row.email ? `<div class="contact-sub"><a href="mailto:${escapeAttr(row.email)}">${escapeHtml(row.email)}</a></div>` : `<div class="contact-sub placeholder">Add email</div>`;
     const nameHtml = row.primaryContact ? `<div class="contact-name">${escapeHtml(row.primaryContact)}</div>` : `<div class="contact-name placeholder">Add primary contact</div>`;
@@ -1866,6 +1870,23 @@
   // primary way to navigate the roster now (click a type to filter the list on the right),
   // replacing the old row of filter chips. Always computed from the FULL rosterData, not
   // the currently-filtered list, so every type's true total is always visible here.
+  // Maps a roster type (as used in rosterData) to its corresponding Roadmap lane key
+  // (as used in laneData) — a simple 1:1 mapping for TPA, no rollup needed.
+  const ROSTER_TYPE_TO_LANE = {
+    'Mortgage Originator': 'originator',
+    'Warehouse Lenders': 'warehouse',
+    'Investors/Aggregators': 'investor',
+    'eMortgage Technology Providers': 'tech'
+  };
+
+  // The current-type label above the roster is the only thing this function handles —
+  // the actual Goals/Roadblocks/Tasks content is rendered by renderLane() itself,
+  // redirected to render into the roster's own DOM elements instead of a separate
+  // Roadmap section, since currentLane is now derived from the roster's activeType.
+  function renderGoalsStrip(){
+    document.getElementById('currentTypeLabel').textContent = activeType;
+  }
+
   function renderTypeSidebar(){
     const sidebar = document.getElementById('rosterSidebar');
     const allTypes = [...new Set(rosterData.map(r => r.type))].sort((a, b) => a.localeCompare(b));
@@ -1990,6 +2011,10 @@
     const typeRow = e.target.closest('[data-type-select]');
     if (typeRow){
       activeType = typeRow.getAttribute('data-type-select');
+      currentLane = ROSTER_TYPE_TO_LANE[activeType] || 'general';
+      editingTaskIdx = null;
+      renderGoalsStrip();
+      renderLane();
       renderRosterList();
       return;
     }
@@ -2003,13 +2028,13 @@
       return;
     }
 
-    const editBtn = e.target.closest('.contact-edit-btn');
+    const editBtn = e.target.closest('.contact-edit-btn[data-edit-idx]');
     if (editBtn){
       editingContactIdx = parseInt(editBtn.getAttribute('data-edit-idx'), 10);
       renderRosterList();
       return;
     }
-    const saveBtn = e.target.closest('.contact-save-btn');
+    const saveBtn = e.target.closest('.contact-save-btn[data-save-idx]');
     if (saveBtn){
       const idx = parseInt(saveBtn.getAttribute('data-save-idx'), 10);
       const cell = saveBtn.closest('.contact-edit-form');
@@ -2024,7 +2049,7 @@
       renderRosterList();
       return;
     }
-    const cancelBtn = e.target.closest('.contact-cancel-btn');
+    const cancelBtn = e.target.closest('.contact-cancel-btn[data-cancel-idx]');
     if (cancelBtn){
       editingContactIdx = null;
       renderRosterList();
@@ -2052,7 +2077,7 @@
   // the planned-date field in the drawer too, since that's computed from the current status
   // on every render rather than toggled separately.
   document.getElementById('rosterLayout').addEventListener('change', async (e) => {
-    if (e.target.matches('select.status-select')){
+    if (e.target.matches('select.status-select.roster-status')){
       const idx = parseInt(e.target.getAttribute('data-idx'), 10);
       const newStatus = e.target.value;
       await ensureLoaded();
@@ -2076,6 +2101,7 @@
     const { rosterFound, laneFound } = await loadSharedData();
     hasLoadedFromStorage = true;
     renderLane();
+    renderGoalsStrip();
     renderRosterList();
     updateAdoptionNote();
     // If this is the very first edit ever made (nothing in shared storage yet), seed it
@@ -2084,8 +2110,9 @@
     if (!laneFound) saveLaneData();
   }
 
-  renderChips();
+  currentLane = ROSTER_TYPE_TO_LANE[activeType] || 'general';
   renderLane();
+  renderGoalsStrip();
   renderRosterList();
   updateAdoptionNote();
 
@@ -2225,8 +2252,8 @@
     }
     rosterData = snapshot.rosterData || rosterData;
     laneData = snapshot.laneData || laneData;
-    renderChips();
     renderLane();
+    renderGoalsStrip();
     renderRosterList();
     updateAdoptionNote();
     applyGenericFieldStates(snapshot.generic);

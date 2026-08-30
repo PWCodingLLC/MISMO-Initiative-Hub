@@ -393,6 +393,39 @@
     margin:0 0 12px;
     text-align:center;
   }
+
+  .kpi-label{
+    font-size:11.5px;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    color:var(--ink-soft);
+    font-weight:600;
+  }
+  .kpi-value{font-size:24px; font-weight:700; font-family:'IBM Plex Mono',monospace;}
+
+  .gov-layout{
+    display:grid;
+    grid-template-columns:1.5fr 1fr;
+    gap:18px;
+  }
+  @media (max-width:900px){ .gov-layout{grid-template-columns:1fr;} }
+  .gov-card{padding:18px;}
+
+  .fac-hours{
+    text-align:center;
+    padding:24px 10px 14px;
+  }
+  .fac-hours .kpi-value{font-size:38px;}
+  .recon-note{
+    margin-top:14px;
+    font-size:11.8px;
+    color:var(--signal-text);
+    background:var(--signal-soft);
+    padding:10px 12px;
+    border-radius:8px;
+    text-align:left;
+  }
+  .updated-line{font-size:11.5px; color:var(--ink-soft); margin-top:10px;}
   .crit-select{
     font-family:inherit; font-size:13px; font-weight:600; color:var(--slate-text);
     border:1px solid transparent; background:transparent; cursor:pointer;
@@ -1042,13 +1075,17 @@
 
   <!-- GOVERNANCE -->
   <section id="governance">
-    <div class="section-head">
-      <h2>Governance, effort &amp; technical signals</h2>
-      <span class="section-note">No meeting tracker yet</span>
-    </div>
+    <h3 class="card-dark-bar" style="margin:0 0 10px;">Meeting tracker</h3>
     <p class="section-subtext">Engagement and effort tracked across workgroup meetings.</p>
-    <div class="card" style="padding:20px;">
-      <p class="section-note" style="margin:0;" contenteditable="true">This initiative doesn't have a meeting tracker or attendance data yet — it's still in Discovery, ahead of its kickoff workshop at MISMO's Fall Summit (August 26, 2026). This section will populate once real meeting attendance is available.</p>
+    <div class="gov-layout">
+      <div class="card gov-card">
+        <p class="section-note" style="margin:0;" contenteditable="true">This initiative doesn't have a meeting tracker or attendance data yet — it's still in Discovery, ahead of its kickoff workshop at MISMO's Fall Summit (August 26, 2026). This section will populate once real meeting attendance is available.</p>
+      </div>
+      <div class="card gov-card fac-hours">
+        <span class="kpi-label">All-time tracker total</span>
+        <div class="kpi-value" style="font-size:20px; font-style:italic; color:var(--ink-soft);">Not yet available</div>
+        <div class="updated-line">No meeting data on file yet</div>
+      </div>
     </div>
   </section>
 

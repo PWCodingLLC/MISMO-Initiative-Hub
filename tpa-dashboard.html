@@ -1268,7 +1268,6 @@
   <section id="stakeholders">
     <div class="section-head">
       <h2>Stakeholder Role &amp; Benefits</h2>
-      <span class="section-note" id="adoptionNote">5 of 13 tracked orgs are piloting or live · funnel computed live from the roster</span>
     </div>
     <p class="section-subtext">Who's involved, how critical they are, and their current implementation status.</p>
 
@@ -1288,15 +1287,13 @@
     <p class="section-subtext" style="margin:0 0 12px;">"Active participants" will be defined the same way as the other workgroups once this one starts meeting and a tracker exists — for now, there's no meeting history to compute attendance from.</p>
     <div class="card" style="padding:18px;" id="roster">
       <div class="roster-controls">
+        <span class="current-type-label" id="currentTypeLabel"></span>
         <input class="search-input" id="rosterSearch" type="text" placeholder="Search org or participant…">
       </div>
       <div class="roster-layout" id="rosterLayout">
         <div class="roster-side-card" id="rosterSidebar"></div>
         <div>
           <div class="goals-strip" id="rosterGoalsStrip">
-            <div class="goals-strip-head">
-              <span class="current-type-label" id="currentTypeLabel"></span>
-            </div>
             <div class="roster-command-layout" id="rosterCommandLayout">
               <div id="rosterLaneSidebar"></div>
               <div id="rosterLaneMain"></div>
@@ -1920,13 +1917,6 @@
     applyLockState();
   }
 
-  function updateAdoptionNote(){
-    const total = rosterData.length;
-    const implementedOrPlanned = rosterData.filter(r => r.status === 'impl-planned' || r.status === 'implemented').length;
-    document.getElementById('adoptionNote').textContent =
-      `${implementedOrPlanned} of ${total} tracked orgs have implemented or have implementation planned · computed live from the roster`;
-  }
-
   // Roster filtering
   const searchInput = document.getElementById('rosterSearch');
   const emptyMsg = document.getElementById('rosterEmpty');
@@ -2001,7 +1991,6 @@
     if (field === 'roadblocks' && val === 'None noted') val = '';
     await ensureLoaded();
     rosterData[idx][field] = val;
-    updateAdoptionNote();
     renderRosterList();
   }, true);
 
@@ -2014,7 +2003,6 @@
       const newStatus = e.target.value;
       await ensureLoaded();
       rosterData[idx].status = newStatus;
-      updateAdoptionNote();
       renderRosterList();
       return;
     }
@@ -2035,7 +2023,6 @@
     renderLane();
     renderGoalsStrip();
     renderRosterList();
-    updateAdoptionNote();
     // If this is the very first edit ever made (nothing in shared storage yet), seed it
     // with the current defaults so every subsequent viewer/editor starts from the same baseline.
     if (!rosterFound) saveRosterData();
@@ -2046,7 +2033,6 @@
   renderLane();
   renderGoalsStrip();
   renderRosterList();
-  updateAdoptionNote();
 
   // Stakeholder Groups "Critical?" dropdown: keep the star gold-colored when selected
   document.querySelectorAll('.crit-select').forEach(sel => {
@@ -2187,7 +2173,6 @@
     renderLane();
     renderGoalsStrip();
     renderRosterList();
-    updateAdoptionNote();
     applyGenericFieldStates(snapshot.generic);
     applyLockState();
     banner.style.display = 'none';

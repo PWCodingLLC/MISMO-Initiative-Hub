@@ -48,8 +48,8 @@
     --slate-text:#5B6478;
 
     --status-red:#C1666B; --status-red-soft:#F5E6E7; --status-red-text:#8B3D42;
-    --status-orange:#C98A4B; --status-orange-soft:#F5EBDD; --status-orange-text:#8F5F2C;
-    --status-yellow:#C7A94D; --status-yellow-soft:#F5EFDA; --status-yellow-text:#8C7229;
+    --status-orange:#C16C33; --status-orange-soft:#F2E6DE; --status-orange-text:#834821;
+    --status-yellow:#D6B751; --status-yellow-soft:#F5EFDB; --status-yellow-text:#826217;
     --status-green:#5B8C6C; --status-green-soft:#E3EDE6; --status-green-text:#3D5F49;
 
     --dwg:#7C3AED;
@@ -96,8 +96,8 @@
     --slate-text:#B8C0D4;
 
     --status-red:#D9838A; --status-red-soft:#3D2226; --status-red-text:#E8A5AA;
-    --status-orange:#D9A06B; --status-orange-soft:#3D2E1C; --status-orange-text:#E8B583;
-    --status-yellow:#D9BC6B; --status-yellow-soft:#3D341C; --status-yellow-text:#E8CE85;
+    --status-orange:#DA9262; --status-orange-soft:#472F1F; --status-orange-text:#EDAD82;
+    --status-yellow:#E5CB76; --status-yellow-soft:#473E1F; --status-yellow-text:#F0DA94;
     --status-green:#8FD4A8; --status-green-soft:#1F3527; --status-green-text:#ABE8BE;
 
     --dwg:#9D6FF0;
@@ -232,9 +232,10 @@
     gap:10px;
   }
   .back-to-hub{
-    font-family:'Inter',sans-serif; font-size:12.5px; font-weight:700;
+    font-family:'Inter',sans-serif; font-size:11px; font-weight:700;
     color:var(--brand-text); text-decoration:none;
-    padding:7px 14px; border:1px solid var(--line); border-radius:999px; background:var(--card);
+    padding:5px 10px; border:1px solid var(--line); border-radius:999px; background:var(--card);
+    margin-bottom:6px;
   }
   .back-to-hub:hover{background:var(--brand-soft); border-color:var(--brand);}
   .masthead-actions-row{display:flex; flex-direction:row; gap:8px;}
@@ -318,14 +319,16 @@
   /* ---------- SECTIONS GENERIC ---------- */
   section{margin-top:44px;}
   .section-head{
+    position:relative;
     display:flex;
     align-items:center;
-    justify-content:space-between;
+    justify-content:center;
     gap:12px;
     margin-bottom:0;
     flex-wrap:wrap;
     background:var(--header-bg); color:var(--header-text); padding:13px 20px; border-radius:var(--radius);
   }
+  .section-head .section-note{position:absolute; right:20px; top:50%; transform:translateY(-50%); max-width:40%; text-align:right;}
   .section-subtext{font-size:12.5px; color:var(--ink-soft); margin:8px 2px 16px;}
   .section-head h2{font-size:19px; font-family:'Space Grotesk',sans-serif; font-weight:600; letter-spacing:.02em; text-transform:uppercase; color:var(--header-text);}
   .section-head .section-note{color:var(--header-text-soft);}
@@ -588,6 +591,7 @@
     border-radius:var(--radius);
     font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:19px; letter-spacing:.02em; text-transform:uppercase;
     margin:0 0 12px;
+    text-align:center;
   }
   .crit-star{color:var(--amber-text); font-weight:700;}
   .crit-select{
@@ -775,7 +779,7 @@
     align-items:center;
     margin-bottom:14px;
   }
-  .current-type-label{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:15px; color:var(--ink);}
+  .current-type-label{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:18px; color:var(--ink);}
 
   /* Goals/Roadblocks/Tasks strip embedded in the roster, above the org list. Reads and
      writes the same laneData used by the (now removed) Adoption and Development Status
@@ -998,7 +1002,7 @@
   .meeting-banner-label{
     background:var(--header-bg); color:var(--header-text); font-family:'Space Grotesk',sans-serif;
     font-weight:600; font-size:19px; text-transform:uppercase; padding:16px 18px;
-    display:flex; align-items:center; letter-spacing:.02em; min-width:0;
+    display:flex; align-items:center; justify-content:center; letter-spacing:.02em; min-width:0;
   }
   .meeting-tile-row{display:contents;}
   .meeting-tile{
@@ -1097,6 +1101,8 @@
   .kanban-card:last-child{margin-bottom:0;}
   .kanban-task{font-weight:600; margin-bottom:3px;}
   .kanban-owner{color:var(--ink-soft); font-size:11px;}
+  .kanban-date-note{color:var(--ink-soft); font-size:10.5px; font-family:'IBM Plex Mono',monospace;}
+  .task-date-cell{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--ink-soft); white-space:nowrap;}
   .kanban-empty{font-size:11.5px; color:var(--ink-soft); font-style:italic; text-align:center; padding:14px 0;}
 
   footer{
@@ -1289,7 +1295,6 @@
     <p class="section-subtext" style="margin:0 0 12px;">"Active participants" = attended at least 1/3 of the 31 workgroup meetings held in the past year (Aug 2025–Aug 2026), per the uploaded meeting tracker.</p>
     <div class="card" style="padding:18px;" id="roster">
       <div class="roster-controls">
-        <span class="current-type-label" id="currentTypeLabel"></span>
         <input class="search-input" id="rosterSearch" type="text" placeholder="Search org or participant…">
       </div>
       <div class="roster-layout" id="rosterLayout">
@@ -1297,6 +1302,7 @@
         <div>
           <div class="goals-strip" id="rosterGoalsStrip">
             <div class="goals-strip-head">
+              <span class="current-type-label" id="currentTypeLabel"></span>
               <div class="view-toggle" role="group" aria-label="Layout format">
                 <button class="view-btn" data-view="compact" aria-pressed="true">Compact</button>
                 <button class="view-btn" data-view="kanban" aria-pressed="false">Kanban</button>
@@ -1421,6 +1427,7 @@
     return `<tr class="task-edit-container">
       <td><input class="contact-input" type="text" data-task-field="task" placeholder="Task" value="${escapeAttr(action.task)}"></td>
       <td><input class="contact-input" type="text" data-task-field="owner" placeholder="Owner" value="${escapeAttr(action.owner)}"></td>
+      <td class="task-date-cell">${escapeHtml(action.dateAssigned || 'Set on save')}</td>
       <td><select class="contact-input" data-task-field="status">${taskStatusOptionsHtml(action.status)}</select></td>
       <td class="task-icons"><button type="button" class="contact-save-btn" data-save-task="${idx}">Save</button><button type="button" class="contact-cancel-btn" data-cancel-task="${idx}">Cancel</button></td>
     </tr>`;
@@ -1430,6 +1437,7 @@
     return `<div class="kanban-card-edit task-edit-container">
       <input class="contact-input task-input" type="text" data-task-field="task" placeholder="Task" value="${escapeAttr(action.task)}">
       <input class="contact-input task-input" type="text" data-task-field="owner" placeholder="Owner" value="${escapeAttr(action.owner)}">
+      <div class="kanban-date-note">${action.dateAssigned ? 'Assigned ' + escapeHtml(action.dateAssigned) : 'Date will be set on save'}</div>
       <select class="contact-input task-input" data-task-field="status">${taskStatusOptionsHtml(action.status)}</select>
       <div class="contact-edit-actions">
         <button type="button" class="contact-save-btn" data-save-task="${idx}">Save</button>
@@ -1515,13 +1523,13 @@
       if (lane.actions.length === 0 && editingTaskIdx !== 'new'){
         html += `<p class="empty-lane-note">No tasks yet for this stakeholder group.</p>`;
       } else {
-        html += `<table class="action-table-full"><tr><th>Task</th><th>Owner</th><th>Status</th><th></th></tr>`;
+        html += `<table class="action-table-full"><tr><th>Task</th><th>Owner</th><th>Date Assigned</th><th>Status</th><th></th></tr>`;
         lane.actions.forEach((a, i) => {
           if (i === editingTaskIdx){
             html += taskEditRowHtml(i, a);
           } else {
             const doneClass = a.status === 'complete' ? 'done-task' : '';
-            html += `<tr><td class="${doneClass}">${escapeHtml(a.task)}</td><td>${escapeHtml(a.owner)}</td><td>${renderActionStatusSelect(currentLane, i, a.status)}</td><td class="task-icons"><button type="button" class="icon-btn" data-edit-task="${i}" title="Edit">✎</button><button type="button" class="icon-btn" data-remove-task="${i}" title="Remove">🗑</button></td></tr>`;
+            html += `<tr><td class="${doneClass}">${escapeHtml(a.task)}</td><td>${escapeHtml(a.owner)}</td><td class="task-date-cell">${escapeHtml(a.dateAssigned || '—')}</td><td>${renderActionStatusSelect(currentLane, i, a.status)}</td><td class="task-icons"><button type="button" class="icon-btn" data-edit-task="${i}" title="Edit">✎</button><button type="button" class="icon-btn" data-remove-task="${i}" title="Remove">🗑</button></td></tr>`;
           }
         });
         if (editingTaskIdx === 'new'){
@@ -1559,6 +1567,7 @@
               html += `<div class="kanban-card${a.status === 'complete' ? ' done-task' : ''}">
                 <div class="kanban-task">${escapeHtml(a.task)}</div>
                 <div class="kanban-owner">${escapeHtml(a.owner)}</div>
+                <div class="kanban-date-note">${a.dateAssigned ? 'Assigned ' + escapeHtml(a.dateAssigned) : ''}</div>
                 ${renderActionStatusSelect(currentLane, idx, a.status)}
                 <div class="kanban-card-actions"><button type="button" class="icon-btn" data-edit-task="${idx}" title="Edit">✎</button><button type="button" class="icon-btn" data-remove-task="${idx}" title="Remove">🗑</button></div>
               </div>`;
@@ -1709,8 +1718,14 @@
       }
       const rawIdx = saveBtn.getAttribute('data-save-task');
       await ensureLoaded();
-      const newAction = {task: taskVal, owner: ownerVal || 'Unassigned', status: statusVal, label: actionStatusLabels[statusVal]};
-      if (rawIdx === 'new'){
+      const isNewTask = rawIdx === 'new';
+      // Date is stamped automatically at creation and never re-set on later edits —
+      // it records when the task was first assigned, not when it was last touched.
+      const dateAssigned = isNewTask
+        ? new Date().toLocaleDateString('en-US')
+        : laneData[currentLane].actions[parseInt(rawIdx, 10)].dateAssigned;
+      const newAction = {task: taskVal, owner: ownerVal || 'Unassigned', status: statusVal, label: actionStatusLabels[statusVal], dateAssigned};
+      if (isNewTask){
         laneData[currentLane].actions.push(newAction);
       } else {
         laneData[currentLane].actions[parseInt(rawIdx, 10)] = newAction;
@@ -1820,6 +1835,13 @@
           <button type="button" class="contact-save-btn" data-save-idx="${idx}">Save</button>
           <button type="button" class="contact-cancel-btn" data-cancel-idx="${idx}">Cancel</button>
         </div>
+      </div>`;
+    }
+    const hasAnyContactInfo = row.primaryContact || row.title || row.email;
+    if (!hasAnyContactInfo){
+      return `<div class="contact-block">
+        <div class="contact-name placeholder">No contact information</div>
+        <button type="button" class="contact-edit-btn" data-edit-idx="${idx}">✎ Edit</button>
       </div>`;
     }
     const titleHtml = row.title ? `<div class="contact-sub">${escapeHtml(row.title)}</div>` : `<div class="contact-sub placeholder">Add title</div>`;

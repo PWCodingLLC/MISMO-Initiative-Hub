@@ -1281,7 +1281,6 @@
   <section id="stakeholders">
     <div class="section-head">
       <h2>Stakeholder Role &amp; Benefits</h2>
-      <span class="section-note" id="adoptionNote">11 of 19 tracked orgs are piloting or live · funnel computed live from the roster</span>
     </div>
     <p class="section-subtext">Who's involved, how critical they are, and their current implementation status.</p>
 
@@ -1336,13 +1335,12 @@
   <section id="governance">
     <div class="section-head">
       <h2>Governance, effort &amp; technical signals</h2>
-      <span class="section-note">Meeting tracker · 160 people on file</span>
     </div>
     <p class="section-subtext">Engagement and effort tracked across workgroup meetings.</p>
 
     <div class="gov-layout">
       <div>
-        <h3 class="card-dark-bar" style="margin:0 0 10px;">Meeting tracker <span style="font-weight:400; font-size:13px; text-transform:none; opacity:.75;">— engagement score, all-time (unit not specified in source)</span></h3>
+        <h3 class="card-dark-bar" style="margin:0 0 10px;">Meeting tracker</h3>
         <div class="card gov-card">
           <div id="leaderboard"></div>
         </div>
@@ -1988,13 +1986,6 @@
     applyLockState();
   }
 
-  function updateAdoptionNote(){
-    const total = rosterData.length;
-    const implementedOrPlanned = rosterData.filter(r => r.status === 'impl-planned' || r.status === 'implemented').length;
-    document.getElementById('adoptionNote').textContent =
-      `${implementedOrPlanned} of ${total} tracked orgs have implemented or have implementation planned · computed live from the roster`;
-  }
-
   // Roster filtering
   const searchInput = document.getElementById('rosterSearch');
   const emptyMsg = document.getElementById('rosterEmpty');
@@ -2069,7 +2060,6 @@
     if (field === 'roadblocks' && val === 'None noted') val = '';
     await ensureLoaded();
     rosterData[idx][field] = val;
-    updateAdoptionNote();
     renderRosterList();
   }, true);
 
@@ -2082,7 +2072,6 @@
       const newStatus = e.target.value;
       await ensureLoaded();
       rosterData[idx].status = newStatus;
-      updateAdoptionNote();
       renderRosterList();
       return;
     }
@@ -2103,7 +2092,6 @@
     renderLane();
     renderGoalsStrip();
     renderRosterList();
-    updateAdoptionNote();
     // If this is the very first edit ever made (nothing in shared storage yet), seed it
     // with the current defaults so every subsequent viewer/editor starts from the same baseline.
     if (!rosterFound) saveRosterData();
@@ -2114,7 +2102,6 @@
   renderLane();
   renderGoalsStrip();
   renderRosterList();
-  updateAdoptionNote();
 
   // Stakeholder Groups "Critical?" dropdown: keep the star gold-colored when selected
   document.querySelectorAll('.crit-select').forEach(sel => {
@@ -2357,7 +2344,6 @@
     renderLane();
     renderGoalsStrip();
     renderRosterList();
-    updateAdoptionNote();
     applyGenericFieldStates(snapshot.generic);
     applyLockState();
     banner.style.display = 'none';

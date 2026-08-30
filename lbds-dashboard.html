@@ -839,27 +839,22 @@
   }
 
   .roi-link{
-    display:block; text-align:center; font-size:12px; font-weight:600;
-    color:var(--ink-soft); text-decoration:none; margin-top:8px;
+    display:inline-flex; align-items:center; gap:5px; text-align:left; font-size:12px; font-weight:600;
+    color:var(--ink-soft); text-decoration:none; margin-top:8px; cursor:pointer; background:none; border:none; padding:0; font-family:inherit;
   }
   .roi-link:hover{text-decoration:underline;}
   .roi-link.disabled{color:var(--slate-text); pointer-events:none; font-style:italic; font-weight:500;}
+  .roi-chevron{font-size:10px; transition:transform .15s ease;}
+  .roi-chevron.open{transform:rotate(180deg);}
+  .roi-detail{display:none; margin-top:12px; padding-top:12px; border-top:1px solid var(--line);}
+  .roi-detail.open{display:block;}
+  .roi-detail-row{display:flex; justify-content:space-between; font-size:12px; padding:5px 0;}
+  .roi-detail-row.total{border-top:1px solid var(--line); margin-top:4px; padding-top:8px; font-weight:700;}
 
   .savings-value-row{display:flex; justify-content:space-between; font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:18px; margin-bottom:10px;}
   .savings-track{height:6px; background:var(--line); border-radius:4px; position:relative; margin:0 6px 16px;}
   .savings-fill{position:absolute; left:14%; right:8%; top:0; height:100%; background:var(--bar-bg); border-radius:4px;}
   .savings-handle{position:absolute; top:50%; width:14px; height:14px; background:var(--bar-bg); border:2px solid #fff; border-radius:50%; transform:translate(-50%,-50%); box-shadow:0 0 0 1px var(--bar-bg);}
-  .savings-btn{
-    display:inline-block;
-    background:var(--bar-bg);
-    color:#fff;
-    font-size:12.5px;
-    font-weight:600;
-    padding:8px 14px;
-    border-radius:999px;
-    text-decoration:none;
-  }
-  .savings-btn:hover{background:#000;}
 
   .deliverables-table{font-size:12.5px; width:100%;}
   .deliverables-table th{font-size:10px; padding:6px 8px;}
@@ -1026,8 +1021,19 @@
                 <div class="savings-handle" style="left:14%;"></div>
                 <div class="savings-handle" style="left:92%;"></div>
               </div>
-              <a href="#why-card" class="savings-btn">See the cost breakdown ↓</a>
-              <a href="https://www.mismo.org/docs/mismolibraries/default-document-library/lbds_independent_roi_model-(2).pdf?Status=Master&sfvrsn=225bf08e_1" target="_blank" rel="noopener" class="roi-link">View independent ROI model (PDF) ↗</a>
+              <button type="button" class="roi-link" id="roiToggle" onclick="
+                var d = document.getElementById('roiDetail');
+                var c = document.getElementById('roiChevron');
+                var open = d.classList.toggle('open');
+                c.classList.toggle('open', open);
+                document.getElementById('roiToggleText').textContent = open ? 'Hide breakdown' : 'View cost breakdown';
+              "><span id="roiToggleText">View cost breakdown</span> <span class="roi-chevron" id="roiChevron">▾</span></button>
+              <div class="roi-detail" id="roiDetail">
+                <div class="roi-detail-row"><span>Manual loan boarding labor costs</span><span>$12–$60</span></div>
+                <div class="roi-detail-row"><span>Rework &amp; reconciliation delays</span><span>$5–$29</span></div>
+                <div class="roi-detail-row total"><span>Estimated total per loan</span><span>$17–$89</span></div>
+                <a href="https://www.mismo.org/docs/mismolibraries/default-document-library/lbds_independent_roi_model-(2).pdf?Status=Master&sfvrsn=225bf08e_1" target="_blank" rel="noopener" class="roi-link" style="margin-top:12px;">View independent ROI model (PDF) ↗</a>
+              </div>
             </div>
           </div>
 

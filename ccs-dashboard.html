@@ -775,6 +775,17 @@
     align-items:center;
     margin-bottom:14px;
   }
+  .current-type-label{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:15px; color:var(--ink);}
+
+  /* Goals/Roadblocks/Tasks strip embedded in the roster, above the org list. Reads and
+     writes the same laneData used by the (now removed) Adoption and Development Status
+     section — see ROSTER_TYPE_TO_LANE below for how a roster type maps to its lane key. */
+  .goals-strip{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:18px 20px; margin-bottom:24px;}
+  .goals-strip-head{display:flex; align-items:center; justify-content:flex-end; gap:12px; flex-wrap:wrap; margin-bottom:14px;}
+  /* Two columns within the ONE goals-strip bubble — no nested card borders/backgrounds. */
+  .roster-command-layout{display:grid; grid-template-columns:220px 1fr; gap:20px;}
+  @media (max-width:640px){ .roster-command-layout{grid-template-columns:1fr;} }
+
   .search-input{
     margin-left:auto;
     font-family:inherit;
@@ -1255,25 +1266,6 @@
     </div>
   </section>
 
-  <!-- ROADMAP -->
-  <section id="roadmap">
-    <div class="section-head">
-      <h2>Adoption and Development Status</h2>
-      <div class="view-toggle" role="group" aria-label="Layout format">
-        <button class="view-btn" data-view="compact" aria-pressed="true">Compact</button>
-        <button class="view-btn" data-view="kanban" aria-pressed="false">Kanban</button>
-      </div>
-    </div>
-    <p class="section-subtext">See what each stakeholder group needs to do to reach broad adoption.</p>
-    <p class="roadmap-intro">Tasks are organized by stakeholder group so each side of the workgroup — AVM providers, GSEs, lenders, and LOS providers — can see and manage its own to-dos. Add, edit, or change the status of any task as work progresses.</p>
-
-    <div class="lane-chip-row" id="chipRow" role="tablist" aria-label="Stakeholder groups"></div>
-    <div class="command-layout" id="commandLayout">
-      <div class="side-card" id="laneSidebar"></div>
-      <div class="task-card" id="laneMain"></div>
-    </div>
-  </section>
-
   <!-- STAKEHOLDERS -->
   <section id="stakeholders">
     <div class="section-head">
@@ -1297,11 +1289,26 @@
     <p class="section-subtext" style="margin:0 0 12px;">"Active participants" = attended at least 1/3 of the 31 workgroup meetings held in the past year (Aug 2025–Aug 2026), per the uploaded meeting tracker.</p>
     <div class="card" style="padding:18px;" id="roster">
       <div class="roster-controls">
+        <span class="current-type-label" id="currentTypeLabel"></span>
         <input class="search-input" id="rosterSearch" type="text" placeholder="Search org or participant…">
       </div>
       <div class="roster-layout" id="rosterLayout">
         <div class="roster-side-card" id="rosterSidebar"></div>
-        <div class="roster-list" id="rosterList"></div>
+        <div>
+          <div class="goals-strip" id="rosterGoalsStrip">
+            <div class="goals-strip-head">
+              <div class="view-toggle" role="group" aria-label="Layout format">
+                <button class="view-btn" data-view="compact" aria-pressed="true">Compact</button>
+                <button class="view-btn" data-view="kanban" aria-pressed="false">Kanban</button>
+              </div>
+            </div>
+            <div class="roster-command-layout" id="rosterCommandLayout">
+              <div id="rosterLaneSidebar"></div>
+              <div id="rosterLaneMain"></div>
+            </div>
+          </div>
+          <div class="roster-list" id="rosterList"></div>
+        </div>
       </div>
       <p class="section-note" id="rosterEmpty" style="display:none; padding:14px 0 0;">No rows match this filter.</p>
       <datalist id="stakeholderTypeOptions">
@@ -1375,7 +1382,7 @@
   let currentLane = 'avmprovider';
   let currentView = 'compact';
   let editingTaskIdx = null; // null = none, 'new' = adding, number = editing that index
-  const laneRoot = document.getElementById('commandLayout');
+  const laneRoot = document.getElementById('rosterCommandLayout');
 
   const actionStatusOptions = [
     ['not-started', 'Not Started'],
@@ -1496,26 +1503,10 @@
     lender: 'Lender'
   };
 
-  function renderChips(){
-    const chipRow = document.getElementById('chipRow');
-    // Alphabetical by label, with "general" always sorted last.
-    const orderedKeys = Object.keys(laneData).sort((a, b) => {
-      if (a === 'general') return 1;
-      if (b === 'general') return -1;
-      return (laneLabels[a] || a).localeCompare(laneLabels[b] || b);
-    });
-    chipRow.innerHTML = orderedKeys.map(key => {
-      const hasRoadblocks = laneData[key].roadblocks.length > 0;
-      const flag = hasRoadblocks ? '<span class="lane-chip-flag">⚑</span>' : '';
-      const selected = key === currentLane ? 'true' : 'false';
-      return `<button class="lane-chip-btn" role="tab" aria-selected="${selected}" data-tab="${key}">${laneLabels[key] || key}${flag}</button>`;
-    }).join('');
-  }
-
   function renderLane(){
     const lane = laneData[currentLane];
-    const sidebar = document.getElementById('laneSidebar');
-    const main = document.getElementById('laneMain');
+    const sidebar = document.getElementById('rosterLaneSidebar');
+    const main = document.getElementById('rosterLaneMain');
 
     sidebar.innerHTML = `<div class="goal-strip">${renderPillGroup('Goals', lane.goals, 'goal')}${renderPillGroup('Roadblocks', lane.roadblocks, 'roadblock')}</div>`;
 
@@ -1583,15 +1574,6 @@
     saveLaneData();
     applyLockState();
   }
-
-  document.getElementById('chipRow').addEventListener('click', (e) => {
-    const btn = e.target.closest('.lane-chip-btn');
-    if (!btn) return;
-    currentLane = btn.getAttribute('data-tab');
-    editingTaskIdx = null;
-    renderChips();
-    renderLane();
-  });
 
   const viewButtons = document.querySelectorAll('.view-btn');
   viewButtons.forEach(btn => {
@@ -1679,7 +1661,6 @@
   updateLockUI();
 
 
-  renderChips();
   renderLane();
 
   // Quick status changes on non-edit rows: update the data model and re-render
@@ -1890,6 +1871,22 @@
   // primary way to navigate the roster now (click a type to filter the list on the right),
   // replacing the old row of filter chips. Always computed from the FULL rosterData, not
   // the currently-filtered list, so every type's true total is always visible here.
+  // Maps a roster type (as used in rosterData) to its corresponding Roadmap lane key
+  // (as used in laneData) — a simple 1:1 mapping for CCS, no granular-to-broad rollup needed.
+  const ROSTER_TYPE_TO_LANE = {
+    'AVM Provider': 'avmprovider',
+    'GSE': 'gse',
+    'Lender': 'lender'
+  };
+
+  // The current-type label above the roster is the only thing this function handles —
+  // the actual Goals/Roadblocks/Tasks content is rendered by renderLane() itself,
+  // redirected to render into the roster's own DOM elements instead of a separate
+  // Roadmap section, since currentLane is now derived from the roster's activeType.
+  function renderGoalsStrip(){
+    document.getElementById('currentTypeLabel').textContent = activeType;
+  }
+
   function renderTypeSidebar(){
     const sidebar = document.getElementById('rosterSidebar');
     const allTypes = [...new Set(rosterData.map(r => r.type))].sort((a, b) => a.localeCompare(b));
@@ -2014,6 +2011,10 @@
     const typeRow = e.target.closest('[data-type-select]');
     if (typeRow){
       activeType = typeRow.getAttribute('data-type-select');
+      currentLane = ROSTER_TYPE_TO_LANE[activeType] || 'general';
+      editingTaskIdx = null;
+      renderGoalsStrip();
+      renderLane();
       renderRosterList();
       return;
     }
@@ -2027,13 +2028,13 @@
       return;
     }
 
-    const editBtn = e.target.closest('.contact-edit-btn');
+    const editBtn = e.target.closest('.contact-edit-btn[data-edit-idx]');
     if (editBtn){
       editingContactIdx = parseInt(editBtn.getAttribute('data-edit-idx'), 10);
       renderRosterList();
       return;
     }
-    const saveBtn = e.target.closest('.contact-save-btn');
+    const saveBtn = e.target.closest('.contact-save-btn[data-save-idx]');
     if (saveBtn){
       const idx = parseInt(saveBtn.getAttribute('data-save-idx'), 10);
       const cell = saveBtn.closest('.contact-edit-form');
@@ -2048,7 +2049,7 @@
       renderRosterList();
       return;
     }
-    const cancelBtn = e.target.closest('.contact-cancel-btn');
+    const cancelBtn = e.target.closest('.contact-cancel-btn[data-cancel-idx]');
     if (cancelBtn){
       editingContactIdx = null;
       renderRosterList();
@@ -2076,7 +2077,7 @@
   // the planned-date field in the drawer too, since that's computed from the current status
   // on every render rather than toggled separately.
   document.getElementById('rosterLayout').addEventListener('change', async (e) => {
-    if (e.target.matches('select.status-select')){
+    if (e.target.matches('select.status-select.roster-status')){
       const idx = parseInt(e.target.getAttribute('data-idx'), 10);
       const newStatus = e.target.value;
       await ensureLoaded();
@@ -2100,6 +2101,7 @@
     const { rosterFound, laneFound } = await loadSharedData();
     hasLoadedFromStorage = true;
     renderLane();
+    renderGoalsStrip();
     renderRosterList();
     updateAdoptionNote();
     // If this is the very first edit ever made (nothing in shared storage yet), seed it
@@ -2108,8 +2110,9 @@
     if (!laneFound) saveLaneData();
   }
 
-  renderChips();
+  currentLane = ROSTER_TYPE_TO_LANE[activeType] || 'general';
   renderLane();
+  renderGoalsStrip();
   renderRosterList();
   updateAdoptionNote();
 
@@ -2335,8 +2338,8 @@
     }
     rosterData = snapshot.rosterData || rosterData;
     laneData = snapshot.laneData || laneData;
-    renderChips();
     renderLane();
+    renderGoalsStrip();
     renderRosterList();
     updateAdoptionNote();
     applyGenericFieldStates(snapshot.generic);

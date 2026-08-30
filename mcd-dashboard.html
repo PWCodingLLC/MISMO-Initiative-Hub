@@ -814,18 +814,25 @@
 
   .list-drawer{display:none; padding:4px 16px 18px 46px; background:var(--paper);}
   .list-row.expanded .list-drawer{display:block;}
-  .drawer-grid{display:grid; grid-template-columns:1fr 1.3fr; gap:20px;}
-  @media (max-width:640px){ .drawer-grid{grid-template-columns:1fr;} }
-  .drawer-label{font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-soft); margin:10px 0 4px;}
-  .drawer-label:first-of-type{margin-top:0;}
-  .drawer-value{font-size:12.5px;}
-  .drawer-value.empty{font-style:italic; color:var(--ink-soft);}
-  .date-note{font-size:11.5px; color:var(--ink-soft); margin-top:8px; padding-top:8px; border-top:1px solid var(--line);}
-  .date-note strong{color:var(--ink); font-weight:600;}
-  .roadblock-box{background:var(--status-red-soft); color:var(--status-red-text); font-size:12px; padding:8px 11px; border-radius:8px; margin-bottom:12px;}
-  .notes-text{font-size:12.5px; color:var(--ink-soft); font-style:italic;}
+  .drawer-type-tag{
+    font-family:inherit; font-size:10.5px; font-weight:600; text-transform:uppercase; letter-spacing:.04em;
+    color:var(--ink-soft); background:var(--card); border:1px solid var(--line); border-radius:6px;
+    padding:4px 9px; margin-bottom:10px; width:auto; max-width:220px;
+  }
+  .card-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px;}
+  @media (max-width:760px){ .card-grid{grid-template-columns:1fr;} }
+  .mini-card{background:var(--card); border:1px solid var(--line); border-radius:9px; padding:13px 14px;}
+  .mini-card.flagged{background:var(--status-red-soft); border-color:var(--status-red-soft);}
+  .mini-card-label{font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-soft); margin-bottom:9px;}
+  .mini-card.flagged .mini-card-label{color:var(--status-red-text);}
+  .roadblock-text{font-size:12.5px;}
+  .roadblock-text.empty{font-style:italic; color:var(--ink-soft);}
+  .mini-card.flagged .roadblock-text{color:var(--status-red-text); font-weight:500;}
+  .date-label{font-size:11px; color:var(--ink-soft); margin-top:10px; padding-top:10px; border-top:1px solid var(--line);}
+  .date-input-mini{font-family:'IBM Plex Mono',monospace; font-size:12px; padding:5px 8px; border:1px solid var(--line); border-radius:5px; background:var(--card); color:var(--ink); margin-top:5px; width:100%;}
+  .notes-text{font-size:12px; color:var(--ink-soft); font-style:italic; margin-top:9px; padding-top:9px; border-top:1px solid var(--line);}
 
-  .contact-card{background:var(--card); border-radius:8px; padding:12px 14px;}
+  .contact-card{background:transparent; border-radius:0; padding:0;}
   .contact-card .contact-block{min-width:0;}
   .contact-card .contact-edit-form{min-width:0;}
 
@@ -1971,24 +1978,26 @@
         ).join('');
         let dateHtml = '';
         if (row.status === 'pilot-planned'){
-          dateHtml = `<div class="date-note"><strong>Planned pilot date:</strong> <input type="date" class="roster-date-input" data-idx="${idx}" value="${escapeAttr(row.targetDate || '')}"></div>`;
+          dateHtml = `<div class="date-label">Planned pilot date</div><input type="date" class="roster-date-input date-input-mini" data-idx="${idx}" value="${escapeAttr(row.targetDate || '')}">`;
         } else if (row.status === 'impl-planned'){
-          dateHtml = `<div class="date-note"><strong>Planned implementation date:</strong> <input type="date" class="roster-date-input" data-idx="${idx}" value="${escapeAttr(row.targetDate || '')}"></div>`;
+          dateHtml = `<div class="date-label">Planned implementation date</div><input type="date" class="roster-date-input date-input-mini" data-idx="${idx}" value="${escapeAttr(row.targetDate || '')}">`;
         }
         const roadblocksDisplay = row.roadblocks ? escapeHtml(row.roadblocks) : 'None noted';
         drawerHtml = `<div class="list-drawer">
-          <div class="drawer-grid">
-            <div class="drawer-contact-block">
-              <input class="type-input org-type-input" list="stakeholderTypeOptions" data-roster-field="type" data-idx="${idx}" value="${escapeAttr(row.type)}" style="margin-bottom:10px;">
+          <input class="type-input org-type-input drawer-type-tag" list="stakeholderTypeOptions" data-roster-field="type" data-idx="${idx}" value="${escapeAttr(row.type)}">
+          <div class="card-grid">
+            <div class="mini-card">
+              <div class="mini-card-label">Contact</div>
               ${renderContactCell(idx, row)}
               ${dateHtml}
             </div>
-            <div>
-              <div class="drawer-label" style="margin-top:0;">Roadblocks</div>
-              <div class="drawer-value ${row.roadblocks ? '' : 'empty'}" contenteditable="true" data-roster-field="roadblocks" data-idx="${idx}">${roadblocksDisplay}</div>
-              <div class="drawer-label">Active Participants</div>
-              <div class="drawer-value" title="Attendance data — not editable">${participantChips}</div>
-              <div class="drawer-label">Notes</div>
+            <div class="mini-card ${row.roadblocks ? 'flagged' : ''}">
+              <div class="mini-card-label">Roadblocks</div>
+              <div class="roadblock-text ${row.roadblocks ? '' : 'empty'}" contenteditable="true" data-roster-field="roadblocks" data-idx="${idx}">${roadblocksDisplay}</div>
+            </div>
+            <div class="mini-card">
+              <div class="mini-card-label">Activity</div>
+              <div title="Attendance data — not editable">${participantChips}</div>
               <div class="notes-text" contenteditable="true" data-roster-field="notes" data-idx="${idx}">${escapeHtml(row.notes)}</div>
             </div>
           </div>

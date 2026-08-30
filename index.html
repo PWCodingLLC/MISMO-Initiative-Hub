@@ -450,7 +450,7 @@
     });
     const diagonalGroups = [belowDiagonal, onDiagonal, aboveDiagonal].filter(g => g.length);
 
-    const descendMs = 1500;
+    const descendMs = 975; // 35% faster than the original 1500ms cadence
     const ascendMs = 500; // quicker cadence for the ascending phase
 
     // Descending tones (one per row, high to low), then ascending tones
@@ -472,10 +472,11 @@
       }, holdMs);
     }
 
-    // Descending: one row at a time, 1.5s apart — slower, more gradual fade.
+    // Descending: one row at a time, ~1s apart (35% faster than the original
+    // 1.5s cadence, per feedback) — still a gradual fade, just a brisker one.
     rows.forEach((row, i) => {
       setTimeout(() => {
-        highlightGroup(row.tiles, descendNotes[i] || descendNotes[descendNotes.length - 1], 0.9, descendMs, 'intro-highlight-slow');
+        highlightGroup(row.tiles, descendNotes[i] || descendNotes[descendNotes.length - 1], 0.585, descendMs, 'intro-highlight-slow');
       }, i * descendMs);
     });
 

@@ -775,6 +775,34 @@
     align-items:center;
     margin-bottom:14px;
   }
+  .current-type-label{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:15px; color:var(--ink);}
+
+  /* Goals/Roadblocks/Tasks strip embedded in the roster, above the org list. Reads and
+     writes the same laneData used by the Adoption and Development Status section — see
+     ROSTER_TYPE_TO_LANE below for how a roster type maps to its lane key. Goals and
+     Roadblocks are read-only here (edit those in the Roadmap section); only task status
+     and adding new tasks are editable from this embedded view. */
+  .goals-strip{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:18px 20px; margin-bottom:24px;}
+  .goals-strip-title{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:16px; color:var(--ink); margin-bottom:14px;}
+  .context-row{display:flex; align-items:center; gap:24px; flex-wrap:wrap; padding-bottom:14px; margin-bottom:16px; border-bottom:1px solid var(--line);}
+  .context-item{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+  .context-item-label{font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-soft); flex:0 0 auto;}
+  .goals-pill-goal{display:inline-block; background:var(--brand-soft); color:var(--brand-text); font-size:12px; padding:6px 12px; border-radius:999px; margin:0 6px 6px 0;}
+  .goals-pill-empty{font-size:12px; font-style:italic; color:var(--ink-soft);}
+  .goals-task-table{width:100%; border-collapse:collapse;}
+  .goals-task-table th{text-align:left; font-size:9.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-soft); padding:0 10px 8px;}
+  .goals-task-table td{padding:11px 10px; border-top:1px solid var(--line); font-size:13px;}
+  .goals-add-task-row td{text-align:center; color:var(--brand-text); font-size:12.5px; font-weight:600; cursor:pointer; padding:11px;}
+  .goals-add-task-form{display:none; padding:10px; background:var(--paper); border-radius:8px; margin-top:8px; gap:8px; align-items:center; flex-wrap:wrap;}
+  .goals-add-task-form.open{display:flex;}
+  .goals-add-task-form input{font-family:inherit; font-size:12.5px; padding:6px 10px; border:1px solid var(--line); border-radius:6px; background:var(--card);}
+  .goals-add-task-form input[data-field="task"]{flex:1.5; min-width:160px;}
+  .goals-add-task-form input[data-field="owner"]{flex:1; min-width:120px;}
+  .goals-add-task-form select{font-family:inherit; font-size:12.5px; padding:6px 10px; border:1px solid var(--line); border-radius:6px; background:var(--card);}
+  .goals-add-task-form button{font-family:inherit; font-size:12px; font-weight:600; padding:6px 12px; border-radius:6px; border:none; cursor:pointer;}
+  .goals-add-task-save{background:var(--bar-bg); color:#fff;}
+  .goals-add-task-cancel{background:transparent; color:var(--ink-soft);}
+
   .search-input{
     margin-left:auto;
     font-family:inherit;
@@ -1301,11 +1329,15 @@
     <p class="section-subtext" style="margin:0 0 12px;">"Active participants" = attended at least 1/3 of the 21 workgroup meetings held in the past year (Aug 2025–Aug 2026), per the uploaded meeting tracker.</p>
     <div class="card" style="padding:18px;" id="roster">
       <div class="roster-controls">
+        <span class="current-type-label" id="currentTypeLabel"></span>
         <input class="search-input" id="rosterSearch" type="text" placeholder="Search org or participant…">
       </div>
       <div class="roster-layout" id="rosterLayout">
         <div class="roster-side-card" id="rosterSidebar"></div>
-        <div class="roster-list" id="rosterList"></div>
+        <div>
+          <div class="goals-strip" id="rosterGoalsStrip"></div>
+          <div class="roster-list" id="rosterList"></div>
+        </div>
       </div>
       <p class="section-note" id="rosterEmpty" style="display:none; padding:14px 0 0;">No rows match this filter.</p>
       <datalist id="stakeholderTypeOptions">
@@ -1920,6 +1952,71 @@
   // primary way to navigate the roster now (click a type to filter the list on the right),
   // replacing the old row of filter chips. Always computed from the FULL rosterData, not
   // the currently-filtered list, so every type's true total is always visible here.
+  // Maps a roster type (as used in rosterData) to its corresponding Roadmap lane key
+  // (as used in laneData) — these don't always match 1:1. Two "Lender" roster types
+  // (3rd Party LOS and Proprietary LOS) share one "lender" lane here, since the Roadmap
+  // treats lenders as one stakeholder group for goal-setting purposes even though the
+  // roster tracks them as two distinct org types.
+  const ROSTER_TYPE_TO_LANE = {
+    'Regulator': 'regulator',
+    'Lender (3rd Party LOS)': 'lender',
+    'Lender (Proprietary LOS)': 'lender',
+    'LOS Provider': 'los',
+    'Compliance Vendor': 'compliance',
+    'Third-Party Reviewer': 'reviewer'
+  };
+
+  // Renders the Goals/Roadblocks/Tasks strip for whichever type is currently selected in
+  // the roster sidebar. Goals and Roadblocks are read-only here (edited via the Roadmap
+  // section above); task status and adding new tasks are the only writable parts of this
+  // view, and both write directly to the same laneData the Roadmap section reads from —
+  // so an edit made here shows up immediately if you scroll up to the Roadmap section too.
+  function renderGoalsStrip(){
+    const label = document.getElementById('currentTypeLabel');
+    label.textContent = activeType;
+
+    const strip = document.getElementById('rosterGoalsStrip');
+    const laneKey = ROSTER_TYPE_TO_LANE[activeType] || 'general';
+    const lane = laneData[laneKey] || { goals: [], roadblocks: [], actions: [] };
+
+    const goalsHtml = lane.goals.length
+      ? lane.goals.map(g => `<span class="goals-pill-goal">${escapeHtml(g)}</span>`).join('')
+      : '<span class="goals-pill-empty">None noted</span>';
+    const roadblocksHtml = lane.roadblocks.length
+      ? lane.roadblocks.map(r => `<span class="goals-pill-goal">${escapeHtml(r)}</span>`).join('')
+      : '<span class="goals-pill-empty">None noted</span>';
+
+    const taskRows = lane.actions.map((action, idx) =>
+      `<tr><td>${escapeHtml(action.task)}</td><td>${escapeHtml(action.owner)}</td><td>${renderActionStatusSelect(laneKey, idx, action.status)}</td></tr>`
+    ).join('');
+
+    strip.innerHTML = `
+      <div class="goals-strip-title">${escapeHtml(activeType)}</div>
+      <div class="context-row">
+        <div class="context-item">
+          <span class="context-item-label">Goal${lane.goals.length === 1 ? '' : 's'}</span>
+          ${goalsHtml}
+        </div>
+        <div class="context-item">
+          <span class="context-item-label">Roadblocks</span>
+          ${roadblocksHtml}
+        </div>
+      </div>
+      <table class="goals-task-table">
+        <tr><th>Task</th><th>Owner</th><th>Status</th></tr>
+        ${taskRows}
+        <tr class="goals-add-task-row"><td colspan="3">+ Add task</td></tr>
+      </table>
+      <div class="goals-add-task-form" data-lane-key="${laneKey}">
+        <input type="text" data-field="task" placeholder="Task">
+        <input type="text" data-field="owner" placeholder="Owner">
+        <select data-field="status">${taskStatusOptionsHtml('not-started')}</select>
+        <button type="button" class="goals-add-task-save">Save</button>
+        <button type="button" class="goals-add-task-cancel">Cancel</button>
+      </div>
+    `;
+  }
+
   function renderTypeSidebar(){
     const sidebar = document.getElementById('rosterSidebar');
     const allTypes = [...new Set(rosterData.map(r => r.type))].sort((a, b) => a.localeCompare(b));
@@ -2044,6 +2141,7 @@
     const typeRow = e.target.closest('[data-type-select]');
     if (typeRow){
       activeType = typeRow.getAttribute('data-type-select');
+      renderGoalsStrip();
       renderRosterList();
       return;
     }
@@ -2106,7 +2204,7 @@
   // the planned-date field in the drawer too, since that's computed from the current status
   // on every render rather than toggled separately.
   document.getElementById('rosterLayout').addEventListener('change', async (e) => {
-    if (e.target.matches('select.status-select')){
+    if (e.target.matches('select.status-select.roster-status')){
       const idx = parseInt(e.target.getAttribute('data-idx'), 10);
       const newStatus = e.target.value;
       await ensureLoaded();
@@ -2123,6 +2221,52 @@
     }
   });
 
+  // Goals strip: task status changes write to the same laneData the Roadmap section
+  // uses. Scoped to #rosterGoalsStrip specifically (rather than added to the broader
+  // #rosterLayout handler above) to keep this cleanly separate from roster-org-status
+  // handling, even though events from here do bubble up through #rosterLayout too.
+  document.getElementById('rosterGoalsStrip').addEventListener('change', async (e) => {
+    if (!e.target.matches('select.status-select')) return;
+    const laneKey = e.target.getAttribute('data-lane');
+    const idx = parseInt(e.target.getAttribute('data-action-idx'), 10);
+    await ensureLoaded();
+    laneData[laneKey].actions[idx].status = e.target.value;
+    laneData[laneKey].actions[idx].label = actionStatusLabels[e.target.value];
+    saveLaneData();
+    renderLane();
+    renderGoalsStrip();
+  });
+
+  // Goals strip: add-task flow. Same shape as the Roadmap section's own add-task
+  // capability, writing to the same laneData array so both views stay in sync.
+  document.getElementById('rosterGoalsStrip').addEventListener('click', (e) => {
+    if (e.target.closest('.goals-add-task-row')){
+      document.querySelector('.goals-add-task-form').classList.add('open');
+      return;
+    }
+    if (e.target.matches('.goals-add-task-cancel')){
+      const form = document.querySelector('.goals-add-task-form');
+      form.classList.remove('open');
+      form.querySelector('[data-field="task"]').value = '';
+      form.querySelector('[data-field="owner"]').value = '';
+      return;
+    }
+    if (e.target.matches('.goals-add-task-save')){
+      const form = document.querySelector('.goals-add-task-form');
+      const laneKey = form.getAttribute('data-lane-key');
+      const taskVal = form.querySelector('[data-field="task"]').value.trim();
+      const ownerVal = form.querySelector('[data-field="owner"]').value.trim();
+      const statusVal = form.querySelector('[data-field="status"]').value;
+      if (!taskVal) return;
+      laneData[laneKey].actions.push({
+        task: taskVal, owner: ownerVal, status: statusVal, label: actionStatusLabels[statusVal]
+      });
+      saveLaneData();
+      renderLane();
+      renderGoalsStrip();
+    }
+  });
+
   // Pure viewing never touches window.storage — only the first actual edit does.
   // This avoids the account-required prompt firing for people who are just looking.
   async function ensureLoaded(){
@@ -2130,6 +2274,7 @@
     const { rosterFound, laneFound } = await loadSharedData();
     hasLoadedFromStorage = true;
     renderLane();
+    renderGoalsStrip();
     renderRosterList();
     updateAdoptionNote();
     // If this is the very first edit ever made (nothing in shared storage yet), seed it
@@ -2140,6 +2285,7 @@
 
   renderChips();
   renderLane();
+  renderGoalsStrip();
   renderRosterList();
   updateAdoptionNote();
 
@@ -2383,6 +2529,7 @@
     laneData = snapshot.laneData || laneData;
     renderChips();
     renderLane();
+    renderGoalsStrip();
     renderRosterList();
     updateAdoptionNote();
     applyGenericFieldStates(snapshot.generic);

@@ -599,6 +599,35 @@
     color:var(--ink);
   }
 
+  .add-company-wrap{position:relative;}
+  .add-company-btn{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:33px; height:33px; border-radius:8px;
+    background:var(--brand-soft); color:var(--brand-text); border:none; cursor:pointer;
+    font-size:18px; font-weight:600; line-height:1; padding:0;
+  }
+  .add-company-btn:hover{background:var(--brand); color:#fff;}
+  .add-company-popover{
+    position:absolute; top:calc(100% + 8px); right:0; z-index:20; width:260px;
+    background:var(--card); border:1px solid var(--line); border-radius:10px;
+    padding:14px; box-shadow:var(--shadow);
+  }
+  .add-company-field-label{display:block; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-soft); margin:0 0 5px;}
+  .add-company-name-input, .add-company-type-select{
+    font-family:inherit; font-size:12.5px; color:var(--ink); background:var(--paper);
+    border:1px solid var(--line); border-radius:6px; padding:7px 9px; width:100%; margin-bottom:11px;
+  }
+  .add-company-error{font-size:11.5px; color:var(--status-red-text); margin:-4px 0 10px;}
+  .add-company-actions{display:flex; gap:8px; justify-content:flex-end;}
+  .add-company-cancel-btn{
+    font-family:inherit; font-size:12px; font-weight:600; color:var(--ink-soft);
+    background:none; border:1px solid var(--line); border-radius:6px; padding:6px 12px; cursor:pointer;
+  }
+  .add-company-confirm-btn{
+    font-family:inherit; font-size:12px; font-weight:600; color:#fff;
+    background:var(--brand); border:none; border-radius:6px; padding:6px 12px; cursor:pointer;
+  }
+
   /* ---------- ROSTER: TYPE SIDEBAR + EXPANDABLE LIST ---------- */
   .roster-layout{display:grid; grid-template-columns:250px 1fr; gap:14px;}
   @media (max-width:760px){ .roster-layout{grid-template-columns:1fr;} }
@@ -1033,6 +1062,27 @@
       <div class="roster-controls">
         <span class="current-type-label" id="currentTypeLabel"></span>
         <input class="search-input" id="rosterSearch" type="text" placeholder="Search org or participant…">
+        <div class="add-company-wrap">
+          <button type="button" class="add-company-btn" id="addCompanyBtn" aria-label="Add company" title="Add company">+</button>
+          <div class="add-company-popover" id="addCompanyPopover" style="display:none;">
+            <label class="add-company-field-label">Company name</label>
+            <input type="text" class="add-company-name-input" id="addCompanyNameInput" placeholder="e.g. Black Knight">
+            <label class="add-company-field-label">Stakeholder type</label>
+            <select class="add-company-type-select" id="addCompanyTypeSelect">
+              <option value="Regulator">Regulator</option>
+              <option value="Lender (3rd Party LOS)">Lender (3rd Party LOS)</option>
+              <option value="Lender (Proprietary LOS)">Lender (Proprietary LOS)</option>
+              <option value="LOS Provider">LOS Provider</option>
+              <option value="Compliance Vendor">Compliance Vendor</option>
+              <option value="Third-Party Reviewer">Third-Party Reviewer</option>
+            </select>
+            <div class="add-company-error" id="addCompanyError" style="display:none;"></div>
+            <div class="add-company-actions">
+              <button type="button" class="add-company-cancel-btn" id="addCompanyCancelBtn">Cancel</button>
+              <button type="button" class="add-company-confirm-btn" id="addCompanyConfirmBtn">Add</button>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="roster-layout" id="rosterLayout">
         <div class="roster-side-card" id="rosterSidebar"></div>
@@ -1720,6 +1770,71 @@
   let activeType = 'Compliance Vendor';
 
   searchInput.addEventListener('input', renderRosterList);
+
+  // Add Company: deliberately NOT gated by isLocked - unlike every other editable
+  // control on this dashboard, adding a new row to the roster should stay available
+  // even when the dashboard is locked, since it's an additive action rather than an
+  // edit to existing data. None of these elements' classes match anything in the
+  // body.locked CSS rules or applyLockState()'s selector list, so nothing needs to
+  // be special-cased there - this works by simply not being included.
+  const addCompanyBtn = document.getElementById('addCompanyBtn');
+  const addCompanyPopover = document.getElementById('addCompanyPopover');
+  const addCompanyNameInput = document.getElementById('addCompanyNameInput');
+  const addCompanyTypeSelect = document.getElementById('addCompanyTypeSelect');
+  const addCompanyError = document.getElementById('addCompanyError');
+  const addCompanyCancelBtn = document.getElementById('addCompanyCancelBtn');
+  const addCompanyConfirmBtn = document.getElementById('addCompanyConfirmBtn');
+
+  function closeAddCompanyPopover(){
+    addCompanyPopover.style.display = 'none';
+    addCompanyNameInput.value = '';
+    addCompanyError.style.display = 'none';
+  }
+
+  addCompanyBtn.addEventListener('click', () => {
+    const isOpen = addCompanyPopover.style.display === 'block';
+    if (isOpen){
+      closeAddCompanyPopover();
+    } else {
+      addCompanyTypeSelect.value = activeType;
+      addCompanyError.style.display = 'none';
+      addCompanyPopover.style.display = 'block';
+      addCompanyNameInput.focus();
+    }
+  });
+
+  addCompanyCancelBtn.addEventListener('click', closeAddCompanyPopover);
+
+  addCompanyConfirmBtn.addEventListener('click', () => {
+    const name = addCompanyNameInput.value.trim();
+    if (!name){
+      addCompanyError.textContent = 'Enter a company name';
+      addCompanyError.style.display = 'block';
+      addCompanyNameInput.focus();
+      return;
+    }
+    const chosenType = addCompanyTypeSelect.value;
+    rosterData.push({
+      type: chosenType, org: name, status: 'not-planned',
+      primaryContact: '', title: '', email: '', participants: '', notes: '', roadblocks: '', targetDate: ''
+    });
+    activeType = chosenType;
+    currentLane = ROSTER_TYPE_TO_LANE[activeType] || 'general';
+    editingTaskIdx = null;
+    hasUnsavedChanges = true;
+    saveSnapshotBtn.classList.add('has-changes');
+    closeAddCompanyPopover();
+    renderTypeSidebar();
+    renderGoalsStrip();
+    renderLane();
+    renderRosterList();
+  });
+
+  document.addEventListener('click', (e) => {
+    if (addCompanyPopover.style.display === 'block' && !e.target.closest('.add-company-wrap')){
+      closeAddCompanyPopover();
+    }
+  });
 
   // Combined click handling for the roster area: sidebar type navigation, row
   // expand/collapse, and primary-contact edit/save/cancel all live here since they're

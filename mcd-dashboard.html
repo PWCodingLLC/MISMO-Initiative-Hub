@@ -510,7 +510,7 @@
     border-color:var(--bar-bg);
     color:#fff;
   }
-  .lane-chip-flag{
+  .roadblock-flag{
     font-size:9.5px;
     background:var(--signal-soft);
     color:var(--signal-text);
@@ -519,7 +519,6 @@
     font-family:'IBM Plex Mono',monospace;
     font-weight:600;
   }
-  .lane-chip-btn[aria-selected="true"] .lane-chip-flag{background:rgba(255,255,255,.2); color:#fff;}
 
   .command-layout{display:grid; grid-template-columns:260px 1fr; gap:14px;}
   @media (max-width:760px){ .command-layout{grid-template-columns:1fr;} }
@@ -829,7 +828,8 @@
   .list-row-summary:hover{background:var(--paper);}
   .expand-caret{color:var(--ink-soft); flex:0 0 auto; transition:transform .15s ease;}
   .list-row.expanded .expand-caret{transform:rotate(90deg);}
-  .list-org-name{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13.5px; flex:1;}
+  .list-org-name-wrap{display:flex; align-items:center; gap:7px; flex:1; min-width:0;}
+  .list-org-name{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13.5px;}
 
   .list-drawer{display:none; padding:4px 16px 18px 46px; background:var(--paper);}
   .list-row.expanded .list-drawer{display:block;}
@@ -1005,7 +1005,7 @@
   }
   .meeting-banner-label{
     background:var(--header-bg); color:var(--header-text); font-family:'Space Grotesk',sans-serif;
-    font-weight:600; font-size:19px; text-transform:uppercase; padding:16px 18px;
+    font-weight:600; font-size:19px; padding:16px 18px;
     display:flex; align-items:center; justify-content:center; letter-spacing:.02em; min-width:0;
   }
   .meeting-tile-row{display:contents;}
@@ -1960,7 +1960,7 @@
               <div class="roadblock-text ${row.roadblocks ? '' : 'empty'}" contenteditable="true" data-roster-field="roadblocks" data-idx="${idx}">${roadblocksDisplay}</div>
             </div>
             <div class="mini-card">
-              <div class="mini-card-label">Activity</div>
+              <div class="mini-card-label">Active Workgroup Participants</div>
               <div title="Attendance data — not editable">${participantChips}</div>
               <div class="notes-text" contenteditable="true" data-roster-field="notes" data-idx="${idx}">${escapeHtml(row.notes)}</div>
             </div>
@@ -1970,7 +1970,10 @@
       html += `<div class="list-row ${isExpanded ? 'expanded' : ''}"${idAttr} data-row-idx="${idx}">
         <div class="list-row-summary" data-toggle-idx="${idx}">
           <svg class="expand-caret" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-          <span class="list-org-name" contenteditable="true" data-roster-field="org" data-idx="${idx}">${escapeHtml(row.org)}</span>
+          <div class="list-org-name-wrap">
+            <span class="list-org-name" contenteditable="true" data-roster-field="org" data-idx="${idx}">${escapeHtml(row.org)}</span>
+            ${row.roadblocks ? '<span class="roadblock-flag" title="Roadblock noted">⚑</span>' : ''}
+          </div>
           ${renderStatusSelect(idx, row.status)}
         </div>
         ${drawerHtml}

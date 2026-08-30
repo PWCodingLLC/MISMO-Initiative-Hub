@@ -1088,6 +1088,85 @@
 </footer>
 
 <script>
+  // --- Lock/unlock: defined first so isLocked exists before any initial render call runs.
+  // applyLockState() genuinely toggles the contenteditable attribute and .disabled property
+  // (not just CSS) and is called from renderRosterList()/renderLane() too, so re-renders
+  // triggered by search, filtering, or status changes can't silently unlock fresh content. ---
+
+  // Light mode is the default for this dashboard — only switches to dark if the
+  // user has explicitly chosen it before (saved in localStorage). Uses a
+  // dashboard-specific storage key so each dashboard remembers its own choice
+  // independently.
+  const themeToggleBtn = document.getElementById('themeToggleBtn');
+  function applyDashboardTheme(theme){
+    document.documentElement.setAttribute('data-theme', theme);
+    if (themeToggleBtn){
+      const label = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+      themeToggleBtn.setAttribute('aria-label', label);
+      themeToggleBtn.title = label;
+    }
+  }
+  let savedDashboardTheme = 'light';
+  try {
+    savedDashboardTheme = localStorage.getItem('ccs-dashboard-theme') || 'light';
+  } catch (e) {
+    // Local storage unavailable — just default to light.
+  }
+  applyDashboardTheme(savedDashboardTheme);
+  if (themeToggleBtn){
+    themeToggleBtn.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+      const next = current === 'dark' ? 'light' : 'dark';
+      applyDashboardTheme(next);
+      try {
+        localStorage.setItem('ccs-dashboard-theme', next);
+      } catch (e) {
+        // Local storage unavailable — the toggle still works, it just won't persist.
+      }
+    });
+  }
+
+  // Lock toggle: prevents accidental edits without touching any underlying data
+  const lockToggleBtn = document.getElementById('lockToggleBtn');
+  let isLocked = true;
+
+  const LOCK_ICON_LOCKED = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>';
+  const LOCK_ICON_UNLOCKED = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 7.75-1.5"></path></svg>';
+
+  function applyLockState(){
+    document.querySelectorAll('[contenteditable]').forEach(el => {
+      el.setAttribute('contenteditable', isLocked ? 'false' : 'true');
+    });
+    document.querySelectorAll(
+      'select.status-select, select.crit-select, select.role-select, select.type-select, select.deliv-status-select, input.type-input, input.deliv-date-input, .contact-input'
+    ).forEach(el => {
+      el.disabled = isLocked;
+    });
+    document.body.classList.toggle('locked', isLocked);
+  }
+
+  function updateLockUI(){
+    lockToggleBtn.classList.toggle('is-locked', isLocked);
+    lockToggleBtn.setAttribute('aria-pressed', isLocked ? 'true' : 'false');
+    lockToggleBtn.querySelector('.lock-icon').innerHTML = isLocked ? LOCK_ICON_LOCKED : LOCK_ICON_UNLOCKED;
+    lockToggleBtn.querySelector('.lock-label').textContent = isLocked ? 'Locked' : 'Unlocked';
+    lockToggleBtn.title = isLocked ? 'Unlock to allow edits' : 'Lock this dashboard to prevent edits';
+    applyLockState();
+  }
+
+  lockToggleBtn.addEventListener('click', () => {
+    isLocked = !isLocked;
+    if (isLocked){
+      editingContactIdx = null;
+      editingTaskIdx = null;
+      renderRosterList();
+      renderLane();
+    }
+    updateLockUI();
+  });
+
+  updateLockUI();
+
   // Roadmap: lane data + task table renderer, embedded in the roster
   let laneData = {
     general: {
@@ -1263,79 +1342,7 @@
     applyLockState();
   }
 
-  // Light mode is the default for this dashboard — only switches to dark if the
-  // user has explicitly chosen it before (saved in localStorage). Uses a
-  // dashboard-specific storage key so each dashboard remembers its own choice
-  // independently.
-  const themeToggleBtn = document.getElementById('themeToggleBtn');
-  function applyDashboardTheme(theme){
-    document.documentElement.setAttribute('data-theme', theme);
-    if (themeToggleBtn){
-      const label = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
-      themeToggleBtn.setAttribute('aria-label', label);
-      themeToggleBtn.title = label;
-    }
-  }
-  let savedDashboardTheme = 'light';
-  try {
-    savedDashboardTheme = localStorage.getItem('ccs-dashboard-theme') || 'light';
-  } catch (e) {
-    // Local storage unavailable — just default to light.
-  }
-  applyDashboardTheme(savedDashboardTheme);
-  if (themeToggleBtn){
-    themeToggleBtn.addEventListener('click', () => {
-      const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
-      const next = current === 'dark' ? 'light' : 'dark';
-      applyDashboardTheme(next);
-      try {
-        localStorage.setItem('ccs-dashboard-theme', next);
-      } catch (e) {
-        // Local storage unavailable — the toggle still works, it just won't persist.
-      }
-    });
-  }
 
-  // Lock toggle: prevents accidental edits without touching any underlying data
-  const lockToggleBtn = document.getElementById('lockToggleBtn');
-  let isLocked = true;
-
-  const LOCK_ICON_LOCKED = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>';
-  const LOCK_ICON_UNLOCKED = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 7.75-1.5"></path></svg>';
-
-  function applyLockState(){
-    document.querySelectorAll('[contenteditable]').forEach(el => {
-      el.setAttribute('contenteditable', isLocked ? 'false' : 'true');
-    });
-    document.querySelectorAll(
-      'select.status-select, select.crit-select, select.role-select, select.type-select, select.deliv-status-select, input.type-input, input.deliv-date-input, .contact-input'
-    ).forEach(el => {
-      el.disabled = isLocked;
-    });
-    document.body.classList.toggle('locked', isLocked);
-  }
-
-  function updateLockUI(){
-    lockToggleBtn.classList.toggle('is-locked', isLocked);
-    lockToggleBtn.setAttribute('aria-pressed', isLocked ? 'true' : 'false');
-    lockToggleBtn.querySelector('.lock-icon').innerHTML = isLocked ? LOCK_ICON_LOCKED : LOCK_ICON_UNLOCKED;
-    lockToggleBtn.querySelector('.lock-label').textContent = isLocked ? 'Locked' : 'Unlocked';
-    lockToggleBtn.title = isLocked ? 'Unlock to allow edits' : 'Lock this dashboard to prevent edits';
-    applyLockState();
-  }
-
-  lockToggleBtn.addEventListener('click', () => {
-    isLocked = !isLocked;
-    if (isLocked){
-      editingContactIdx = null;
-      editingTaskIdx = null;
-      renderRosterList();
-      renderLane();
-    }
-    updateLockUI();
-  });
-
-  updateLockUI();
 
 
   renderLane();

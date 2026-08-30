@@ -147,6 +147,14 @@
     margin:0 auto;
     padding:0 24px 80px;
   }
+  /* The floating-actions stack is fixed at right:20px with its own width (roughly
+     170-190px depending on button label lengths) - below the viewport width where
+     .wrap's centered content would otherwise reach that space, reserve a gutter
+     so page content never sits underneath the fixed stack. */
+  @media (max-width:1560px){
+    .wrap{padding-right:220px;}
+    .masthead-inner{padding-right:220px;}
+  }
 
   /* ---------- MASTHEAD ---------- */
   .masthead{
@@ -655,6 +663,7 @@
 
   .contact-block{display:flex; flex-direction:column; gap:2px; min-width:150px;}
   .contact-name{font-weight:600;}
+  .contact-name.placeholder{font-weight:500; font-style:italic; color:var(--slate-text);}
 
   /* ---------- GENERIC EDITABLE FIELDS ---------- */
   [contenteditable="true"]{
@@ -819,29 +828,41 @@
 
   .roster-list{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:4px;}
   .list-row{border-bottom:1px solid var(--line);}
+  .list-row.has-roadblock{background:var(--status-orange-soft); border:1.5px solid var(--status-orange);}
+  .list-row.has-roadblock .list-drawer{background:var(--status-orange-soft);}
   .list-row:last-child{border-bottom:none;}
   .list-row-summary{display:flex; align-items:center; gap:14px; padding:13px 16px; cursor:pointer;}
   .list-row-summary:hover{background:var(--paper);}
   .expand-caret{color:var(--ink-soft); flex:0 0 auto; transition:transform .15s ease;}
   .list-row.expanded .expand-caret{transform:rotate(90deg);}
-  .list-org-name{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13.5px; flex:1;}
+  .list-org-name-wrap{display:flex; align-items:center; gap:7px; flex:1; min-width:0;}
+  .list-org-name{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13.5px;}
+  .roadblock-flag{
+    font-size:9.5px;
+    background:var(--signal-soft);
+    color:var(--signal-text);
+    padding:2px 6px;
+    border-radius:999px;
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:600;
+  }
 
   .list-drawer{display:none; padding:4px 16px 18px 46px; background:var(--paper);}
   .list-row.expanded .list-drawer{display:block;}
   .drawer-type-tag{
     font-family:inherit; font-size:10.5px; font-weight:600; text-transform:uppercase; letter-spacing:.04em;
     color:var(--ink-soft); background:var(--card); border:1px solid var(--line); border-radius:6px;
-    padding:4px 9px; margin-bottom:10px; width:auto; max-width:220px;
+    padding:4px 9px; margin-bottom:10px; width:100%; max-width:none;
   }
   .card-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px;}
   @media (max-width:760px){ .card-grid{grid-template-columns:1fr;} }
   .mini-card{background:var(--card); border:1px solid var(--line); border-radius:9px; padding:13px 14px;}
-  .mini-card.flagged{background:var(--status-red-soft); border-color:var(--status-red-soft);}
+  .mini-card.flagged{background:var(--status-orange-soft); border-color:var(--status-orange-soft);}
   .mini-card-label{font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-soft); margin-bottom:9px;}
-  .mini-card.flagged .mini-card-label{color:var(--status-red-text);}
+  .mini-card.flagged .mini-card-label{color:var(--status-orange-text);}
   .roadblock-text{font-size:12.5px;}
   .roadblock-text.empty{font-style:italic; color:var(--ink-soft);}
-  .mini-card.flagged .roadblock-text{color:var(--status-red-text); font-weight:500;}
+  .mini-card.flagged .roadblock-text{color:var(--status-orange-text); font-weight:500;}
   .date-label{font-size:11px; color:var(--ink-soft); margin-top:10px; padding-top:10px; border-top:1px solid var(--line);}
   .date-input-mini{font-family:'IBM Plex Mono',monospace; font-size:12px; padding:5px 8px; border:1px solid var(--line); border-radius:5px; background:var(--card); color:var(--ink); margin-top:5px; width:100%;}
   .notes-text{font-size:12px; color:var(--ink-soft); font-style:italic; margin-top:9px; padding-top:9px; border-top:1px solid var(--line);}
@@ -1000,7 +1021,7 @@
   }
   .meeting-banner-label{
     background:var(--header-bg); color:var(--header-text); font-family:'Space Grotesk',sans-serif;
-    font-weight:600; font-size:19px; text-transform:uppercase; padding:16px 18px;
+    font-weight:600; font-size:19px; padding:16px 18px;
     display:flex; align-items:center; justify-content:center; letter-spacing:.02em; min-width:0;
   }
   .meeting-tile-row{display:contents;}
@@ -1086,6 +1107,7 @@
   .goal-strip-group{flex:1; min-width:0;}
   .strip-label{display:block; font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-soft); font-weight:600; margin-bottom:8px;}
   .pill-row{display:flex; flex-wrap:wrap; gap:6px;}
+  .pill-wrap{display:inline-flex; align-items:center;}
   .pill-goal{background:var(--brand-soft); color:var(--brand-text); font-size:12px; font-weight:500; padding:5px 11px; border-radius:999px;}
   .pill-block{background:var(--signal-soft); color:var(--signal-text); font-size:12px; font-weight:500; padding:5px 11px; border-radius:999px;}
 
@@ -1317,12 +1339,9 @@
       </div>
       <p class="section-note" id="rosterEmpty" style="display:none; padding:14px 0 0;">No rows match this filter.</p>
       <datalist id="stakeholderTypeOptions">
-        <option value="Aggregator/Investor">
         <option value="Lender">
-        <option value="LOS Providers">
         <option value="Regulator">
         <option value="Servicer">
-        <option value="Servicing System">
         <option value="Servicing Technology Provider">
       </datalist>
     </div>
@@ -1532,7 +1551,7 @@
   function renderPillGroup(label, items, kind){
     const pillClass = kind === 'goal' ? 'pill-goal' : 'pill-block';
     let inner = items.map((text, i) =>
-      `<span class="${pillClass}" contenteditable="true" data-pill-kind="${kind}" data-pill-idx="${i}">${escapeHtml(text)}</span><button type="button" class="pill-remove" data-pill-remove="${kind}:${i}" title="Remove">×</button>`
+      `<span class="pill-wrap"><span class="${pillClass}" contenteditable="true" data-pill-kind="${kind}" data-pill-idx="${i}">${escapeHtml(text)}</span><button type="button" class="pill-remove" data-pill-remove="${kind}:${i}" title="Remove">×</button></span>`
     ).join('');
     inner += `<button type="button" class="pill-add-btn" data-pill-add="${kind}">+ Add</button>`;
     return `<div class="goal-strip-group"><span class="strip-label">${label}</span><div class="pill-row">${inner}</div></div>`;
@@ -1945,17 +1964,20 @@
               <div class="roadblock-text ${row.roadblocks ? '' : 'empty'}" contenteditable="true" data-roster-field="roadblocks" data-idx="${idx}">${roadblocksDisplay}</div>
             </div>
             <div class="mini-card">
-              <div class="mini-card-label">Activity</div>
+              <div class="mini-card-label">Active Workgroup Participants</div>
               <div title="Attendance data — not editable">${participantChips}</div>
               <div class="notes-text" contenteditable="true" data-roster-field="notes" data-idx="${idx}">${escapeHtml(row.notes)}</div>
             </div>
           </div>
         </div>`;
       }
-      html += `<div class="list-row ${isExpanded ? 'expanded' : ''}"${idAttr} data-row-idx="${idx}">
+      html += `<div class="list-row ${isExpanded ? 'expanded' : ''} ${row.roadblocks ? 'has-roadblock' : ''}"${idAttr} data-row-idx="${idx}">
         <div class="list-row-summary" data-toggle-idx="${idx}">
           <svg class="expand-caret" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-          <span class="list-org-name" contenteditable="true" data-roster-field="org" data-idx="${idx}">${escapeHtml(row.org)}</span>
+          <div class="list-org-name-wrap">
+            <span class="list-org-name" contenteditable="true" data-roster-field="org" data-idx="${idx}">${escapeHtml(row.org)}</span>
+            ${row.roadblocks ? '<span class="roadblock-flag" title="Roadblock noted">⚑</span>' : ''}
+          </div>
           ${renderStatusSelect(idx, row.status)}
         </div>
         ${drawerHtml}
@@ -2227,7 +2249,7 @@
   // not a bug in this page) — so an HTML snapshot alone silently loses those edits.
   // Restoring re-runs this page's own render functions against the saved data instead
   // of replaying the whole document, which also avoids the disruption of a full reload.
-  const GENERIC_FIELD_EXCLUDE = '#rosterLayout, #commandLayout';
+  const GENERIC_FIELD_EXCLUDE = '#rosterLayout';
 
   function captureGenericFieldStates(){
     const isExcluded = (el) => el.closest(GENERIC_FIELD_EXCLUDE) !== null;
@@ -2240,8 +2262,10 @@
     return { editable, selects, dates };
   }
 
+  let isRestoring = false;
   function applyGenericFieldStates(state){
     if (!state) return;
+    isRestoring = true;
     const isExcluded = (el) => el.closest(GENERIC_FIELD_EXCLUDE) !== null;
     const editableEls = [...document.querySelectorAll('[contenteditable="true"], [contenteditable="false"]')]
       .filter(el => !isExcluded(el) && el.hasAttribute('data-roster-field') === false)
@@ -2258,6 +2282,7 @@
 
     const dateEls = [...document.querySelectorAll('input[type="date"]')].filter(el => !isExcluded(el));
     dateEls.forEach((el, i) => { if (state.dates && state.dates[i] !== undefined) el.value = state.dates[i]; });
+    isRestoring = false;
   }
 
   const saveSnapshotBtn = document.getElementById('saveSnapshotBtn');
@@ -2267,6 +2292,7 @@
   let hasUnsavedChanges = false;
   function markDirty(e){
     if (e.target && e.target.id === 'rosterSearch') return;
+    if (isRestoring) return;
     if (hasUnsavedChanges) return;
     hasUnsavedChanges = true;
     saveSnapshotBtn.classList.add('has-changes');
@@ -2275,6 +2301,11 @@
   document.addEventListener('change', markDirty, true);
 
   saveSnapshotBtn.addEventListener('click', () => {
+    // Org name, notes, roadblocks, type, and pills only reach the data model on
+    // blur. Clicking Save normally blurs whatever was focused as a side effect -
+    // except in macOS Safari, where buttons don't take focus on click, so an
+    // in-progress edit could otherwise be saved before it's synced. Force it.
+    if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
     const label = saveSnapshotBtn.querySelector('.save-label');
     const originalLabel = label.textContent;
     try {

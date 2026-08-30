@@ -96,10 +96,10 @@
   /* Slower, more gradual fade for the descending row phase specifically —
      the quicker ascending phase keeps the snappier .6s transition above,
      since its 0.5s cadence doesn't leave room for a slower fade. */
-  .domain-tile.intro-highlight-slow{border-color:var(--tile-color); background:var(--tile-soft); transition:border-color 1s ease, background 1s ease;}
-  .domain-tile.intro-highlight-slow .tile-name{color:#101B33; transition:color 1s ease;}
-  .domain-tile.intro-highlight-slow .tile-desc{color:#4B5670; transition:color 1s ease;}
-  .domain-tile.intro-highlight-slow .tile-icon-wrap{background:var(--tile-color); color:#fff; transition:background 1s ease, color 1s ease;}
+  .domain-tile.intro-highlight-slow{border-color:var(--tile-color); background:var(--tile-soft); transition:border-color .65s ease, background .65s ease;}
+  .domain-tile.intro-highlight-slow .tile-name{color:#101B33; transition:color .65s ease;}
+  .domain-tile.intro-highlight-slow .tile-desc{color:#4B5670; transition:color .65s ease;}
+  .domain-tile.intro-highlight-slow .tile-icon-wrap{background:var(--tile-color); color:#fff; transition:background .65s ease, color .65s ease;}
   .tile-top-row{display:flex; align-items:center; gap:12px;}
   .tile-icon-wrap{
     width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex:0 0 auto;
@@ -383,9 +383,10 @@
   renderTiles();
   renderPanel();
 
-  // Fun intro touch: briefly highlight each domain tile in turn on page load, purely
-  // visual — it never sets activeDomain or calls renderPanel, so it can't accidentally
-  // open a panel or leave a domain selected once it finishes.
+  // Fun intro touch: briefly highlight each domain tile in turn when triggered (see the
+  // replay button below - nothing plays automatically on page load), purely visual — it
+  // never sets activeDomain or calls renderPanel, so it can't accidentally open a panel
+  // or leave a domain selected once it finishes.
   // Simple synth for the intro tour's tones — pure sine waves, soft envelope,
   // no external audio files needed.
   let audioCtx = null;
@@ -511,8 +512,16 @@
   }
 
   const replayBtn = document.getElementById('replayTourBtn');
+  // Guards against a rapid double-click stacking two tours' setTimeouts and class
+  // toggles on top of each other. 10s is a generous upper bound - even the longest
+  // case (9 rows on a narrow mobile layout, each 975ms apart, plus the ascending
+  // phase after) finishes well within it.
+  let tourRunning = false;
   if (replayBtn){
     replayBtn.addEventListener('click', async () => {
+      if (tourRunning) return;
+      tourRunning = true;
+      setTimeout(() => { tourRunning = false; }, 10000);
       const ctx = getAudioContext();
       if (ctx && ctx.state === 'suspended'){
         try {

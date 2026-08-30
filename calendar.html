@@ -232,7 +232,7 @@
     // A range ending at 12pm (noon) that borrows "pm" for an unmarked start almost always
     // means the start is actually AM (e.g. "11-12pm" = 11am-12pm), not 11pm-12pm — unless
     // the start is itself 12 (e.g. "12-1pm" = noon to 1pm, which is correctly pm).
-    const endMatch = endPart.match(/(\d+)\s*pm/i);
+    const endMatch = endPart.match(/^(\d+)(?::\d+)?\s*pm/i);
     if (period === 'pm' && endMatch && parseInt(endMatch[1], 10) === 12 && hour !== 12){
       period = 'am';
     }

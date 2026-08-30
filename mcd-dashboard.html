@@ -1969,14 +1969,42 @@
 
   const GENERIC_FIELD_EXCLUDE = '#rosterLayout';
 
+  // Computes a key for a generic-captured element that's stable across page structure
+  // changes elsewhere on the page, without requiring a data-field-id on every single
+  // element (there are 50+ of them). Scoped to the nearest ancestor section/div with an
+  // id, then indexed only among same-tag siblings within that same scope. Deliberately
+  // does NOT include className: some elements (e.g. deliv-status-select) get a dynamic,
+  // value-dependent class added/removed as their own value changes, which would make the
+  // key computed at save time differ from the key computed at restore time on a fresh
+  // page load. A future deploy that adds/removes/reorders a field in one section no
+  // longer misaligns saved values for fields in every other section - only a change to
+  // the count of same-tag elements within the SAME section could still shift things,
+  // which is a much narrower and less likely case than the previous global indexing.
+  function computeStableFieldKey(el, sameKindEls){
+    const scopeEl = el.closest('section[id], div[id]') || document.body;
+    const scopeId = scopeEl.id || 'body';
+    const tag = el.tagName.toLowerCase();
+    const siblingsInScope = sameKindEls.filter(e => scopeEl.contains(e));
+    const idx = siblingsInScope.indexOf(el);
+    return `${scopeId}::${tag}::${idx}`;
+  }
+
   function captureGenericFieldStates(){
     const isExcluded = (el) => el.closest(GENERIC_FIELD_EXCLUDE) !== null;
-    const editable = [...document.querySelectorAll('[contenteditable="true"], [contenteditable="false"]')]
+    const editableEls = [...document.querySelectorAll('[contenteditable="true"], [contenteditable="false"]')]
       .filter(el => !isExcluded(el) && el.hasAttribute('data-roster-field') === false)
-      .filter(el => !el.parentElement || el.parentElement.closest('[contenteditable]') === null) // only outermost editable regions, skip nested spans
-      .map(el => el.innerHTML);
-    const selects = [...document.querySelectorAll('select')].filter(el => !isExcluded(el)).map(el => el.value);
-    const dates = [...document.querySelectorAll('input[type="date"]')].filter(el => !isExcluded(el)).map(el => el.value);
+      .filter(el => !el.parentElement || el.parentElement.closest('[contenteditable]') === null); // only outermost editable regions, skip nested spans
+    const editable = {};
+    editableEls.forEach(el => { editable[computeStableFieldKey(el, editableEls)] = el.innerHTML; });
+
+    const selectEls = [...document.querySelectorAll('select')].filter(el => !isExcluded(el));
+    const selects = {};
+    selectEls.forEach(el => { selects[computeStableFieldKey(el, selectEls)] = el.value; });
+
+    const dateEls = [...document.querySelectorAll('input[type="date"]')].filter(el => !isExcluded(el));
+    const dates = {};
+    dateEls.forEach(el => { dates[computeStableFieldKey(el, dateEls)] = el.value; });
+
     return { editable, selects, dates };
   }
 
@@ -1988,18 +2016,25 @@
     const editableEls = [...document.querySelectorAll('[contenteditable="true"], [contenteditable="false"]')]
       .filter(el => !isExcluded(el) && el.hasAttribute('data-roster-field') === false)
       .filter(el => !el.parentElement || el.parentElement.closest('[contenteditable]') === null);
-    editableEls.forEach((el, i) => { if (state.editable && state.editable[i] !== undefined) el.innerHTML = state.editable[i]; });
+    editableEls.forEach(el => {
+      const key = computeStableFieldKey(el, editableEls);
+      if (state.editable && state.editable[key] !== undefined) el.innerHTML = state.editable[key];
+    });
 
     const selectEls = [...document.querySelectorAll('select')].filter(el => !isExcluded(el));
-    selectEls.forEach((el, i) => {
-      if (state.selects && state.selects[i] !== undefined){
-        el.value = state.selects[i];
+    selectEls.forEach(el => {
+      const key = computeStableFieldKey(el, selectEls);
+      if (state.selects && state.selects[key] !== undefined){
+        el.value = state.selects[key];
         el.dispatchEvent(new Event('change', { bubbles: true }));
       }
     });
 
     const dateEls = [...document.querySelectorAll('input[type="date"]')].filter(el => !isExcluded(el));
-    dateEls.forEach((el, i) => { if (state.dates && state.dates[i] !== undefined) el.value = state.dates[i]; });
+    dateEls.forEach(el => {
+      const key = computeStableFieldKey(el, dateEls);
+      if (state.dates && state.dates[key] !== undefined) el.value = state.dates[key];
+    });
     isRestoring = false;
   }
 

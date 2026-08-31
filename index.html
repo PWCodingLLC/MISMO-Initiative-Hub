@@ -23,7 +23,7 @@
   :root{
     --ink:#101B33; --ink-soft:#4B5670; --paper:#F1F3F9; --card:#FFFFFF; --line:#E1E4EC;
     --brand:#2A4DFF; --brand-soft:#EAF0FF; --brand-text:#1E3ACC;
-    --teal:#0E9488; --gold:#D97706; --rose:#C2255C; --violet:#7C3AED; --fuchsia:#C026D3; --graphite:#475569; --emerald:#059669;
+    --teal:#0E9488; --gold:#D97706; --rose:#C2255C; --violet:#7C3AED; --fuchsia:#C026D3; --graphite:#475569; --emerald:#059669; --cyan:#0891B2;
     --indigo:#4F46E5; --crimson:#9F1239;
     --success-soft:#E7F7EE; --success-text:#157A44;
     --slate:#8B94A7; --slate-soft:#EEF0F4; --slate-text:#5B6478;
@@ -33,7 +33,7 @@
   html[data-theme="dark"]{
     --ink:#E8EAF0; --ink-soft:#A0A8C0; --paper:#0B0F1C; --card:#161C30; --line:#2A3150;
     --brand:#5B85FF; --brand-soft:#1A2745; --brand-text:#9AB8FF;
-    --teal:#14B8A6; --gold:#F0930D; --rose:#E0417A; --violet:#9660F5; --fuchsia:#D946E4; --graphite:#64748B; --emerald:#22C55E;
+    --teal:#14B8A6; --gold:#F0930D; --rose:#E0417A; --violet:#9660F5; --fuchsia:#D946E4; --graphite:#64748B; --emerald:#22C55E; --cyan:#22D3EE;
     --success-soft:#123024; --success-text:#4ADE80;
     --slate:#6B7488; --slate-soft:#202536; --slate-text:#A0A8C0;
     --header-bg:#F1F3F9; --header-text:#101B33;
@@ -335,6 +335,7 @@
     'Compliance': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4Z"/><path d="M9 12l2 2 4-4"/></svg>',
     'eMortgage': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>',
     'Servicing': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v9h14v-9"/></svg>',
+    'Title & Closing': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>',
     'Originations': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V6a2 2 0 0 1 2-2h8l6 6v9a2 2 0 0 1-2 2Z"/><path d="M14 4v5h5"/></svg>',
     'Valuation': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>',
     'Artificial Intelligence': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M12 8V4M9 4h6"/><circle cx="9" cy="14" r="1.3"/><circle cx="15" cy="14" r="1.3"/></svg>',
@@ -348,6 +349,7 @@
     'Compliance': {color:'var(--teal)', soft:'#E3F5F3', desc:'Standardized data for regulatory exams and compliance reporting.'},
     'eMortgage': {color:'var(--gold)', soft:'#FDF0DE', desc:'Standards for eNotes, eClosing, and digital mortgage agreements.'},
     'Servicing': {color:'var(--brand)', soft:'#EAF0FF', desc:'Data standards for the handoff from origination into loan servicing.'},
+    'Title & Closing': {color:'var(--cyan)', soft:'#E1F3F7', desc:'Standards for title data exchange, closing documents, and title pricing.'},
     'Originations': {color:'var(--rose)', soft:'#FCE7EF', desc:'Standards used during loan origination and underwriting.'},
     'Valuation': {color:'var(--violet)', soft:'#F1EBFD', desc:'Appraisal and automated valuation model (AVM) standards.'},
     'Artificial Intelligence': {color:'var(--fuchsia)', soft:'#FBE8FC', desc:'Governance frameworks for responsible AI use in mortgage lending.'},
@@ -356,7 +358,7 @@
     'Secondary': {color:'var(--indigo)', soft:'#EBEAFD', desc:'Standards for the secondary market where loans are sold, pooled, and securitized.'},
     'Credit Reporting': {color:'var(--crimson)', soft:'#FBE7EC', desc:'Standards for pulling, formatting, and exchanging consumer credit data.'}
   };
-  const domainOrder = ['Artificial Intelligence','Compliance','Credit Reporting','eMortgage','Governance','Mortgage Insurance','Originations','Secondary','Servicing','Valuation'];
+  const domainOrder = ['Artificial Intelligence','Compliance','Credit Reporting','eMortgage','Governance','Mortgage Insurance','Originations','Secondary','Servicing','Title & Closing','Valuation'];
 
   const tileGrid = document.getElementById('tileGrid');
   const panelArea = document.getElementById('panelArea');

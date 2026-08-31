@@ -77,6 +77,13 @@
 
   .wrap{max-width:1455px; margin:0 auto; padding:28px 24px 70px;}
 
+  .hub-tabs{display:inline-flex; background:var(--paper); border-radius:999px; padding:4px; gap:2px; margin-bottom:20px;}
+  .hub-tab{background:none; border:none; padding:9px 18px; font-family:'Inter',sans-serif; font-size:13px; font-weight:600; color:var(--ink-soft); cursor:pointer; border-radius:999px; white-space:nowrap;}
+  .hub-tab.active{background:var(--card); color:var(--ink); box-shadow:0 1px 3px rgba(16,27,51,.12);}
+  .hub-tab:hover:not(.active){color:var(--ink);}
+  .hub-tab-placeholder{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); padding:70px 24px; text-align:center; color:var(--ink-soft); font-size:13.5px;}
+  .hub-tab-placeholder strong{display:block; font-family:'Space Grotesk',sans-serif; font-size:17px; color:var(--ink); margin-bottom:8px; font-weight:700;}
+
   /* Tile size restored to match the original mockup's markup exactly */
   .tile-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px;}
   @media (max-width:1200px){.tile-grid{grid-template-columns:repeat(3,1fr);}}
@@ -229,8 +236,18 @@
 </div>
 
 <div class="wrap">
-  <div class="tile-grid" id="tileGrid"></div>
-  <div id="panelArea"></div>
+  <div class="hub-tabs" id="hubTabs">
+    <button type="button" class="hub-tab active" data-tab="Initiatives">Initiatives</button>
+    <button type="button" class="hub-tab" data-tab="Reference Model">Reference Model</button>
+    <button type="button" class="hub-tab" data-tab="Tools">Tools</button>
+    <button type="button" class="hub-tab" data-tab="MISMO Engineering Guidelines">MISMO Engineering Guidelines</button>
+  </div>
+
+  <div id="initiativesTabContent">
+    <div class="tile-grid" id="tileGrid"></div>
+    <div id="panelArea"></div>
+  </div>
+  <div id="placeholderTabContent" style="display:none;"></div>
 </div>
 
 <script>
@@ -461,6 +478,28 @@
 
   renderTiles();
   renderPanel();
+
+  // --- Hub top-level tabs (Initiatives / Reference Model / Tools / MISMO Engineering Guidelines) ---
+  // Only "Initiatives" has real content right now; the other three show a plain placeholder.
+  const hubTabButtons = document.querySelectorAll('#hubTabs .hub-tab');
+  const initiativesTabContent = document.getElementById('initiativesTabContent');
+  const placeholderTabContent = document.getElementById('placeholderTabContent');
+
+  hubTabButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      hubTabButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const tabName = btn.dataset.tab;
+      if (tabName === 'Initiatives'){
+        initiativesTabContent.style.display = '';
+        placeholderTabContent.style.display = 'none';
+      } else {
+        initiativesTabContent.style.display = 'none';
+        placeholderTabContent.style.display = '';
+        placeholderTabContent.innerHTML = `<div class="hub-tab-placeholder"><strong>${tabName}</strong>Coming soon.</div>`;
+      }
+    });
+  });
 
   // Fun intro touch: briefly highlight each domain tile in turn when triggered (see the
   // replay button below - nothing plays automatically on page load), purely visual — it

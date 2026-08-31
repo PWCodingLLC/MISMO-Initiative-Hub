@@ -134,7 +134,8 @@
   .init-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
   @media (max-width:760px){.init-grid{grid-template-columns:1fr;}}
 
-  .init-card{border:1px solid var(--line); border-radius:12px; padding:18px 19px; background:var(--paper); transition:background .2s ease, border-color .2s ease;}
+  .init-card{border:1px solid var(--line); border-radius:12px; padding:18px 19px; background:var(--paper); transition:background .2s ease, border-color .2s ease; display:flex; flex-direction:column;}
+  .detail-block-grow{flex:1; min-height:0;}
   .init-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:4px;}
   .init-title{font-family:'Space Grotesk',sans-serif; font-size:15px; font-weight:700; color:var(--ink);}
   .badge-row{display:flex; gap:6px; flex-wrap:wrap; flex:0 0 auto;}
@@ -164,15 +165,27 @@
     width:fit-content; margin:0;
   }
 
+  .card-actions-row{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-top:14px;}
+  .init-card.expanded .card-actions-row{order:10;}
+  .expand-toggle{
+    display:inline-flex; align-items:center; gap:5px; padding:0; border:none; background:none;
+    font-size:13px; font-weight:600; color:var(--brand-text); cursor:pointer; font-family:inherit;
+  }
+  .expand-toggle:hover{text-decoration:underline;}
+  .expand-chevron{font-size:10px; transition:transform .15s ease;}
+  .expand-chevron.open{transform:rotate(180deg);}
+  .expand-body{display:none;}
+  .expand-body.open{display:block;}
+
   .view-link{
-    display:inline-flex; align-items:center; gap:6px; margin-top:14px;
+    display:inline-flex; align-items:center; gap:6px;
     padding:10px 18px; border-radius:8px; border:none;
     font-size:13px; font-weight:700; color:#fff; background:var(--brand);
     text-decoration:none; transition:background .15s ease, transform .15s ease;
   }
   .view-link:hover{background:var(--brand-text); transform:translateY(-1px);}
   .view-link-disabled{
-    display:inline-flex; align-items:center; margin-top:14px;
+    display:inline-flex; align-items:center;
     padding:10px 18px; border-radius:8px; border:1px dashed var(--line);
     font-size:13px; font-weight:700; color:var(--ink-soft); font-style:italic;
   }
@@ -382,27 +395,38 @@
             ${item.sample ? '<span class="sample-badge">Sample data</span>' : ''}
           </div>
         </div>
-        <div class="detail-block">
+        <div class="detail-block detail-block-grow">
           <span class="detail-label">What is it</span>
           <p class="detail-text">${item.whatIsIt}</p>
         </div>
-        <div class="detail-block">
-          <span class="detail-label">Why MISMO is working on this</span>
-          <ul class="why-bullets">${item.whyWorking.map(w => `<li>${w}</li>`).join('')}</ul>
+        <div class="card-actions-row">
+          ${item.href ? `<a class="view-link" href="${item.href}">View dashboard →</a>` : `<span class="view-link-disabled">No dashboard yet</span>`}
+          <button type="button" class="expand-toggle" onclick="
+            var b = this.closest('.card-actions-row').nextElementSibling;
+            var open = b.classList.toggle('open');
+            this.closest('.init-card').classList.toggle('expanded', open);
+            this.querySelector('.expand-label').textContent = open ? 'Hide additional details' : 'See additional details';
+            this.querySelector('.expand-chevron').classList.toggle('open', open);
+          "><span class="expand-label">See additional details</span> <span class="expand-chevron">▾</span></button>
         </div>
-        <div class="detail-block">
-          <span class="detail-label">Who brought it</span>
-          <p class="detail-text">${item.whoBroughtIt}</p>
+        <div class="expand-body">
+          <div class="detail-block">
+            <span class="detail-label">Why MISMO is working on this</span>
+            <ul class="why-bullets">${item.whyWorking.map(w => `<li>${w}</li>`).join('')}</ul>
+          </div>
+          <div class="detail-block">
+            <span class="detail-label">Who brought it</span>
+            <p class="detail-text">${item.whoBroughtIt}</p>
+          </div>
+          <div class="detail-block">
+            <span class="detail-label">Publication status</span>
+            <p class="detail-text">${item.publicationStatus}</p>
+          </div>
+          <div class="detail-block">
+            <span class="detail-label">Estimated savings</span>
+            <p class="snapshot-stat">${item.estimatedSavings}</p>
+          </div>
         </div>
-        <div class="detail-block">
-          <span class="detail-label">Publication status</span>
-          <p class="detail-text">${item.publicationStatus}</p>
-        </div>
-        <div class="detail-block">
-          <span class="detail-label">Estimated savings</span>
-          <p class="snapshot-stat">${item.estimatedSavings}</p>
-        </div>
-        ${item.href ? `<a class="view-link" href="${item.href}">View dashboard →</a>` : `<span class="view-link-disabled">No dashboard yet</span>`}
       </div>
     `).join('') : '';
 

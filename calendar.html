@@ -67,6 +67,50 @@
   .cal-legend{display:flex; align-items:center; gap:14px; flex-wrap:wrap; font-size:12px; color:var(--ink-soft);}
   .legend-dot{display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:5px; vertical-align:middle;}
 
+  .cal-toolbar-right{display:flex; align-items:center; gap:18px; flex-wrap:wrap;}
+
+  .wg-filter{position:relative;}
+  .wg-filter-btn{
+    display:flex; align-items:center; gap:8px;
+    font-family:'Inter',sans-serif; font-size:12.5px; font-weight:700; color:var(--ink);
+    background:var(--card); border:1px solid var(--line); border-radius:999px; padding:9px 16px; cursor:pointer;
+  }
+  .wg-filter-btn:hover{border-color:var(--brand); color:var(--brand-text);}
+  .wg-filter-btn.has-filter{border-color:var(--brand); background:var(--brand-soft); color:var(--brand-text);}
+  .wg-filter-chevron{transition:transform .15s ease;}
+  .wg-filter.open .wg-filter-chevron{transform:rotate(180deg);}
+
+  .wg-filter-panel{
+    display:none; position:absolute; top:calc(100% + 8px); right:0; z-index:50;
+    width:330px; max-height:420px; overflow-y:auto;
+    background:var(--card); border:1px solid var(--line); border-radius:12px; box-shadow:0 8px 28px rgba(16,27,51,.14);
+    padding:12px;
+  }
+  .wg-filter.open .wg-filter-panel{display:block;}
+
+  .wg-filter-actions{
+    display:flex; align-items:center; gap:8px; font-size:12px; font-weight:700;
+    padding:2px 6px 10px; border-bottom:1px solid var(--line); margin-bottom:8px;
+  }
+  .wg-filter-actions button{
+    background:none; border:none; padding:0; color:var(--brand-text); font-weight:700; font-size:12px; cursor:pointer; font-family:inherit;
+  }
+  .wg-filter-actions button:hover{text-decoration:underline;}
+  .wg-filter-divider{color:var(--line);}
+
+  .wg-domain-group{margin-bottom:12px;}
+  .wg-domain-group:last-child{margin-bottom:0;}
+  .wg-domain-label{
+    font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+    color:var(--ink-soft); padding:2px 6px 6px;
+  }
+  .wg-checkbox-row{
+    display:flex; align-items:center; gap:9px; padding:6px 6px; border-radius:7px; cursor:pointer; font-size:13px; color:var(--ink);
+  }
+  .wg-checkbox-row:hover{background:var(--paper);}
+  .wg-checkbox-row input{margin:0; flex:0 0 auto; cursor:pointer;}
+  .wg-checkbox-row label{cursor:pointer; flex:1;}
+
   .cal-grid-wrap{
     background:var(--card); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow);
     overflow:hidden;
@@ -142,9 +186,26 @@
       </button>
       <button type="button" class="cal-today-btn" id="todayBtn">Today</button>
     </div>
-    <div class="cal-legend">
-      <span><span class="legend-dot" style="background:var(--success);"></span>Has a dashboard on this hub</span>
-      <span><span class="legend-dot" style="background:var(--brand);"></span>Other MISMO workgroup</span>
+    <div class="cal-toolbar-right">
+      <div class="wg-filter">
+        <button type="button" class="wg-filter-btn" id="wgFilterBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg>
+          <span id="wgFilterLabel">All workgroups</span>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="wg-filter-chevron"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="wg-filter-panel" id="wgFilterPanel">
+          <div class="wg-filter-actions">
+            <button type="button" id="wgSelectAll">Select all</button>
+            <span class="wg-filter-divider">·</span>
+            <button type="button" id="wgClearAll">Clear all</button>
+          </div>
+          <div class="wg-filter-groups" id="wgFilterGroups"></div>
+        </div>
+      </div>
+      <div class="cal-legend">
+        <span><span class="legend-dot" style="background:var(--success);"></span>Has a dashboard on this hub</span>
+        <span><span class="legend-dot" style="background:var(--brand);"></span>Other MISMO workgroup</span>
+      </div>
     </div>
   </div>
 
@@ -165,41 +226,133 @@
   // Real schedule data from MISMO's Workgroup Meeting Schedule page (both pages), fetched Aug 2026.
   // day: 0=Sun..6=Sat. occurrences: 'weekly' or an array of 1-indexed occurrences in the month (e.g. [2,4] = 2nd & 4th).
   const workgroups = [
-    {name:'API Community of Practice', day:2, occurrences:[4], time:'3–4pm ET', zoom:'https://mba-org.zoom.us/j/84065426860'},
-    {name:'Architecture Workgroup', day:4, occurrences:[2,4], time:'2–3pm ET', zoom:'https://mba-org.zoom.us/j/88437195732'},
-    {name:'AI Community of Practice', day:1, occurrences:[2,4], time:'3–4pm ET', zoom:'https://mba-org.zoom.us/j/83783587917'},
-    {name:'Automated Valuation Model DWG', day:1, occurrences:'weekly', time:'4–5pm ET', zoom:'https://mba-org.zoom.us/j/86553707201', dashboard:'ccs-dashboard.html'},
-    {name:'Business Glossary CoP', day:3, occurrences:[2,4], time:'2–3pm ET', zoom:'https://mba-org.zoom.us/j/87615051998'},
-    {name:'Business Process Model CoP', day:5, occurrences:[1,3], time:'10–11am ET', zoom:'https://mba-org.zoom.us/j/85418710620'},
-    {name:'Commercial &amp; Other RE Digital Notes DWG', day:4, occurrences:[2], time:'3–4pm ET', zoom:'https://mba-org.zoom.us/j/89506376242'},
-    {name:'Commercial CoP', day:4, occurrences:[2], time:'1–2pm ET', zoom:'https://mba-org.zoom.us/j/85450117105'},
-    {name:'Credit Reporting CoP', day:4, occurrences:[1,3], time:'4–5pm ET', zoom:'https://mba-org.zoom.us/j/81784509635'},
-    {name:'Data Governance &amp; Management CoP', day:3, occurrences:[3], time:'1–2pm ET', zoom:'https://mba-org.zoom.us/j/83318613468'},
-    {name:'Decision Modeling CoP', day:1, occurrences:[1,3], time:'4–5pm ET', zoom:'https://mba-org.zoom.us/j/81097644741'},
-    {name:'Digital Interoperability CoP', day:4, occurrences:[2], time:'1–2pm ET', zoom:'https://mba-org.zoom.us/j/88234890771'},
-    {name:'eHELOC DWG', day:4, occurrences:[2,4], time:'12–1pm ET', zoom:'https://mba-org.zoom.us/j/89724557553'},
-    {name:'eMortgage CoP', day:4, occurrences:[1], time:'1–2pm ET', zoom:'https://mba-org.zoom.us/j/86820338874'},
-    {name:'HERO CoP', day:2, occurrences:[1], time:'10–11am ET', zoom:'https://mba-org.zoom.us/j/89963965149'},
-    {name:'Housing Counseling DWG', day:3, occurrences:[2,4], time:'3–4pm ET', zoom:'https://mba-org.zoom.us/j/85930714859'},
-    {name:'Information Management', day:1, occurrences:'weekly', time:'2–3pm ET', zoom:'https://mba-org.zoom.us/j/83911697957'},
-    {name:'Loan Application Data Exchange DWG', day:2, occurrences:[4], time:'1–2pm ET', zoom:'https://mba-org.zoom.us/j/88023232957'},
-    {name:'MI Claim Submission DWG', day:2, occurrences:[1,3], time:'3–4pm ET', zoom:'https://mba-org.zoom.us/j/82404935190'},
-    {name:'Mortgage Compliance Dataset DWG', day:4, occurrences:[1,3], time:'3–4pm ET', zoom:'https://mba-org.zoom.us/j/88042907892', dashboard:'mcd-dashboard.html'},
-    {name:'Mortgage Insurance CoP', day:1, occurrences:[3], time:'1–2pm ET', zoom:'https://mba-org.zoom.us/j/87976028176'},
-    {name:'Origination CoP', day:3, occurrences:[1], time:'3–4pm ET', zoom:'https://mba-org.zoom.us/j/85990267275'},
-    {name:'Property &amp; Valuation Services CoP', day:5, occurrences:[2,4], time:'1–2pm ET', zoom:'https://mba-org.zoom.us/j/86087635705'},
-    {name:'Remote Online Notarization DWG', day:null, occurrences:[], time:'On hold', zoom:null, onHold:true},
-    {name:'Reverse Mortgage DWG', day:4, occurrences:[1,3], time:'1–2pm ET', zoom:'https://mba-org.zoom.us/j/86180371977'},
-    {name:'Secondary CoP', day:2, occurrences:[3], time:'3–4pm ET', zoom:'https://mba-org.zoom.us/j/89634843815'},
-    {name:'Servicing CoP', day:1, occurrences:[2,4], time:'1–2pm ET', zoom:'https://mba-org.zoom.us/j/86066078039'},
-    {name:'Servicing Transfers DWG', day:3, occurrences:[2,4], time:'1–2pm ET', zoom:'https://mba-org.zoom.us/j/87030588927', dashboard:'lbds-dashboard.html'},
-    {name:'TIE (Technology Impact &amp; Enablement) CoP', day:3, occurrences:[3], time:'2–3pm ET', zoom:'https://mba-org.zoom.us/j/88544460553'},
-    {name:'Title &amp; Closing CoP', day:1, occurrences:[2], time:'1–2pm ET', zoom:'https://mba-org.zoom.us/j/89444784294'},
-    {name:'Title &amp; Closing Docs to Data DWG', day:3, occurrences:[1,3], time:'2–3pm ET', zoom:'https://mba-org.zoom.us/j/84866528267'},
-    {name:'Title Pricing API DWG', day:3, occurrences:'weekly', time:'3:30–4:30pm ET', zoom:'https://mba-org.zoom.us/j/83150861941'},
-    {name:'VA Documents to Data DWG', day:3, occurrences:[3], time:'3–4pm ET', zoom:'https://mba-org.zoom.us/j/88489860437'},
-    {name:'Verifiable Profile SMART Doc DWG', day:3, occurrences:[1], time:'11am–12pm ET', zoom:'https://mba-org.zoom.us/j/86383676148'}
+    {name:'API Community of Practice', domain:'Governance', day:2, occurrences:[4], time:'3–4pm ET', zoom:'https://mba-org.zoom.us/j/84065426860'},
+    {name:'Architecture Workgroup', domain:'Governance', day:4, occurrences:[2,4], time:'2–3pm ET', zoom:'https://mba-org.zoom.us/j/88437195732'},
+    {name:'AI Community of Practice', domain:'Artificial Intelligence', day:1, occurrences:[2,4], time:'3–4pm ET', zoom:'https://mba-org.zoom.us/j/83783587917'},
+    {name:'Automated Valuation Model DWG', domain:'Valuation', day:1, occurrences:'weekly', time:'4–5pm ET', zoom:'https://mba-org.zoom.us/j/86553707201', dashboard:'ccs-dashboard.html'},
+    {name:'Business Glossary CoP', domain:'Governance', day:3, occurrences:[2,4], time:'2–3pm ET', zoom:'https://mba-org.zoom.us/j/87615051998'},
+    {name:'Business Process Model CoP', domain:'Governance', day:5, occurrences:[1,3], time:'10–11am ET', zoom:'https://mba-org.zoom.us/j/85418710620'},
+    {name:'Commercial &amp; Other RE Digital Notes DWG', domain:'eMortgage', day:4, occurrences:[2], time:'3–4pm ET', zoom:'https://mba-org.zoom.us/j/89506376242'},
+    {name:'Commercial CoP', domain:'Originations', day:4, occurrences:[2], time:'1–2pm ET', zoom:'https://mba-org.zoom.us/j/85450117105'},
+    {name:'Credit Reporting CoP', domain:'Credit Reporting', day:4, occurrences:[1,3], time:'4–5pm ET', zoom:'https://mba-org.zoom.us/j/81784509635'},
+    {name:'Data Governance &amp; Management CoP', domain:'Governance', day:3, occurrences:[3], time:'1–2pm ET', zoom:'https://mba-org.zoom.us/j/83318613468'},
+    {name:'Decision Modeling CoP', domain:'Originations', day:1, occurrences:[1,3], time:'4–5pm ET', zoom:'https://mba-org.zoom.us/j/81097644741'},
+    {name:'Digital Interoperability CoP', domain:'eMortgage', day:4, occurrences:[2], time:'1–2pm ET', zoom:'https://mba-org.zoom.us/j/88234890771'},
+    {name:'eHELOC DWG', domain:'eMortgage', day:4, occurrences:[2,4], time:'12–1pm ET', zoom:'https://mba-org.zoom.us/j/89724557553'},
+    {name:'eMortgage CoP', domain:'eMortgage', day:4, occurrences:[1], time:'1–2pm ET', zoom:'https://mba-org.zoom.us/j/86820338874'},
+    {name:'HERO CoP', domain:'Governance', day:2, occurrences:[1], time:'10–11am ET', zoom:'https://mba-org.zoom.us/j/89963965149'},
+    {name:'Housing Counseling DWG', domain:'Originations', day:3, occurrences:[2,4], time:'3–4pm ET', zoom:'https://mba-org.zoom.us/j/85930714859'},
+    {name:'Information Management', domain:'Governance', day:1, occurrences:'weekly', time:'2–3pm ET', zoom:'https://mba-org.zoom.us/j/83911697957'},
+    {name:'Loan Application Data Exchange DWG', domain:'Originations', day:2, occurrences:[4], time:'1–2pm ET', zoom:'https://mba-org.zoom.us/j/88023232957'},
+    {name:'MI Claim Submission DWG', domain:'Mortgage Insurance', day:2, occurrences:[1,3], time:'3–4pm ET', zoom:'https://mba-org.zoom.us/j/82404935190'},
+    {name:'Mortgage Compliance Dataset DWG', domain:'Compliance', day:4, occurrences:[1,3], time:'3–4pm ET', zoom:'https://mba-org.zoom.us/j/88042907892', dashboard:'mcd-dashboard.html'},
+    {name:'Mortgage Insurance CoP', domain:'Mortgage Insurance', day:1, occurrences:[3], time:'1–2pm ET', zoom:'https://mba-org.zoom.us/j/87976028176'},
+    {name:'Origination CoP', domain:'Originations', day:3, occurrences:[1], time:'3–4pm ET', zoom:'https://mba-org.zoom.us/j/85990267275'},
+    {name:'Property &amp; Valuation Services CoP', domain:'Valuation', day:5, occurrences:[2,4], time:'1–2pm ET', zoom:'https://mba-org.zoom.us/j/86087635705'},
+    {name:'Remote Online Notarization DWG', domain:'eMortgage', day:null, occurrences:[], time:'On hold', zoom:null, onHold:true},
+    {name:'Reverse Mortgage DWG', domain:'Originations', day:4, occurrences:[1,3], time:'1–2pm ET', zoom:'https://mba-org.zoom.us/j/86180371977'},
+    {name:'Secondary CoP', domain:'Secondary', day:2, occurrences:[3], time:'3–4pm ET', zoom:'https://mba-org.zoom.us/j/89634843815'},
+    {name:'Servicing CoP', domain:'Servicing', day:1, occurrences:[2,4], time:'1–2pm ET', zoom:'https://mba-org.zoom.us/j/86066078039'},
+    {name:'Servicing Transfers DWG', domain:'Servicing', day:3, occurrences:[2,4], time:'1–2pm ET', zoom:'https://mba-org.zoom.us/j/87030588927', dashboard:'lbds-dashboard.html'},
+    {name:'TIE (Technology Impact &amp; Enablement) CoP', domain:'Governance', day:3, occurrences:[3], time:'2–3pm ET', zoom:'https://mba-org.zoom.us/j/88544460553'},
+    {name:'Title &amp; Closing CoP', domain:'Originations', day:1, occurrences:[2], time:'1–2pm ET', zoom:'https://mba-org.zoom.us/j/89444784294'},
+    {name:'Title &amp; Closing Docs to Data DWG', domain:'Originations', day:3, occurrences:[1,3], time:'2–3pm ET', zoom:'https://mba-org.zoom.us/j/84866528267'},
+    {name:'Title Pricing API DWG', domain:'Originations', day:3, occurrences:'weekly', time:'3:30–4:30pm ET', zoom:'https://mba-org.zoom.us/j/83150861941'},
+    {name:'VA Documents to Data DWG', domain:'Originations', day:3, occurrences:[3], time:'3–4pm ET', zoom:'https://mba-org.zoom.us/j/88489860437'},
+    {name:'Verifiable Profile SMART Doc DWG', domain:'eMortgage', day:3, occurrences:[1], time:'11am–12pm ET', zoom:'https://mba-org.zoom.us/j/86383676148'}
   ];
+
+  // --- Workgroup filter (multi-select, grouped by domain) ---
+  const FILTER_STORAGE_KEY = 'mismo-calendar-workgroup-filter';
+  const allWgNames = workgroups.map(wg => wg.name);
+  let selectedWgNames = new Set(allWgNames);
+
+  (function loadFilterState(){
+    try {
+      const raw = localStorage.getItem(FILTER_STORAGE_KEY);
+      if (raw){
+        const saved = JSON.parse(raw);
+        // Only keep saved names that still exist in the current workgroup list,
+        // so a stale/edited list doesn't leave the filter silently empty.
+        const validSaved = saved.filter(n => allWgNames.includes(n));
+        if (validSaved.length) selectedWgNames = new Set(validSaved);
+      }
+    } catch(e) { /* ignore malformed storage, fall back to "all selected" */ }
+  })();
+
+  function saveFilterState(){
+    try { localStorage.setItem(FILTER_STORAGE_KEY, JSON.stringify(Array.from(selectedWgNames))); }
+    catch(e) { /* storage unavailable - filter still works for this session */ }
+  }
+
+  function updateFilterLabel(){
+    const label = document.getElementById('wgFilterLabel');
+    const btn = document.getElementById('wgFilterBtn');
+    const n = selectedWgNames.size;
+    const total = allWgNames.length;
+    if (n === total){ label.textContent = 'All workgroups'; btn.classList.remove('has-filter'); }
+    else if (n === 0){ label.textContent = 'No workgroups selected'; btn.classList.add('has-filter'); }
+    else { label.textContent = n + ' of ' + total + ' selected'; btn.classList.add('has-filter'); }
+  }
+
+  function buildFilterPanel(){
+    const groupsEl = document.getElementById('wgFilterGroups');
+    const byDomain = {};
+    workgroups.forEach(wg => {
+      if (!byDomain[wg.domain]) byDomain[wg.domain] = [];
+      byDomain[wg.domain].push(wg);
+    });
+    const domainNames = Object.keys(byDomain).sort((a, b) => a.localeCompare(b, undefined, {sensitivity: 'base'}));
+    groupsEl.innerHTML = domainNames.map(domain => {
+      const items = byDomain[domain].slice().sort((a,b) => a.name.localeCompare(b.name, undefined, {sensitivity: 'base'}));
+      const rows = items.map(wg => {
+        const safeId = 'wg-' + wg.name.replace(/[^a-zA-Z0-9]/g, '-');
+        const checked = selectedWgNames.has(wg.name) ? 'checked' : '';
+        const displayName = wg.name.replace(/&amp;/g, '&');
+        return '<div class="wg-checkbox-row"><input type="checkbox" id="' + safeId + '" data-wg-name="' + encodeURIComponent(wg.name) + '" ' + checked + '><label for="' + safeId + '">' + displayName + '</label></div>';
+      }).join('');
+      return '<div class="wg-domain-group"><div class="wg-domain-label">' + domain + '</div>' + rows + '</div>';
+    }).join('');
+
+    groupsEl.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+      cb.addEventListener('change', () => {
+        const name = decodeURIComponent(cb.dataset.wgName);
+        if (cb.checked) selectedWgNames.add(name); else selectedWgNames.delete(name);
+        updateFilterLabel();
+        saveFilterState();
+        render();
+      });
+    });
+  }
+
+  document.getElementById('wgSelectAll').addEventListener('click', () => {
+    selectedWgNames = new Set(allWgNames);
+    buildFilterPanel();
+    updateFilterLabel();
+    saveFilterState();
+    render();
+  });
+  document.getElementById('wgClearAll').addEventListener('click', () => {
+    selectedWgNames = new Set();
+    buildFilterPanel();
+    updateFilterLabel();
+    saveFilterState();
+    render();
+  });
+
+  const wgFilterEl = document.querySelector('.wg-filter');
+  document.getElementById('wgFilterBtn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    wgFilterEl.classList.toggle('open');
+  });
+  document.addEventListener('click', (e) => {
+    if (wgFilterEl.classList.contains('open') && !wgFilterEl.contains(e.target)){
+      wgFilterEl.classList.remove('open');
+    }
+  });
+
+  buildFilterPanel();
+  updateFilterLabel();
 
   function getWeekdayDatesInMonth(year, month, dayOfWeek){
     const dates = [];
@@ -245,6 +398,7 @@
     const matches = [];
     workgroups.forEach(wg => {
       if (wg.onHold || wg.day === null) return;
+      if (!selectedWgNames.has(wg.name)) return;
       const weekdayDates = getWeekdayDatesInMonth(year, month, wg.day);
       let occursToday = false;
       if (wg.occurrences === 'weekly'){

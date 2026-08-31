@@ -303,6 +303,15 @@
     pointer-events:none;
     opacity:.75;
   }
+  /* Hide the native dropdown arrow on selects while locked - a visible arrow
+     implies an interactive control, which is misleading once it's disabled. */
+  body.locked select.status-select,
+  body.locked select.crit-select,
+  body.locked select.role-select,
+  body.locked select.type-select,
+  body.locked select.deliv-status-select{
+    appearance:none; -webkit-appearance:none; -moz-appearance:none;
+  }
   body.locked .contact-edit-btn,
   body.locked .icon-btn,
   body.locked .add-task-btn,

@@ -323,11 +323,11 @@
     },
     {
       title: 'MI Claim Submission Dataset', domains: ['Mortgage Insurance'], status: 'planned', href: null, sample: false,
-      whatIsIt: 'A replacement for the EDI 260 Application for Mortgage Insurance Benefits — the dataset servicers use to file claims with government agencies and private mortgage insurers after a default or foreclosure. The existing specification is unsupported and missing key information needed to process these claims.',
-      whyWorking: ['The existing EDI 260 specification is unsupported and missing key data needed to process claims.', 'Various custom formats have surfaced across the industry to fill the gap, fragmenting how claims get filed.', 'A shared specification gives servicers and insurers one consistent format instead of negotiating custom ones.'],
-      whoBroughtIt: 'MI Claim Submission DWG — Philip Law (Enact) and Tong Zhang (Freddie Mac), Co-Chairs; Kelli Maldonado (Fannie Mae) and Tina Stuart (MGIC), Co-Vice-Chairs; Facilitator Leeann Walker, MISMO',
+      whatIsIt: 'A MISMO-backed replacement for the EDI 260 X12 Application for Mortgage Insurance Benefits — the dataset servicers use to file claims with GSEs and private mortgage insurers after a default or foreclosure. The original spec was created by the Data Interchange Standards Association (DISA), which ceased to exist in January 2016, leaving it with no industry body maintaining it.',
+      whyWorking: ['The EDI 260 spec has been unmaintained since DISA dissolved in 2016, and it carries a large number of enumerations, values, and free-form entries that need significant review to become a real standard.', 'Without a MISMO-backed replacement, at least one industry partner was already exploring building their own non-MISMO EDI 260 standard, risking further fragmentation.', 'A shared, maintained standard shortens integration, testing, and production timelines, and reduces custom integrations for filing claims.'],
+      whoBroughtIt: 'Mortgage Insurance Community of Practice (Philip Law, Enact MI) — submitted October 2023; work now led by the MI Claim Submission DWG (Philip Law/Enact and Tong Zhang/Freddie Mac, Co-Chairs; Kelli Maldonado/Fannie Mae and Tina Stuart/MGIC, Co-Vice-Chairs; Facilitator Leeann Walker, MISMO)',
       publicationStatus: 'In progress',
-      estimatedSavings: 'No published $ figure — framed as replacing unsupported/custom claim formats with one consistent specification'
+      estimatedSavings: 'No published $ figure — framed as shortening integration/testing/production timelines and reducing custom claim-filing integrations'
     }
   ];
 

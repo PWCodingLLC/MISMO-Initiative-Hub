@@ -1,0 +1,2646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!--
+================================================================================
+MISMO WORKGROUP DASHBOARD — TEMPLATE
+================================================================================
+This is the starting point for every new workgroup dashboard on the MISMO
+Initiative Hub. It's a full working copy of a real, previously-shipped dashboard
+(originally based on LBDS) with every piece of workgroup-specific CONTENT
+replaced by {{PLACEHOLDER}} tokens, while every piece of STRUCTURE — CSS
+architecture, JS logic, layout patterns — is left completely intact and
+untouched. Build a new dashboard by filling in the placeholders and deleting
+whatever sections genuinely don't apply, not by rebuilding anything from
+scratch.
+
+HOW TO USE THIS FILE
+--------------------
+1. Copy this file and rename it to {{new-workgroup-id}}-dashboard.html.
+2. Search for every {{PLACEHOLDER_IN_CAPS}} token and replace it with real
+   content. Most are self-explanatory from their name; the ones that need more
+   context have an inline comment right above them explaining exactly what's
+   expected and what NOT to do.
+3. Pay close attention to sections marked "omit this entirely if..." — several
+   sections (video embed, savings estimate, ROI link, meeting tracker) only
+   exist because the reference dashboard happened to have that content. A new,
+   early-stage workgroup often won't have all of these yet, and the right move
+   is to delete the whole section, not invent placeholder content to fill it.
+   TPA (a genuinely early-stage, not-yet-chartered workgroup) is the real,
+   already-shipped example of what a dashboard missing several of these
+   sections looks like — worth opening side by side with this template.
+4. Validate before shipping: confirm every opening div element has a matching
+   closing tag, run the inline script through a JS syntax checker, and ideally load
+   the finished page in a real or headless browser and click through Save,
+   Restore, the theme toggle, and the lock toggle before calling it done. Don't
+   assume a template-based page is correct just because the template was.
+   Note: this raw template file will NOT itself pass a JS syntax check — a few
+   placeholders (the leaderboard scores, meeting hour/minute/weekday numbers)
+   sit in positions where real JS expects a bare number, not a quoted string,
+   so {{PLACEHOLDER}} tokens there are intentionally invalid until replaced
+   with real numbers. That's expected and fine; the syntax check is meant to
+   run on the finished file after every placeholder is filled in.
+
+NEVER FABRICATE CONTENT TO FILL A PLACEHOLDER
+----------------------------------------------
+This is the single most important rule carried over from how every existing
+dashboard was actually built, and it applies with equal force here: if you
+don't have a real source for a savings estimate, a resource link, a leaderboard
+entry, or an attendance count, do not invent a plausible-looking number or URL
+to fill the placeholder. Leave a note, omit the section, or ask for the real
+source. A wrong-but-confident-looking figure is worse than an honest gap — it
+looks authoritative and is much harder for someone to catch later. This project
+has hit this exact failure mode for real: one dashboard's meeting-tracker
+leaderboard once shipped showing another workgroup's actual people and scores,
+because placeholder-shaped content was filled in without a real source behind
+it and nobody caught it until a later audit.
+
+ARCHITECTURAL RULES THAT MUST NOT BE CHANGED
+----------------------------------------------
+These are load-bearing decisions made (and in several cases, debugged the hard
+way) across many rounds of building and fixing these dashboards. A future
+editor — human or AI — with no memory of that history could easily "simplify"
+one of these back into something that looks equivalent but silently reintroduces
+a bug that was already found and fixed once. Please don't.
+
+• Two different fixed-vs-theme-aware color systems, and they are NOT
+  interchangeable:
+    --bar-bg is a FIXED dark navy that stays dark in both light and dark mode.
+    Use it for anything that should always read as "a dark, filled button or
+    active state" — the lock toggle's locked state, active chips/tabs, the
+    savings slider, the video placeholder. If an element's background uses
+    --bar-bg, its border-color and any box-shadow must also use --bar-bg, not
+    --ink — mixing a fixed background with a theme-flipping border is exactly
+    the bug that was found and fixed in this project's own history.
+    --header-bg / --header-text / --header-text-soft DO flip between themes,
+    but INVERTED relative to normal text: dark background + white text in
+    light mode, light background + dark text in dark mode. Use this pair only
+    for genuine section/card headers (.section-head, .card-dark-bar,
+    .overview-bar, .meeting-banner-label, .sponsor-mark) — never for buttons.
+
+• The Roadmap ("Adoption and Development Status") and Roster ("Stakeholder
+  engagement roster") sections both use a chip-selector + sidebar "Command
+  Center" layout, not tabs and not a plain table. In both places: chips sort
+  alphabetically by their real underlying value (not by an abbreviated display
+  label — e.g. a chip that reads "3rd-Party Reviewer" should still sort under
+  "Third-Party Reviewer"), the Roadmap's "General" lane is always forced to
+  the end regardless of where it'd alphabetize, the Roster's "All types" chip
+  is always forced to the end the same way, and the page defaults to selecting
+  whichever chip sorts first — never defaulting to General/All types. The ⚑
+  flag next to a Roadmap chip is computed automatically from whether that
+  lane's roadblocks array is non-empty; it is not something you set directly,
+  and it does not mean anything else.
+
+• Save/Restore works by serializing the actual data (rosterData, laneData,
+  every select/date-input value, every other editable field) to localStorage,
+  NOT by snapshotting the rendered page HTML and replaying it later. This
+  project tried the HTML-snapshot approach first and it silently lost edits —
+  a dropdown's or date-input's current value is never reflected in
+  its own outerHTML once a user changes it away from the originally-parsed
+  option/attribute, which is real, spec-defined browser behavior, not a bug to
+  work around differently. Don't revert to an outerHTML/document.write()
+  approach even if it looks simpler.
+
+• All user-editable display text goes through escapeHtml() before being
+  inserted into innerHTML (see the function definition and its call sites
+  below for the exact pattern). This isn't optional decoration — without it, a
+  stray < or & typed into any editable field renders as broken markup instead
+  of literal text.
+
+• Participant-chip splitting: a participants string is normally split into one
+  chip per comma-separated person, EXCEPT a string starting with the exact
+  phrase "No one met" must stay as a single chip even if it contains its own
+  internal comma (this happens when two people tie for "closest to the
+  threshold"). Splitting that case by comma was a real, confirmed bug.
+
+• The dashboard defaults to LIGHT mode, with dark mode as an opt-in toggle
+  persisted per-dashboard in localStorage — never make dark mode the default.
+  Note the tiny synchronous script at the very top of <head>, before the main
+  stylesheet: it exists specifically to set the theme before first paint, so a
+  dark-mode visitor doesn't see a flash of the light theme first. Keep it
+  there, at the top, unchanged in shape.
+
+WHAT'S DELIBERATELY LEFT AS-IS (NOT BUGS)
+------------------------------------------
+A few things in the underlying page script look slightly redundant but are
+intentional and shouldn't be "cleaned up": renderChips()/renderLane() each run
+twice during page load (once synchronously for a fast first paint, once again
+inside an async initialization check) — removing the first call would delay
+first paint waiting on the second, which is worse, not better. Some dead
+window.storage-related code exists from an earlier, different persistence
+approach; it's inert on GitHub Pages and safe to ignore.
+================================================================================
+-->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{WORKGROUP_NAME}} ({{WORKGROUP_ABBREV}}) — Workgroup Dashboard</title>
+<script>
+  // Set the theme before any CSS paints, so a dark-mode visitor doesn't see a flash
+  // of the light theme first. This is deliberately tiny and synchronous — it just
+  // reads localStorage and sets an attribute, nothing else — so it can't meaningfully
+  // delay first paint the way the full page script (loaded later) would.
+  (function(){
+    try {
+      var saved = localStorage.getItem('{{DASHBOARD_ID}}-dashboard-theme');
+      if (saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    } catch (e) {}
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#101B33;
+    --ink-soft:#4B5670;
+    --paper:#F1F3F9;
+    --card:#FFFFFF;
+    --line:#E1E4EC;
+
+    --brand:#125DAB;
+    --brand-soft:#E7EFF7;
+    --brand-text:#0E4680;
+
+    --signal:#FF5A36;
+    --signal-soft:#FFEAE3;
+    --signal-text:#B8391B;
+
+    --success:#1D9A56;
+    --success-soft:#E7F7EE;
+    --success-text:#157A44;
+
+    --amber:#F2A93B;
+    --amber-soft:#FDF2DF;
+    --amber-text:#9C6B0E;
+
+    --slate:#8B94A7;
+    --slate-soft:#EEF0F4;
+    --slate-text:#5B6478;
+
+    --status-red:#C1666B; --status-red-soft:#F5E6E7; --status-red-text:#8B3D42;
+    --status-orange:#C98A4B; --status-orange-soft:#F5EBDD; --status-orange-text:#8F5F2C;
+    --status-yellow:#C7A94D; --status-yellow-soft:#F5EFDA; --status-yellow-text:#8C7229;
+    --status-green:#5B8C6C; --status-green-soft:#E3EDE6; --status-green-text:#3D5F49;
+
+    --dwg:#7C3AED;
+    --dwg-soft:#F2EBFE;
+
+    --radius:10px;
+    --shadow:0 1px 2px rgba(16,27,51,.05), 0 10px 28px rgba(16,27,51,.06);
+
+    /* Fixed-role colors: buttons/tabs/chips stay dark in both themes (--bar-bg),
+       while true section/card headers use --header-bg/--header-text, which in
+       light mode match the original dark-navy-bar-with-white-text look. */
+    --bar-bg:#101B33;
+    --header-bg:#101B33;
+    --header-bg-hover:#1C2B4D;
+    --header-text:#fff;
+    --header-text-soft:rgba(255,255,255,.65);
+  }
+
+  html[data-theme="dark"]{
+    --ink:#E8EAF0;
+    --ink-soft:#A0A8C0;
+    --paper:#0B0F1C;
+    --card:#161C30;
+    --line:#2A3150;
+
+    --brand:#5B85FF;
+    --brand-soft:#1A2745;
+    --brand-text:#9AB8FF;
+
+    --signal:#FF7A5C;
+    --signal-soft:#3D2018;
+    --signal-text:#FFA98F;
+
+    --success:#4ADE80;
+    --success-soft:#123024;
+    --success-text:#6EE7A8;
+
+    --amber:#F5B85C;
+    --amber-soft:#3D2E14;
+    --amber-text:#F0C478;
+
+    --slate:#9FA8BC;
+    --slate-soft:#202536;
+    --slate-text:#B8C0D4;
+
+    --status-red:#D9838A; --status-red-soft:#3D2226; --status-red-text:#E8A5AA;
+    --status-orange:#D9A06B; --status-orange-soft:#3D2E1C; --status-orange-text:#E8B583;
+    --status-yellow:#D9BC6B; --status-yellow-soft:#3D341C; --status-yellow-text:#E8CE85;
+    --status-green:#8FD4A8; --status-green-soft:#1F3527; --status-green-text:#ABE8BE;
+
+    --dwg:#9D6FF0;
+    --dwg-soft:#2A2040;
+
+    --header-bg:#F1F3F9;
+    --header-bg-hover:#E3E7EF;
+    --header-text:#101B33;
+    --header-text-soft:rgba(16,27,51,.65);
+
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 28px rgba(0,0,0,.4);
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+  }
+
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    line-height:1.5;
+  }
+
+  h1,h2,h3,.display{
+    font-family:'Space Grotesk',system-ui,sans-serif;
+    letter-spacing:-0.01em;
+    margin:0;
+  }
+
+  .mono{font-family:'IBM Plex Mono',monospace;}
+
+  a{color:var(--brand-text);}
+
+  :focus-visible{
+    outline:2.5px solid var(--brand);
+    outline-offset:2px;
+    border-radius:4px;
+  }
+
+  .wrap{
+    max-width:1180px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- MASTHEAD ---------- */
+  .masthead{
+    padding:36px 24px 0;
+  }
+  .masthead-inner{
+    max-width:1180px;
+    margin:0 auto;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:24px;
+    flex-wrap:wrap;
+    padding-bottom:24px;
+    border-bottom:1px solid var(--line);
+  }
+  .eyebrow-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:10px;
+  }
+  .eyebrow{
+    font-size:12.5px;
+    font-weight:600;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+  }
+  .sponsor-mark{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;
+    font-size:11px;
+    letter-spacing:0.06em;
+    background:var(--header-bg);
+    color:var(--header-text);
+    padding:3px 8px;
+    border-radius:4px;
+  }
+  .workgroup-tag{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;
+    font-size:11px;
+    letter-spacing:0.03em;
+    background:var(--dwg);
+    color:#fff;
+    padding:3px 10px;
+    border-radius:999px;
+    white-space:nowrap;
+  }
+  .title-row h1{
+    font-size:34px;
+    font-weight:700;
+  }
+  .title-row .segment-tag{
+    font-size:17px;
+    font-weight:500;
+    color:var(--ink-soft);
+    margin-left:6px;
+  }
+  .leadership{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:14px;
+  }
+  .lead-chip{
+    display:flex;
+    flex-direction:column;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:6px 12px;
+    font-size:12.5px;
+  }
+  .lead-chip .role{color:var(--ink-soft); font-size:10.5px; text-transform:uppercase; letter-spacing:.05em;}
+  .lead-chip .name{font-weight:600;}
+
+  .masthead-right{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    gap:10px;
+  }
+  .back-to-hub{
+    font-family:'Inter',sans-serif; font-size:14.5px; font-weight:700;
+    color:var(--brand-text); text-decoration:none;
+    padding:7px 14px; border:1px solid var(--line); border-radius:999px; background:var(--card);
+  }
+  .back-to-hub:hover{background:var(--brand-soft); border-color:var(--brand);}
+  .masthead-actions-row{display:flex; flex-direction:row; gap:8px;}
+
+  /* ---------- LOCK MODE ---------- */
+  .lock-toggle-btn{
+    display:flex; align-items:center; gap:7px;
+    font-family:'Inter',sans-serif; font-size:12.5px; font-weight:700;
+    padding:7px 14px; border-radius:999px; border:1px solid var(--line);
+    background:var(--card); color:var(--ink-soft); cursor:pointer;
+  }
+  .lock-toggle-btn svg{flex:0 0 auto; display:block;}
+  .lock-toggle-btn:hover{background:var(--brand-soft); border-color:var(--brand); color:var(--brand-text);}
+  .lock-toggle-btn.is-locked{background:var(--bar-bg); border-color:var(--bar-bg); color:#fff;}
+  .lock-toggle-btn.is-locked:hover{background:#000; border-color:#000;}
+
+  .theme-toggle-btn{
+    display:flex; align-items:center; justify-content:center;
+    width:32px; height:32px; border-radius:50%; border:1px solid var(--line);
+    background:var(--card); color:var(--ink-soft); cursor:pointer;
+  }
+  .theme-toggle-btn:hover{background:var(--brand-soft); border-color:var(--brand); color:var(--brand-text);}
+  .theme-toggle-btn svg{width:16px; height:16px;}
+  .theme-toggle-btn .icon-moon{display:none;}
+  html[data-theme="dark"] .theme-toggle-btn .icon-sun{display:none;}
+  html[data-theme="dark"] .theme-toggle-btn .icon-moon{display:block;}
+
+
+  .save-toggle-btn{
+    display:flex; align-items:center; gap:7px;
+    font-family:'Inter',sans-serif; font-size:12.5px; font-weight:700;
+    padding:7px 14px; border-radius:999px; border:1px solid var(--line);
+    background:var(--card); color:var(--ink-soft); cursor:pointer;
+  }
+  .save-toggle-btn svg{flex:0 0 auto; display:block;}
+  .save-toggle-btn:hover{background:var(--brand-soft); border-color:var(--brand); color:var(--brand-text);}
+  .save-toggle-btn.just-saved{background:var(--success); border-color:var(--success); color:var(--header-text);}
+  .save-toggle-btn.has-changes{background:var(--amber-soft); border-color:var(--amber); color:var(--amber-text);}
+  .save-toggle-btn.has-changes:hover{background:var(--amber); color:#fff;}
+  .save-toggle-btn .dirty-dot{
+    width:6px; height:6px; border-radius:50%; background:var(--amber); display:none; flex:0 0 auto;
+  }
+  .save-toggle-btn.has-changes .dirty-dot{display:block;}
+
+  body.locked [contenteditable="true"]{
+    pointer-events:none;
+  }
+  body.locked select.status-select,
+  body.locked select.crit-select,
+  body.locked select.role-select,
+  body.locked select.type-select,
+  body.locked select.deliv-status-select,
+  body.locked input.type-input,
+  body.locked input.deliv-date-input,
+  body.locked .contact-input{
+    pointer-events:none;
+    opacity:.75;
+  }
+  /* Hide the native dropdown arrow on selects while locked - a visible arrow
+     implies an interactive control, which is misleading once it's disabled. */
+  body.locked select.status-select,
+  body.locked select.crit-select,
+  body.locked select.role-select,
+  body.locked select.type-select,
+  body.locked select.deliv-status-select{
+    appearance:none; -webkit-appearance:none; -moz-appearance:none;
+  }
+  body.locked .contact-edit-btn,
+  body.locked .icon-btn,
+  body.locked .add-task-btn,
+  body.locked .pill-add-btn,
+  body.locked .pill-remove{
+    display:none !important;
+  }
+
+  /* ---------- SECTIONS GENERIC ---------- */
+  section{margin-top:44px;}
+  .section-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:0;
+    flex-wrap:wrap;
+    background:var(--header-bg); color:var(--header-text); padding:13px 20px; border-radius:var(--radius);
+  }
+  .section-subtext{font-size:12.5px; color:var(--ink-soft); margin:8px 2px 16px;}
+  .section-head h2{font-size:15px; font-family:'Space Grotesk',sans-serif; font-weight:600; letter-spacing:.02em; color:var(--header-text);}
+  .section-head .section-note{color:var(--header-text-soft);}
+  .section-note{font-size:12.5px; color:var(--ink-soft);}
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+  }
+
+  /* ---------- KPI STRIP ---------- */
+  .kpi-strip{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:14px;
+  }
+  @media (max-width:900px){ .kpi-strip{grid-template-columns:repeat(2,1fr);} }
+  @media (max-width:520px){ .kpi-strip{grid-template-columns:1fr;} }
+  .kpi{
+    padding:18px 18px 16px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    text-decoration:none;
+    color:inherit;
+  }
+  .kpi-label{
+    font-size:11.5px;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    color:var(--ink-soft);
+    font-weight:600;
+  }
+  .kpi-value{font-size:24px; font-weight:700; font-family:'IBM Plex Mono',monospace;}
+  .range-track{
+    height:6px;
+    border-radius:4px;
+    background:var(--brand-soft);
+    position:relative;
+    margin-top:2px;
+  }
+  .range-fill{
+    position:absolute; top:0; left:14%; right:8%;
+    height:100%;
+    border-radius:4px;
+    background:var(--brand);
+  }
+  .range-labels{
+    display:flex;
+    justify-content:space-between;
+    font-size:11px;
+    color:var(--ink-soft);
+    font-family:'IBM Plex Mono',monospace;
+  }
+
+  .rail{display:flex; gap:6px; margin-top:2px;}
+  .rail-step{flex:1; display:flex; flex-direction:column; gap:5px;}
+  .rail-bar{height:6px; border-radius:4px; background:var(--slate-soft);}
+  .rail-bar.done{background:var(--success);}
+  .rail-bar.progress{background:var(--amber);}
+  .rail-step small{font-size:10.5px; color:var(--ink-soft); line-height:1.3;}
+
+  .funnel-mini{display:flex; height:8px; border-radius:4px; overflow:hidden; margin-top:2px;}
+  .funnel-mini span{height:100%;}
+
+  .status-chip-inline{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-size:12px;
+    font-weight:600;
+    padding:5px 10px;
+    border-radius:999px;
+    width:fit-content;
+  }
+  .status-chip-inline.warn{background:var(--signal-soft); color:var(--signal-text);}
+
+  /* ---------- WHY GRID ---------- */
+  .why-layout{
+    display:grid;
+    grid-template-columns:1.6fr 1fr;
+    gap:20px;
+    align-items:start;
+  }
+  @media (max-width:900px){ .why-layout{grid-template-columns:1fr;} }
+
+  .reason-cards{
+    display:grid;
+    gap:12px;
+  }
+  .reason{
+    padding:16px 18px;
+    display:grid;
+    grid-template-columns:auto 1fr;
+    gap:14px;
+    align-items:flex-start;
+  }
+  .reason .num{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:var(--brand-text);
+    background:var(--brand-soft);
+    border-radius:6px;
+    padding:3px 8px;
+    font-weight:600;
+  }
+  .reason h3{font-size:14.5px; margin-bottom:4px;}
+  .reason p{margin:0 0 6px; font-size:13px; color:var(--ink-soft);}
+  .reason .fig{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13px;
+    font-weight:600;
+    color:var(--ink);
+  }
+
+  .side-stack{display:flex; flex-direction:column; gap:14px;}
+  .side-card{padding:16px 18px;}
+  .side-card h3{font-size:13px; margin-bottom:10px;}
+  .meeting-field{margin-bottom:10px;}
+  .meeting-field:last-child{margin-bottom:0;}
+  .meeting-field-label{display:block; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--ink); margin-bottom:3px;}
+  .meeting-field-value{display:block; font-size:13px; font-family:'IBM Plex Mono',monospace; color:var(--ink-soft); line-height:1.35;}
+
+  .video-stub{
+    margin-top:10px;
+    border-radius:8px;
+    background:var(--bar-bg);
+    color:#fff;
+    padding:16px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    font-size:12.5px;
+  }
+  .play-btn{
+    flex:0 0 auto;
+    width:30px;height:30px;
+    border-radius:50%;
+    background:var(--signal);
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  .reading-list{list-style:none; margin:8px 0 0; padding:0; display:flex; flex-direction:column; gap:7px;}
+  .reading-list li{font-size:12.5px;}
+  .reading-list a{text-decoration:none; font-weight:500;}
+  .reading-list a:hover{text-decoration:underline;}
+
+  .origin-line{font-size:12.5px; margin:0 0 6px; color:var(--ink-soft);}
+  .origin-line strong{color:var(--ink); font-weight:600;}
+
+  /* ---------- ROADMAP: COMMAND CENTER LAYOUT ---------- */
+  .roadmap-intro{font-size:13.5px; color:var(--ink-soft); max-width:760px; margin-bottom:18px;}
+  .lane-chip-row{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-bottom:16px;
+  }
+  .lane-chip-btn{
+    font-family:'Inter',sans-serif;
+    font-size:13px;
+    font-weight:600;
+    background:var(--card);
+    border:1.5px solid var(--line);
+    cursor:pointer;
+    padding:8px 16px;
+    border-radius:999px;
+    color:var(--ink-soft);
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .lane-chip-btn[aria-selected="true"]{
+    background:var(--bar-bg);
+    border-color:var(--bar-bg);
+    color:#fff;
+  }
+  .lane-chip-flag{
+    font-size:9.5px;
+    background:var(--signal-soft);
+    color:var(--signal-text);
+    padding:2px 6px;
+    border-radius:999px;
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:600;
+  }
+  .lane-chip-btn[aria-selected="true"] .lane-chip-flag{background:rgba(255,255,255,.2); color:#fff;}
+
+  .command-layout{display:grid; grid-template-columns:260px 1fr; gap:14px;}
+  @media (max-width:760px){ .command-layout{grid-template-columns:1fr;} }
+  .side-card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:18px;}
+  .task-card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:6px 20px 20px;}
+
+  .lane-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr 1.4fr;
+    gap:18px;
+  }
+  @media (max-width:900px){ .lane-grid{grid-template-columns:1fr;} }
+  .lane-block h4{
+    font-size:11.5px;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    color:var(--ink-soft);
+    margin-bottom:10px;
+  }
+  .lane-block ul{margin:0; padding-left:18px; font-size:13.5px;}
+  .lane-block li{margin-bottom:6px;}
+  .empty-note{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    font-style:italic;
+  }
+
+  table{width:100%; border-collapse:collapse; font-size:13px;}
+  th{
+    text-align:left;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    color:var(--ink-soft);
+    padding:8px 10px;
+    border-bottom:1px solid var(--line);
+  }
+  td{padding:9px 10px; border-bottom:1px solid var(--line); vertical-align:top;}
+  tr:last-child td{border-bottom:none;}
+
+  .status-chip{
+    display:inline-block;
+    font-size:11px;
+    font-weight:600;
+    padding:3px 9px;
+    border-radius:999px;
+    white-space:nowrap;
+  }
+  .status-chip.not-started{background:var(--slate-soft); color:var(--slate-text);}
+  .status-chip.in-progress{background:var(--brand-soft); color:var(--brand-text);}
+  .status-chip.blocked{background:var(--signal-soft); color:var(--signal-text);}
+  .status-chip.done{background:var(--success-soft); color:var(--success-text);}
+  .status-chip.complete{background:var(--success-soft); color:var(--success-text);}
+  .status-chip.planned{background:var(--brand-soft); color:var(--brand-text);}
+  .status-chip.piloted{background:var(--amber-soft); color:var(--amber-text);}
+  .status-chip.in-use{background:var(--success-soft); color:var(--success-text);}
+  .done-task{text-decoration:line-through; color:var(--ink-soft);}
+
+  /* ---------- STAKEHOLDERS ---------- */
+  .stake-layout{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:18px;
+    margin-bottom:20px;
+  }
+  .stake-card{padding:18px;}
+  .stake-card table th{font-size:13px;}
+  .stake-card h3{font-size:14px; margin-bottom:12px;}
+  .card-dark-bar{
+    background:var(--header-bg); color:var(--header-text);
+    padding:13px 20px;
+    border-radius:var(--radius);
+    font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:14px; letter-spacing:.02em;
+    margin:0 0 12px;
+  }
+  .crit-star{color:var(--amber-text); font-weight:700;}
+  .crit-select{
+    font-family:inherit; font-size:13px; font-weight:600; color:var(--slate-text);
+    border:1px solid transparent; background:transparent; cursor:pointer;
+    padding:3px 8px; border-radius:6px;
+  }
+  .crit-select.is-star{color:var(--amber-text); font-weight:700;}
+  .crit-select:hover{background:var(--slate-soft); border-color:var(--slate);}
+  .crit-select.is-star:hover{background:var(--brand-soft); border-color:var(--brand);}
+  .crit-select:focus{outline:none; background:var(--card); border-color:var(--brand); box-shadow:0 0 0 2px var(--brand);}
+  .role-select{
+    font-family:inherit; font-size:13px; font-weight:600; color:var(--ink);
+    border:1px solid transparent; background:transparent; cursor:pointer;
+    padding:3px 8px; border-radius:6px;
+  }
+  .role-select:hover{background:var(--brand-soft); border-color:var(--brand);}
+  .role-select:focus{outline:none; background:var(--card); border-color:var(--brand); box-shadow:0 0 0 2px var(--brand);}
+  .type-select{
+    font-family:inherit; font-size:11px; font-weight:600; color:var(--ink);
+    border:1px solid transparent; background:transparent; cursor:pointer;
+    padding:3px 6px; border-radius:6px; max-width:100%; min-width:185px;
+    white-space:normal; word-wrap:break-word;
+  }
+  .type-select:hover{background:var(--brand-soft); border-color:var(--brand);}
+  .type-select:focus{outline:none; background:var(--card); border-color:var(--brand); box-shadow:0 0 0 2px var(--brand);}
+  .type-input{
+    font-family:inherit; font-size:11px; border:1px solid transparent; background:transparent;
+    padding:3px 5px; border-radius:4px; width:100%; max-width:100%; box-sizing:border-box; cursor:text; color:var(--ink);
+  }
+  .type-input:hover{background:var(--brand-soft); border-color:var(--line);}
+  .type-input:focus{background:var(--card); border-color:var(--brand); outline:none; box-shadow:0 0 0 2px var(--brand);}
+
+  #funnelRoot{display:grid; grid-template-columns:repeat(3, 1fr); gap:16px 12px;}
+  @media (max-width:700px){#funnelRoot{grid-template-columns:repeat(2, 1fr);}}
+  @media (max-width:420px){#funnelRoot{grid-template-columns:1fr;}}
+  .pie-item{border:1px solid var(--line); border-radius:10px; padding:16px; display:flex; flex-direction:column; align-items:center; gap:10px; background:var(--card);}
+  .pie-name{font-size:12.5px; font-weight:700; text-align:center; line-height:1.3; color:var(--ink);}
+  .pie-total{font-size:11px; color:var(--ink-soft); font-family:'IBM Plex Mono',monospace;}
+  .pie-empty{width:90px; height:90px; border-radius:50%; border:1px dashed var(--line);}
+  .funnel-row-top span:first-child{font-weight:600;}
+  .funnel-row-top span:last-child{color:var(--ink-soft); font-family:'IBM Plex Mono',monospace; font-size:11.5px;}
+
+  select.status-select{
+    font-family:'Inter',sans-serif;
+    font-size:11px;
+    font-weight:600;
+    padding:4px 8px;
+    border-radius:999px;
+    border:1.5px solid transparent;
+    cursor:pointer;
+  }
+  select.status-select:hover{border-color:currentColor;}
+  select.status-select.not-started{background:var(--slate-soft); color:var(--slate-text);}
+  select.status-select.planned{background:var(--brand-soft); color:var(--brand-text);}
+  select.status-select.piloted{background:var(--amber-soft); color:var(--amber-text);}
+  select.status-select.in-use{background:var(--success-soft); color:var(--success-text);}
+  select.status-select.in-progress{background:var(--brand-soft); color:var(--brand-text);}
+  select.status-select.blocked{background:var(--signal-soft); color:var(--signal-text);}
+  select.status-select.complete{background:var(--success-soft); color:var(--success-text);}
+
+  /* Roster/adoption status colors — scoped separately from task status colors above,
+     since both systems share the "not-started" value but should not share its color. */
+  select.status-select.roster-status.not-applicable{background:var(--slate-soft); color:var(--slate-text);}
+  select.status-select.roster-status.not-started{background:var(--status-red-soft); color:var(--status-red-text);}
+  select.status-select.roster-status.planned{background:var(--status-orange-soft); color:var(--status-orange-text);}
+  select.status-select.roster-status.piloted{background:var(--status-yellow-soft); color:var(--status-yellow-text);}
+  select.status-select.roster-status.in-use{background:var(--status-green-soft); color:var(--status-green-text);}
+
+  .contact-block{display:flex; flex-direction:column; gap:2px; min-width:150px;}
+  .contact-name{font-weight:600;}
+
+  /* ---------- GENERIC EDITABLE FIELDS ---------- */
+  [contenteditable="true"]{
+    outline: none;
+    border-radius: 4px;
+    padding: 1px 4px;
+    margin: -1px -4px;
+    cursor: text;
+  }
+  [contenteditable="true"]:hover{
+    background: var(--brand-soft);
+    box-shadow: 0 0 0 1px var(--line);
+  }
+  [contenteditable="true"]:focus{
+    background: var(--card);
+    box-shadow: 0 0 0 2px var(--brand);
+  }
+  [contenteditable="true"]:empty:before{
+    content: attr(data-placeholder);
+    color: var(--slate-text);
+    font-style: italic;
+  }
+  .ics-download-btn{
+    margin-top:12px; width:100%;
+    font-family:inherit; font-size:12.5px; font-weight:600;
+    color:#fff; background:var(--brand); border:none; border-radius:8px;
+    padding:9px 12px; cursor:pointer;
+  }
+  .ics-download-btn:hover{background:var(--brand-text);}
+  .deliv-date-input{
+    font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink);
+    border:1px solid transparent; background:transparent; padding:3px 4px;
+    border-radius:4px; cursor:pointer; width:100%;
+  }
+  .deliv-date-input:hover{background:var(--brand-soft); border-color:var(--line);}
+  .deliv-date-input:focus{background:var(--card); border-color:var(--brand); outline:none;}
+  .deliv-date-wrap{display:flex; flex-direction:column; gap:2px;}
+  .deliv-date-label{font-size:9px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-soft); font-weight:700;}
+  select.deliv-pill{border:none; appearance:auto; -webkit-appearance:auto;}
+  .pill-goal[contenteditable="true"], .pill-block[contenteditable="true"]{
+    padding: 5px 11px; margin: 0;
+  }
+  .pill-remove{
+    background:none; border:none; cursor:pointer; color:var(--ink-soft); opacity:.6;
+    font-size:13px; margin:0 8px 0 -4px; padding:0 2px; vertical-align:middle; line-height:1;
+  }
+  .pill-remove:hover{opacity:1; color:var(--signal-text);}
+  .pill-add-btn{
+    display:inline-flex; align-items:center; font-size:12px; font-weight:600;
+    color:var(--brand-text); background:none; border:1px dashed var(--line);
+    border-radius:999px; padding:5px 11px; cursor:pointer; font-family:inherit;
+  }
+  .pill-add-btn:hover{border-color:var(--brand); background:var(--brand-soft);}
+  .contact-sub{font-size:11.5px; color:var(--ink-soft);}
+  .contact-sub.placeholder{font-style:italic; color:var(--slate-text);}
+  .contact-sub a{color:var(--brand-text); text-decoration:none;}
+  .contact-sub a:hover{text-decoration:underline;}
+  .contact-edit-btn{
+    align-self:flex-start;
+    margin-top:5px;
+    font-size:11px;
+    font-weight:600;
+    color:var(--brand-text);
+    background:none;
+    border:none;
+    cursor:pointer;
+    padding:0;
+    font-family:inherit;
+  }
+  .contact-edit-btn:hover{text-decoration:underline;}
+  .contact-edit-form{display:flex; flex-direction:column; gap:5px; min-width:170px;}
+  .contact-input{
+    font-family:inherit;
+    font-size:12px;
+    padding:5px 8px;
+    border:1px solid var(--line);
+    border-radius:6px;
+    width:100%;
+    background:var(--card);
+    color:var(--ink);
+  }
+  .contact-edit-actions{display:flex; gap:6px; margin-top:2px;}
+  .contact-save-btn{
+    font-size:11px; font-weight:700; padding:5px 10px; border-radius:6px; border:none;
+    background:var(--brand); color:#fff; cursor:pointer; font-family:inherit;
+  }
+  .contact-cancel-btn{
+    font-size:11px; font-weight:600; padding:5px 10px; border-radius:6px; border:1px solid var(--line);
+    background:var(--card); color:var(--ink-soft); cursor:pointer; font-family:inherit;
+  }
+  .kanban-card select.status-select{margin-top:8px; width:100%; font-size:10.5px; padding:4px 8px;}
+
+  .task-icons{display:flex; gap:4px; justify-content:flex-end;}
+  .icon-btn{background:none; border:none; cursor:pointer; padding:3px 5px; font-size:13px; color:var(--ink-soft); border-radius:4px; line-height:1; font-family:inherit;}
+  .icon-btn:hover{color:var(--ink); background:var(--paper);}
+  .add-task-btn{
+    margin-top:12px;
+    font-size:12.5px; font-weight:600; color:var(--brand-text);
+    background:none; border:1px dashed var(--line); border-radius:8px;
+    padding:9px 14px; cursor:pointer; width:100%; text-align:center; font-family:inherit;
+  }
+  .add-task-btn:hover{border-color:var(--brand); background:var(--brand-soft);}
+  .task-edit-container td{background:var(--paper); padding-top:8px; padding-bottom:8px;}
+  .kanban-card-edit{
+    background:var(--card); border:1.5px solid var(--brand); border-radius:6px; padding:10px;
+    margin-bottom:8px; display:flex; flex-direction:column; gap:6px;
+  }
+  .kanban-add-wrap{margin-bottom:14px;}
+  .kanban-card-actions{display:flex; gap:4px; justify-content:flex-end; margin-top:6px;}
+  .empty-lane-note{font-size:13px; color:var(--ink-soft); font-style:italic; padding:18px 0; text-align:center; margin:0;}
+  .primary-contact{vertical-align:top;}
+  .funnel-empty-label{font-size:11px; color:var(--ink-soft); padding:2px 0 0; font-style:italic;}
+  .funnel-legend{display:flex; gap:20px; margin-bottom:18px; flex-wrap:wrap;}
+  .funnel-legend-item{display:flex; align-items:center; gap:8px; font-size:14px; font-weight:600; color:var(--ink-soft);}
+  .legend-dot{width:13px; height:13px; border-radius:3px; display:inline-block;}
+
+  .roster-controls{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+    margin-bottom:14px;
+  }
+  .chip-btn{
+    font-family:'Inter',sans-serif;
+    font-size:12px;
+    font-weight:600;
+    padding:6px 12px;
+    border-radius:999px;
+    border:1px solid var(--line);
+    background:var(--card);
+    color:var(--ink-soft);
+    cursor:pointer;
+  }
+  .chip-btn[aria-pressed="true"]{
+    background:var(--bar-bg);
+    border-color:var(--bar-bg);
+    color:#fff;
+  }
+  .search-input{
+    margin-left:auto;
+    font-family:inherit;
+    font-size:12.5px;
+    padding:7px 12px;
+    border-radius:8px;
+    border:1px solid var(--line);
+    min-width:200px;
+    background:var(--card);
+    color:var(--ink);
+  }
+  .highlight-row{background:var(--signal-soft) !important;}
+
+  /* ---------- ROSTER: CARD GRID + SIDEBAR ---------- */
+  .roster-layout{display:grid; grid-template-columns:220px 1fr; gap:14px;}
+  @media (max-width:760px){ .roster-layout{grid-template-columns:1fr;} }
+  .roster-side-card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:18px; align-self:start;}
+  .roster-side-label{font-size:10.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:10px;}
+  .roster-big-stat{font-family:'IBM Plex Mono',monospace; font-size:32px; font-weight:700; line-height:1;}
+  .roster-big-stat-label{font-size:12px; color:var(--ink-soft); margin:2px 0 18px;}
+  .roster-status-row{display:flex; align-items:center; justify-content:space-between; padding:6px 0; font-size:12.5px;}
+  .roster-status-row .label{display:flex; align-items:center; gap:7px;}
+  .roster-status-dot{width:9px; height:9px; border-radius:3px; display:inline-block;}
+  .roster-status-val{font-family:'IBM Plex Mono',monospace; font-weight:600;}
+
+  .org-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:12px;}
+  @media (max-width:640px){ .org-grid{grid-template-columns:1fr;} }
+  .org-card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:16px 18px;}
+  .org-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:2px;}
+  .org-name{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:14.5px;}
+  .org-type-input{font-size:10.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-soft); margin-bottom:12px;}
+
+  .contact-card{background:var(--paper); border-radius:8px; padding:12px 14px; margin-bottom:12px;}
+  .contact-card .contact-block{min-width:0;}
+  .contact-card .contact-edit-form{min-width:0;}
+
+  .participants-label{font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-soft); margin-bottom:6px;}
+  .participant-chip{display:inline-block; background:var(--brand-soft); color:var(--brand-text); font-size:11px; padding:4px 10px; border-radius:999px; margin:0 5px 5px 0;}
+  .org-notes{font-size:11.5px; color:var(--ink-soft); border-top:1px solid var(--line); padding-top:9px; margin-top:10px; font-style:italic;}
+
+  /* ---------- GOVERNANCE ---------- */
+  .gov-layout{
+    display:grid;
+    grid-template-columns:1.5fr 1fr;
+    gap:18px;
+  }
+  @media (max-width:900px){ .gov-layout{grid-template-columns:1fr;} }
+  .gov-card{padding:18px;}
+  .leaderboard-row{
+    display:grid;
+    grid-template-columns:110px 1fr 46px;
+    align-items:center;
+    gap:10px;
+    font-size:12px;
+    padding:5px 0;
+  }
+  .leaderboard-row .who{font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .leaderboard-track{background:var(--paper); border-radius:4px; height:9px;}
+  .leaderboard-fill{background:var(--brand); height:100%; border-radius:4px;}
+  .leaderboard-val{text-align:right; font-family:'IBM Plex Mono',monospace; color:var(--ink-soft);}
+
+  .fac-hours{
+    text-align:center;
+    padding:24px 10px 14px;
+  }
+  .fac-hours .kpi-value{font-size:38px;}
+  .recon-note{
+    margin-top:14px;
+    font-size:11.8px;
+    color:var(--signal-text);
+    background:var(--signal-soft);
+    padding:10px 12px;
+    border-radius:8px;
+    text-align:left;
+  }
+  .updated-line{font-size:11.5px; color:var(--ink-soft); margin-top:10px;}
+
+  /* ---------- WORK PRODUCT OVERVIEW (true-look styling) ---------- */
+  .overview-shell{
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    overflow:hidden;
+    box-shadow:var(--shadow);
+    background:var(--paper);
+  }
+  .overview-bar{
+    background:var(--header-bg);
+    color:var(--header-text);
+    text-align:center;
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:600;
+    font-size:15px;
+    letter-spacing:.02em;
+    padding:13px 16px;
+  }
+  .overview-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+    padding:18px;
+  }
+  @media (max-width:900px){ .overview-grid{grid-template-columns:1fr;} }
+  .overview-col{display:flex; flex-direction:column; gap:14px;}
+  .overview-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:16px 18px;
+    box-shadow:none;
+  }
+  .overview-head{
+    font-size:14px;
+    font-weight:700;
+    color:var(--ink);
+    text-decoration:underline;
+    margin:0 0 10px;
+    display:inline-block;
+  }
+  .overview-card p{font-size:13px; color:var(--ink); margin:0 0 8px;}
+  .overview-card p:last-child{margin-bottom:0;}
+
+  .why-list{margin:0; padding-left:19px; font-size:13px;}
+  .why-list li{margin-bottom:10px;}
+  .why-list li:last-child{margin-bottom:0;}
+
+  .overview-pair{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  @media (max-width:560px){ .overview-pair{grid-template-columns:1fr;} }
+
+  .video-embed-wrap{
+    position:relative; width:100%; padding-bottom:56.25%; height:0; overflow:hidden;
+  }
+  .video-embed-wrap iframe{
+    position:absolute; top:0; left:0; width:100%; height:100%; border:0;
+  }
+
+  .restore-banner{
+    max-width:1180px; margin:14px auto 0; padding:12px 20px;
+    background:var(--amber-soft); border:1px solid var(--amber); border-radius:var(--radius);
+    display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
+  }
+  .restore-banner-text{font-size:13px; color:var(--amber-text); font-weight:600;}
+  .restore-banner-actions{display:flex; gap:8px; flex:0 0 auto;}
+  .restore-btn{
+    font-family:'Inter',sans-serif; font-size:12.5px; font-weight:700; color:var(--header-text);
+    background:var(--amber); border:none; border-radius:999px; padding:7px 16px; cursor:pointer;
+  }
+  .restore-btn:hover{background:var(--amber-text);}
+  .dismiss-restore-btn{
+    font-family:'Inter',sans-serif; font-size:12.5px; font-weight:600; color:var(--amber-text);
+    background:none; border:1px solid var(--amber); border-radius:999px; padding:7px 16px; cursor:pointer;
+  }
+  .dismiss-restore-btn:hover{background:var(--amber-soft);}
+
+  .meeting-schedule-wrap{
+    max-width:1180px; margin:22px auto 0; padding:0 24px;
+  }
+  .meeting-banner{
+    display:grid; grid-template-columns:repeat(7, 1fr); align-items:stretch;
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    box-shadow:var(--shadow); padding:0; overflow:hidden;
+  }
+  .meeting-banner-label{
+    background:var(--header-bg); color:var(--header-text); font-family:'Space Grotesk',sans-serif;
+    font-weight:700; font-size:16px; padding:16px 18px;
+    display:flex; align-items:center; letter-spacing:.02em; min-width:0;
+  }
+  .meeting-tile-row{display:contents;}
+  .meeting-tile{
+    padding:14px 18px; border-right:1px solid var(--line); min-width:0;
+    display:flex; flex-direction:column; gap:3px;
+  }
+  .meeting-tile:last-of-type{border-right:none;}
+  .meeting-tile-icon{display:none;}
+  .meeting-tile-label{font-size:9.5px; text-transform:uppercase; letter-spacing:.05em; font-weight:700; color:var(--ink-soft);}
+  .meeting-tile-value{font-size:12px; font-family:'IBM Plex Mono',monospace; color:var(--ink); overflow-wrap:anywhere; word-break:break-word;}
+  a.meeting-tile-value{text-decoration:underline; text-decoration-color:var(--line); text-underline-offset:2px; cursor:pointer;}
+  a.meeting-tile-value:hover{color:var(--brand-text); text-decoration-color:var(--brand-text);}
+  .meeting-tile-label-caption{
+    font-size:11.5px; font-weight:700; letter-spacing:.07em; text-transform:uppercase;
+    color:var(--ink-soft); border-bottom:1.5px solid var(--line); padding-bottom:5px; margin-bottom:6px; display:block;
+  }
+  .meeting-banner-btn{
+    font-family:'Inter',sans-serif; font-size:15px; font-weight:700; min-width:0;
+    color:var(--header-text); background:var(--header-bg); border:none; padding:16px 18px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:8px; text-align:center; white-space:normal;
+  }
+  .meeting-banner-btn svg{flex:0 0 auto;}
+  .meeting-banner-btn:hover{background:var(--header-bg-hover);}
+
+  .meeting-tile.sponsor-tile{align-items:flex-start;}
+  .sponsor-tile-logo{height:34px; width:auto; max-width:100%; object-fit:contain; align-self:center; margin-top:6px; background:#fff; padding:6px 12px; border-radius:6px;}
+  @media (max-width:900px){
+    .meeting-banner{grid-template-columns:repeat(3, 1fr);}
+    .meeting-banner-label{padding:12px 18px;}
+    .meeting-tile{border-right:none; border-bottom:1px solid var(--line);}
+    .meeting-banner-btn{padding:12px 18px;}
+  }
+  @media (max-width:560px){
+    .meeting-banner{grid-template-columns:repeat(2, 1fr);}
+  }
+
+  .savings-placeholder{text-align:center; padding:10px 0 4px;}
+  .savings-placeholder .fig{font-family:'IBM Plex Mono',monospace; font-size:30px; font-weight:700; color:var(--ink);}
+  .savings-placeholder .note{font-size:11.5px; color:var(--ink-soft); margin:4px 0 12px;}
+
+  .savings-divider{border-top:1px solid var(--line); margin-top:14px; padding-top:14px;}
+  .roi-link{
+    display:inline-flex; align-items:center; gap:5px; text-align:left; font-size:12px; font-weight:600;
+    color:var(--ink-soft); text-decoration:none; margin-top:8px; cursor:pointer; background:none; border:none; padding:0; font-family:inherit;
+  }
+  .roi-link:hover{text-decoration:underline;}
+  .roi-link.disabled{color:var(--slate-text); pointer-events:none; font-style:italic; font-weight:500;}
+  .roi-chevron{font-size:10px; transition:transform .15s ease;}
+  .roi-chevron.open{transform:rotate(180deg);}
+  .roi-detail{display:none; margin-top:12px; padding-top:12px; border-top:1px solid var(--line);}
+  .roi-detail.open{display:block;}
+  .roi-detail-row{display:flex; justify-content:space-between; font-size:12px; padding:5px 0;}
+  .roi-detail-row.total{border-top:1px solid var(--line); margin-top:4px; padding-top:8px; font-weight:700;}
+
+  .savings-value-row{display:flex; justify-content:space-between; font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:18px; margin-bottom:10px;}
+  .savings-track{height:6px; background:var(--line); border-radius:4px; position:relative; margin:0 6px 16px;}
+  .savings-fill{position:absolute; left:14%; right:8%; top:0; height:100%; background:var(--bar-bg); border-radius:4px;}
+  html[data-theme="dark"] .savings-fill{background:#fff;}
+  .savings-handle{position:absolute; top:50%; width:14px; height:14px; background:var(--bar-bg); border:2px solid #fff; border-radius:50%; transform:translate(-50%,-50%); box-shadow:0 0 0 1px var(--bar-bg);}
+
+  .deliverables-table{font-size:12.5px; width:100%;}
+  .deliverables-table th{font-size:10px; padding:6px 8px;}
+  .deliverables-table td{padding:8px 8px; border-bottom:1px solid #DDE6FA; vertical-align:top;}
+  .prog-track{width:64px; height:6px; background:#DDE6FA; border-radius:4px;}
+  .prog-fill{height:100%; border-radius:4px;}
+  .deliv-pill{display:inline-block; font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:5px; color:#fff; white-space:nowrap;}
+  .deliv-pill.done{background:var(--success); color:var(--header-text);}
+  .deliv-pill.progress{background:var(--amber); color:#4A3300;}
+  .deliv-pill.notstarted{background:var(--signal);}
+
+  .link-ico{color:var(--ink-soft); margin-right:4px; font-size:11px;}
+
+  /* ---------- ROADMAP: goal strip + compact/kanban views ---------- */
+  .view-toggle{display:flex; gap:4px; background:var(--slate-soft); padding:3px; border-radius:8px;}
+  .view-btn{font-family:'Inter',sans-serif; font-size:12px; font-weight:600; padding:6px 13px; border-radius:6px; border:none; background:none; color:var(--ink-soft); cursor:pointer;}
+  .view-btn[aria-pressed="true"]{background:var(--card); color:var(--ink); box-shadow:var(--shadow);}
+
+  .goal-strip{display:flex; flex-direction:column; gap:18px;}
+  .goal-strip-group{}
+  .strip-label{display:block; font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-soft); font-weight:600; margin-bottom:8px;}
+  .pill-row{display:flex; flex-wrap:wrap; gap:6px;}
+  .pill-goal{background:var(--brand-soft); color:var(--brand-text); font-size:12px; font-weight:500; padding:5px 11px; border-radius:999px;}
+  .pill-block{background:var(--signal-soft); color:var(--signal-text); font-size:12px; font-weight:500; padding:5px 11px; border-radius:999px;}
+
+  .action-table-full{width:100%;}
+
+  .kanban-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:12px;}
+  @media (max-width:800px){ .kanban-grid{grid-template-columns:repeat(2,1fr);} }
+  .kanban-col{background:var(--paper); border-radius:8px; padding:10px; min-height:80px;}
+  .kanban-col-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;}
+  .kanban-count{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink-soft);}
+  .kanban-card{background:var(--card); border:1px solid var(--line); border-radius:6px; padding:8px 10px; margin-bottom:8px; font-size:12px; box-shadow:var(--shadow);}
+  .kanban-card:last-child{margin-bottom:0;}
+  .kanban-task{font-weight:600; margin-bottom:3px;}
+  .kanban-owner{color:var(--ink-soft); font-size:11px;}
+  .kanban-empty{font-size:11.5px; color:var(--ink-soft); font-style:italic; text-align:center; padding:14px 0;}
+
+  footer{
+    max-width:1180px;
+    margin:50px auto 0;
+    padding:20px 24px 0;
+    border-top:1px solid var(--line);
+    font-size:11.5px;
+    color:var(--ink-soft);
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="masthead-inner">
+    <div>
+      <div class="eyebrow-row">
+        <span class="sponsor-mark">MISMO</span>
+        <span class="workgroup-tag" contenteditable="true">{{WORKGROUP_TAG}}</span>
+        <span class="eyebrow" contenteditable="true">{{DOMAIN}} · Workgroup Dashboard</span>
+      </div>
+      <div class="title-row">
+        <h1 contenteditable="true">{{WORKGROUP_NAME}}<span class="segment-tag" contenteditable="true">({{WORKGROUP_ABBREV}})</span></h1>
+      </div>
+      <div class="leadership">
+        <!-- One .lead-chip per leader. Common roles are Co-Chair and Facilitator, but the
+             number of co-chairs varies by workgroup (some have one, some have two or more) —
+             add or remove .lead-chip divs to match. This is plain static HTML, not driven by
+             a data array, so just edit the markup directly. -->
+        <div class="lead-chip"><span class="role">Co-Chair</span><span class="name" contenteditable="true">{{COCHAIR_1_NAME}}</span></div>
+        <div class="lead-chip"><span class="role">Co-Chair</span><span class="name" contenteditable="true">{{COCHAIR_2_NAME}}</span></div>
+        <div class="lead-chip"><span class="role">Facilitator</span><span class="name" contenteditable="true">{{FACILITATOR_NAME}}</span></div>
+      </div>
+    </div>
+    <div class="masthead-right">
+      <a class="back-to-hub" href="index.html">← Back to Initiative Hub</a>
+      <div class="masthead-actions-row">
+        <button type="button" id="saveSnapshotBtn" class="save-toggle-btn" title="Save your current edits so they survive a page refresh">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"></path><path d="M17 21v-8H7v8"></path><path d="M7 3v5h8"></path></svg>
+          <span class="save-label">Save</span>
+          <span class="dirty-dot" aria-hidden="true"></span>
+        </button>
+        <button type="button" id="lockToggleBtn" class="lock-toggle-btn" aria-pressed="true" title="Unlock to allow edits">
+          <span class="lock-icon" aria-hidden="true"></span><span class="lock-label">Locked</span>
+        </button>
+        <button type="button" id="themeToggleBtn" class="theme-toggle-btn" aria-label="Switch to dark mode" title="Switch to dark mode">
+          <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 3v2M12 19v2M5 5l1.5 1.5M17.5 17.5L19 19M3 12h2M19 12h2M5 19l1.5-1.5M17.5 6.5L19 5"/></svg>
+          <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z"/></svg>
+        </button>
+      </div>
+      <span class="section-note mono">Draft v1 · not affiliated with {{SOURCE_DOCUMENT_OWNER}}</span>
+    </div>
+  </div>
+</div>
+
+  <div id="restoreBanner" class="restore-banner" style="display:none;">
+    <span class="restore-banner-text">A saved version of this page exists in your browser from a previous visit.</span>
+    <div class="restore-banner-actions">
+      <button type="button" id="restoreBtn" class="restore-btn">Restore it</button>
+      <button type="button" id="dismissRestoreBtn" class="dismiss-restore-btn">Dismiss</button>
+    </div>
+  </div>
+
+  <!-- WORKGROUP INFORMATION -->
+  <div class="meeting-schedule-wrap">
+    <section id="meeting-schedule">
+      <div class="meeting-banner">
+        <div class="meeting-banner-label">Workgroup Information</div>
+        <div class="meeting-tile-row">
+          <div class="meeting-tile">
+            <span class="meeting-tile-label-caption">Name</span>
+            <span class="meeting-tile-value" contenteditable="true">{{WORKGROUP_TAG}}</span>
+          </div>
+          <div class="meeting-tile sponsor-tile">
+            <span class="meeting-tile-label-caption">Sponsored by</span>
+            <!-- Swap the logo file for the sponsor's own logo (upload it alongside this page
+                 in the repo). If there's no distinct sponsor beyond MISMO itself, use
+                 mismo-logo.png, matching the CCS/TPA pattern. -->
+            <img src="{{SPONSOR_LOGO_FILENAME}}" alt="{{SPONSOR_NAME}}" class="sponsor-tile-logo">
+          </div>
+          <div class="meeting-tile">
+            <span class="meeting-tile-label-caption">Cadence</span>
+            <span class="meeting-tile-value" contenteditable="true">{{MEETING_CADENCE}}</span>
+          </div>
+          <div class="meeting-tile">
+            <span class="meeting-tile-label-caption">Time</span>
+            <span class="meeting-tile-value" contenteditable="true">{{MEETING_TIME}} ET</span>
+          </div>
+          <div class="meeting-tile">
+            <span class="meeting-tile-label-caption">Zoom link</span>
+            <!-- Deliberately NOT contenteditable — per project decision, this field is
+                 updated directly in code (by an agent or developer), not via the live page,
+                 since it needs to stay a real, working link rather than editable text.
+                 If there's genuinely no meeting scheduled yet (e.g. a newly proposed
+                 workgroup), replace this whole link element with a plain, non-editable
+                 "TBD" text span instead — see TPA for the exact pattern, and skip the
+                 Add-to-calendar button below entirely in that case. -->
+            <a class="meeting-tile-value" href="{{ZOOM_LINK_URL}}" target="_blank" rel="noopener">{{ZOOM_LINK_URL}}</a>
+          </div>
+        </div>
+        <button type="button" class="meeting-banner-btn" id="icsDownloadBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Add to calendar</button>
+      </div>
+    </section>
+  </div>
+
+<div class="wrap">
+
+  <!-- WORK PRODUCT OVERVIEW -->
+  <section id="overview">
+    <div class="overview-shell">
+      <div class="overview-bar">Work Product Overview</div>
+      <div class="overview-grid">
+
+        <div class="overview-col">
+          <div class="overview-card">
+            <h3 class="overview-head">What is {{WORKGROUP_NAME_WITH_ARTICLE}}?</h3>
+            <!-- Two paragraphs is the established pattern, but this is plain contenteditable
+                 text, not array-driven — add or remove paragraphs if a workgroup genuinely
+                 needs more or fewer. -->
+            <p contenteditable="true">{{WHAT_IS_IT_PARAGRAPH_1}}</p>
+            <p contenteditable="true">{{WHAT_IS_IT_PARAGRAPH_2}}</p>
+          </div>
+
+          <div class="overview-card" id="why-card">
+            <h3 class="overview-head">Why is MISMO working on this?</h3>
+            <!-- Each list item is one reason, typically framed as a bolded problem statement
+                 followed by how standardization helps. The optional dollar-figure spans
+                 here are optional — only include them where there's a real,
+                 sourced estimate; don't invent numbers to match the pattern. -->
+            <ol class="why-list">
+              <li contenteditable="true"><strong>{{WHY_REASON_1_HEADLINE}}</strong> {{WHY_REASON_1_DETAIL}}</li>
+              <li contenteditable="true"><strong>{{WHY_REASON_2_HEADLINE}}</strong> {{WHY_REASON_2_DETAIL}}</li>
+              <li contenteditable="true"><strong>{{WHY_REASON_3_HEADLINE}}</strong> {{WHY_REASON_3_DETAIL}}</li>
+            </ol>
+          </div>
+
+          <div class="overview-card" style="padding:0; overflow:hidden;">
+            <!-- Omit this whole card (and its .overview-col slot) entirely if there's no
+                 explainer video yet — don't leave an empty/broken iframe in. -->
+            <!-- Use youtube-nocookie.com/embed/... here, NOT youtube.com/embed/... - the
+                 nocookie domain avoids an intermittent "Error 153" playback failure seen
+                 across all four real dashboards before this was fixed. -->
+            <div class="video-embed-wrap">
+              <iframe src="{{YOUTUBE_EMBED_URL}}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+            </div>
+          </div>
+        </div>
+
+        <div class="overview-col">
+          <div class="overview-card">
+            <h3 class="overview-head">Who brought this to MISMO?</h3>
+            <p class="origin-line"><strong>Brought by:</strong> <span contenteditable="true">{{BROUGHT_BY}}</span></p>
+            <p class="origin-line"><strong>Date started:</strong> <span contenteditable="true">{{DATE_STARTED}}</span></p>
+            <p class="origin-line"><strong>Why:</strong> <span contenteditable="true">{{WHY_BROUGHT}}</span></p>
+            <p class="origin-line" style="margin-bottom:0; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <strong>Status:</strong>
+              <!-- The ⚑ + .status-chip-inline.warn treatment is ONLY for a genuine warning
+                   (e.g. "removed from roadmap", "sponsor pulled out"). For a normal, healthy
+                   status, use plain text with no chip at all — don't manufacture a warning
+                   just to fill this slot. Remove the wrapper element and warn class if
+                   there's nothing concerning to flag. -->
+              <span id="kpi-status" class="status-chip-inline warn" contenteditable="true">{{STATUS_NOTE}}</span>
+            </p>
+
+            <!-- Estimated savings lives inside this same card now (divider below), not as
+                 its own separate overview-card — see LBDS/TPA for the live pattern this
+                 mirrors. Omit the whole .savings-divider block if there's no sourced savings
+                 estimate yet (e.g. a newly proposed workgroup) — don't invent numbers to
+                 fill the slider. -->
+            <div class="savings-divider">
+              <h3 class="overview-head">Estimate per loan savings</h3>
+              <div class="savings-value-row"><span contenteditable="true">{{SAVINGS_LOW}}</span><span contenteditable="true">{{SAVINGS_HIGH}}</span></div>
+              <div class="savings-track">
+                <div class="savings-fill"></div>
+                <!-- The two percentages below position the handles along the track and are
+                     cosmetic/illustrative (not computed from the dollar values) — set them to
+                     roughly reflect where low/high sit within a sensible overall range. -->
+                <div class="savings-handle" style="left:{{SAVINGS_LOW_POSITION_PCT}}%;"></div>
+                <div class="savings-handle" style="left:{{SAVINGS_HIGH_POSITION_PCT}}%;"></div>
+              </div>
+              <!-- This button toggles the breakdown open/closed - it must stay a real
+                   <button type="button">, never an <a href="#...">, or clicking it will
+                   also navigate/scroll the page. See MCD/LBDS/CCS/TPA for the identical,
+                   already-deployed version of this exact toggle. -->
+              <button type="button" class="roi-link" id="roiToggle" onclick="
+                var d = document.getElementById('roiDetail');
+                var c = document.getElementById('roiChevron');
+                var open = d.classList.toggle('open');
+                c.classList.toggle('open', open);
+                document.getElementById('roiToggleText').textContent = open ? 'Hide breakdown' : 'View cost breakdown';
+              "><span id="roiToggleText">View cost breakdown</span> <span class="roi-chevron" id="roiChevron">▾</span></button>
+              <div class="roi-detail" id="roiDetail">
+                <!-- Two cost/savings drivers is the established pattern (see LBDS), but add
+                     or remove rows if a workgroup genuinely has a different number of
+                     distinct drivers. The two figures don't have to sum exactly to
+                     SAVINGS_LOW/SAVINGS_HIGH above if your source data doesn't cleanly
+                     add up — see TPA for how to handle that honestly rather than forcing
+                     a "total" row that implies false precision. -->
+                <div class="roi-detail-row"><span>{{SAVINGS_DRIVER_1_LABEL}}</span><span>{{SAVINGS_DRIVER_1_VALUE}}</span></div>
+                <div class="roi-detail-row"><span>{{SAVINGS_DRIVER_2_LABEL}}</span><span>{{SAVINGS_DRIVER_2_VALUE}}</span></div>
+                <div class="roi-detail-row total"><span>Estimated total per loan</span><span>{{SAVINGS_LOW}}–{{SAVINGS_HIGH}}</span></div>
+                <!-- Omit this ROI link entirely if no independent ROI model/PDF exists yet. -->
+                <a href="{{ROI_MODEL_PDF_URL}}" target="_blank" rel="noopener" class="roi-link" style="margin-top:12px;">View independent ROI model (PDF) ↗</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="overview-card">
+            <h3 class="overview-head">Work product deliverables</h3>
+            <!-- One row per deliverable. Status determines both the select's selected
+                 option AND its pill color via the deliv-pill class (notstarted/progress/done)
+                 — keep those two in sync when editing by hand. The date label switches
+                 automatically between "Expected Publication Date" and "Completed" based on
+                 status; see the deliv-status-select change handler in the script below. -->
+            <table class="deliverables-table">
+              <tr><th>Primary</th><th>Progress</th><th>Status</th><th>Completed</th></tr>
+              <tr><td contenteditable="true">{{DELIVERABLE_1_NAME}}</td><td><div class="prog-track"><div class="prog-fill deliv-progress-fill" style="width:100%; background:var(--success);"></div></div></td><td><select class="deliv-pill done deliv-status-select"><option value="notstarted">Not Started</option><option value="progress">In Progress</option><option value="done" selected>Done</option></select></td><td><div class="deliv-date-wrap"><input type="date" class="deliv-date-input" value="{{DELIVERABLE_1_DATE}}"></div></td></tr>
+              <tr><td contenteditable="true">{{DELIVERABLE_2_NAME}}</td><td><div class="prog-track"><div class="prog-fill deliv-progress-fill" style="width:55%; background:var(--amber);"></div></div></td><td><select class="deliv-pill progress deliv-status-select"><option value="notstarted">Not Started</option><option value="progress" selected>In Progress</option><option value="done">Done</option></select></td><td><div class="deliv-date-wrap"><span class="deliv-date-label">Expected Publication Date</span><input type="date" class="deliv-date-input" value="{{DELIVERABLE_2_DATE}}"></div></td></tr>
+              <tr><td contenteditable="true">{{DELIVERABLE_3_NAME}}</td><td><div class="prog-track"><div class="prog-fill deliv-progress-fill" style="width:0%;"></div></div></td><td><select class="deliv-pill notstarted deliv-status-select"><option value="notstarted" selected>Not Started</option><option value="progress">In Progress</option><option value="done">Done</option></select></td><td><div class="deliv-date-wrap"><span class="deliv-date-label">Expected Publication Date</span><input type="date" class="deliv-date-input" value="{{DELIVERABLE_3_DATE}}"></div></td></tr>
+            </table>
+          </div>
+
+          <div class="overview-card">
+            <h3 class="overview-head">Relevant industry resources</h3>
+            <!-- One list item per resource. Only include real, working URLs you actually have —
+                 never leave href="#" as a "temporary" placeholder; omit the entry instead
+                 until a real link is available, per project policy on not fabricating links. -->
+            <ul class="reading-list">
+              <li><span class="link-ico">⌁</span><a href="{{RESOURCE_1_URL}}">{{RESOURCE_1_TITLE}}</a></li>
+              <li><span class="link-ico">⌁</span><a href="{{RESOURCE_2_URL}}">{{RESOURCE_2_TITLE}}</a></li>
+              <li><span class="link-ico">⌁</span><a href="{{RESOURCE_3_URL}}">{{RESOURCE_3_TITLE}}</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROADMAP -->
+  <section id="roadmap">
+    <div class="section-head">
+      <h2>Adoption and Development Status</h2>
+      <div class="view-toggle" role="group" aria-label="Layout format">
+        <button class="view-btn" data-view="compact" aria-pressed="true">Compact</button>
+        <button class="view-btn" data-view="kanban" aria-pressed="false">Kanban</button>
+      </div>
+    </div>
+    <p class="section-subtext">See what each stakeholder group needs to do to reach broad adoption.</p>
+    <!-- This intro paragraph is optional narrative context explaining WHY the stakeholder
+         groups depend on each other (e.g. "lenders need X from LOS providers, who need Y
+         from..."). Omit the whole paragraph entirely if there's no such interdependency worth explaining. -->
+    <p class="roadmap-intro">{{ROADMAP_INTERDEPENDENCY_NOTE}}</p>
+
+    <div class="lane-chip-row" id="chipRow" role="tablist" aria-label="Adoption lanes"></div>
+    <div class="command-layout" id="commandLayout">
+      <div class="side-card" id="laneSidebar"></div>
+      <div class="task-card" id="laneMain"></div>
+    </div>
+  </section>
+
+  <!-- STAKEHOLDERS -->
+  <section id="stakeholders">
+    <div class="section-head">
+      <h2>Stakeholder participation &amp; implementation</h2>
+      <!-- This text is a static fallback only visible for an instant before the script
+           computes and overwrites it live from the roster — it doesn't need to be exact,
+           just plausible-looking. Don't hand-maintain this number. -->
+      <span class="section-note" id="adoptionNote">{{ADOPTION_NOTE_FALLBACK}}</span>
+    </div>
+    <p class="section-subtext">Who's involved, how critical they are, and their current implementation status.</p>
+
+    <div class="stake-layout">
+      <div class="card stake-card">
+        <!-- One row per stakeholder type. The dropdown option list inside every type-select
+             must be IDENTICAL across all rows and must exactly match the funnelCategories array
+             in the script below (same names, same order isn't required but same set is) —
+             those categories become the pie charts in the Stakeholder Implementation Status
+             section further down. Add/remove rows and options together as a set. is-star on
+             crit-select is purely a cosmetic class for the gold star fill; keep it in sync
+             with whichever option has selected. -->
+        <table>
+          <tr><th>Type</th><th>Benefit</th><th>Critical</th><th>Role</th></tr>
+          <tr><td><select class="type-select"><option value="{{STAKEHOLDER_TYPE_1}}" selected>{{STAKEHOLDER_TYPE_1}}</option><option value="{{STAKEHOLDER_TYPE_2}}">{{STAKEHOLDER_TYPE_2}}</option></select></td><td contenteditable="true">{{STAKEHOLDER_1_BENEFIT}}</td><td><select class="crit-select is-star"><option value="star" selected>★</option><option value="line">—</option></select></td><td><select class="role-select"><option value="Driver" selected>Driver</option><option value="Implementer">Implementer</option><option value="Both">Driver &amp; Implementer</option></select></td></tr>
+          <tr><td><select class="type-select"><option value="{{STAKEHOLDER_TYPE_1}}">{{STAKEHOLDER_TYPE_1}}</option><option value="{{STAKEHOLDER_TYPE_2}}" selected>{{STAKEHOLDER_TYPE_2}}</option></select></td><td contenteditable="true">{{STAKEHOLDER_2_BENEFIT}}</td><td><select class="crit-select"><option value="star">★</option><option value="line" selected>—</option></select></td><td><select class="role-select"><option value="Driver">Driver</option><option value="Implementer" selected>Implementer</option><option value="Both">Driver &amp; Implementer</option></select></td></tr>
+        </table>
+      </div>
+
+      <h3 class="card-dark-bar">Stakeholder Implementation Status</h3>
+      <p class="section-subtext" style="margin:0 0 12px;">Change any status in the roster below — the charts update to match.</p>
+      <div class="card stake-card">
+        <div class="funnel-legend">
+          <div class="funnel-legend-item"><span class="legend-dot" style="background:var(--slate);"></span>Not Applicable</div>
+          <div class="funnel-legend-item"><span class="legend-dot" style="background:var(--status-red);"></span>Not Started</div>
+          <div class="funnel-legend-item"><span class="legend-dot" style="background:var(--status-orange);"></span>Planned</div>
+          <div class="funnel-legend-item"><span class="legend-dot" style="background:var(--status-yellow);"></span>Piloted</div>
+          <div class="funnel-legend-item"><span class="legend-dot" style="background:var(--status-green);"></span>Implemented</div>
+        </div>
+
+        <div id="funnelRoot"></div>
+      </div>
+    </div>
+
+    <h3 class="card-dark-bar" style="margin:0 0 4px;">Stakeholder engagement roster</h3>
+    <!-- If there's no real meeting-attendance tracker yet for this workgroup (e.g. it hasn't
+         started meeting), don't invent a meeting count — use wording like TPA's instead:
+         "will be defined once this workgroup starts meeting and a tracker exists." -->
+    <p class="section-subtext" style="margin:0 0 12px;">"Active participants" = attended at least 1/3 of the {{MEETING_COUNT}} workgroup meetings held in the past year ({{TRACKING_PERIOD}}), per the uploaded meeting tracker.</p>
+    <div class="card" style="padding:18px;" id="roster">
+      <div class="roster-controls">
+        <!-- Chips are ordered alphabetically with "All types" always last automatically by
+             the script below — the order you write them in here doesn't matter, EXCEPT that
+             the FIRST one alphabetically becomes the default selected chip on page load, so
+             double check which one that'll actually be once you've filled these in for real.
+             These roster type values often match the stakeholder-table types above one-to-one,
+             but don't have to — e.g. LBDS's roster has a more granular "Servicing Technology
+             Provider" type that funnelCategoryFor() (in the script below) maps to the
+             stakeholder table's broader "LOS Providers" category for the pie charts. Only add
+             that kind of mapping if you actually need more granularity in the roster than in
+             the pie-chart categories — most workgroups won't need it. -->
+        <button class="chip-btn" data-type-filter="{{ROSTER_TYPE_1}}" aria-pressed="true">{{ROSTER_TYPE_1}}</button>
+        <button class="chip-btn" data-type-filter="{{ROSTER_TYPE_2}}" aria-pressed="false">{{ROSTER_TYPE_2}}</button>
+        <button class="chip-btn" data-type-filter="all" aria-pressed="false">All types</button>
+        <input class="search-input" id="rosterSearch" type="text" placeholder="Search org or participant…">
+      </div>
+      <div class="roster-layout" id="rosterLayout">
+        <div class="roster-side-card" id="rosterSidebar"></div>
+        <div class="org-grid" id="orgGrid"></div>
+      </div>
+      <p class="section-note" id="rosterEmpty" style="display:none; padding:14px 0 0;">No rows match this filter.</p>
+      <!-- Options here populate the autocomplete when editing an org's type inline — this
+           list should include every roster type value used in rosterData below, so typing
+           an existing type suggests it instead of the user having to type it out fully. -->
+      <datalist id="stakeholderTypeOptions">
+        <option value="{{ROSTER_TYPE_1}}">
+        <option value="{{ROSTER_TYPE_2}}">
+      </datalist>
+    </div>
+  </section>
+
+  <!-- GOVERNANCE -->
+  <section id="governance">
+    <h3 class="card-dark-bar" style="margin:0 0 10px;">Meeting tracker</h3>
+    <p class="section-subtext">Engagement and effort tracked across workgroup meetings.</p>
+    <!-- This whole section assumes a real meeting-attendance tracker exists for this
+         workgroup. If it doesn't yet (e.g. a newly proposed workgroup with no meeting
+         history), replace the leaderboard/facilitator-hours pair below with a simple note
+         instead — see TPA's governance section for the exact "No meeting tracker yet"
+         pattern — rather than inventing numbers to fill this shape. -->
+    <div class="gov-layout">
+      <div class="card gov-card">
+        <div id="leaderboard"></div>
+      </div>
+      <div class="card gov-card fac-hours">
+        <span class="kpi-label">Facilitator hours</span>
+        <div class="kpi-value">{{FACILITATOR_HOURS}}</div>
+        <!-- This reconciliation note exists ONLY because LBDS's source data had a real,
+             confusing discrepancy between two numbers that needed explaining so it didn't
+             look like an error. Most workgroups won't need this at all — omit the whole
+             reconciliation-note element entirely unless there's a genuine, specific
+             discrepancy in YOUR source data worth calling out. Don't manufacture one to
+             fill the slot. -->
+        <div class="recon-note" style="color:var(--success-text); background:var(--success-soft);">{{RECONCILIATION_NOTE}}</div>
+        <div class="updated-line">Last updated {{GOVERNANCE_LAST_UPDATED_DATE}}</div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  Draft dashboard built from the {{WORKGROUP_ABBREV}} {{SOURCE_DOCUMENT_DESCRIPTION}} · content sourced from {{SOURCE_DOCUMENT_DETAIL}}, with data-quality flags surfaced above rather than silently corrected · not affiliated with or hosted by {{SOURCE_DOCUMENT_OWNER}} or MISMO.
+</footer>
+
+<script>
+  // --- Lock/unlock: defined first so isLocked exists before any initial render call runs.
+  // Light mode is the default for this dashboard — only switches to dark if the
+  // user has explicitly chosen it before (saved in localStorage). Uses a
+  // dashboard-specific storage key so each dashboard remembers its own choice
+  // independently.
+  const themeToggleBtn = document.getElementById('themeToggleBtn');
+  function applyDashboardTheme(theme){
+    document.documentElement.setAttribute('data-theme', theme);
+    if (themeToggleBtn){
+      const label = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+      themeToggleBtn.setAttribute('aria-label', label);
+      themeToggleBtn.title = label;
+    }
+  }
+  let savedDashboardTheme = 'light';
+  try {
+    savedDashboardTheme = localStorage.getItem('{{DASHBOARD_ID}}-dashboard-theme') || 'light';
+  } catch (e) {
+    // Local storage unavailable — just default to light.
+  }
+  applyDashboardTheme(savedDashboardTheme);
+  if (themeToggleBtn){
+    themeToggleBtn.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+      const next = current === 'dark' ? 'light' : 'dark';
+      applyDashboardTheme(next);
+      try {
+        localStorage.setItem('{{DASHBOARD_ID}}-dashboard-theme', next);
+      } catch (e) {
+        // Local storage unavailable — the toggle still works, it just won't persist.
+      }
+    });
+  }
+
+  // applyLockState() genuinely toggles the contenteditable attribute and .disabled property
+  // (not just CSS) and is called from renderRosterTable()/renderLane() too, so re-renders
+  // triggered by search, filtering, or status changes can't silently unlock fresh content. ---
+  let isLocked = true;
+  const lockToggleBtn = document.getElementById('lockToggleBtn');
+  const LOCK_ICON_LOCKED = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>';
+  const LOCK_ICON_UNLOCKED = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 7.75-1.5"></path></svg>';
+
+  function applyLockState(){
+    document.querySelectorAll('[contenteditable]').forEach(el => {
+      el.setAttribute('contenteditable', isLocked ? 'false' : 'true');
+    });
+    document.querySelectorAll(
+      'select.status-select, select.crit-select, select.role-select, select.type-select, select.deliv-status-select, input.type-input, input.deliv-date-input, .contact-input'
+    ).forEach(el => {
+      el.disabled = isLocked;
+    });
+    document.body.classList.toggle('locked', isLocked);
+  }
+
+  function updateLockUI(){
+    lockToggleBtn.classList.toggle('is-locked', isLocked);
+    lockToggleBtn.setAttribute('aria-pressed', isLocked ? 'true' : 'false');
+    lockToggleBtn.querySelector('.lock-icon').innerHTML = isLocked ? LOCK_ICON_LOCKED : LOCK_ICON_UNLOCKED;
+    lockToggleBtn.querySelector('.lock-label').textContent = isLocked ? 'Locked' : 'Unlocked';
+    lockToggleBtn.title = isLocked ? 'Unlock to allow edits' : 'Lock this dashboard to prevent edits';
+    applyLockState();
+  }
+
+  lockToggleBtn.addEventListener('click', () => {
+    isLocked = !isLocked;
+    if (isLocked){
+      editingContactIdx = null;
+      editingTaskIdx = null;
+      renderRosterTable();
+      renderLane();
+    }
+    updateLockUI();
+  });
+
+  updateLockUI();
+
+  // Roadmap: lane data + compact/kanban renderer
+  // One entry per stakeholder group, keyed by a lowercase JS-safe identifier of your choosing
+  // (the key itself is never shown to users — laneLabels below maps each key to its real
+  // display name). "general" is required and always exists — it's the catch-all lane for
+  // goals that don't belong to one specific stakeholder group. Every OTHER key here must
+  // have a matching entry in laneLabels below, and should typically correspond to a row in
+  // the stakeholder table above (though it doesn't have to be a strict one-to-one — e.g. real
+  // LBDS collapses two stakeholder-table types, "LOS Providers" and "Servicing System," into
+  // a single combined roadmap lane, since they move together operationally).
+  //
+  // Each lane has:
+  //   goals: array of short goal strings (plain text, can be empty)
+  //   roadblocks: array of short roadblock strings (plain text, can be empty — an EMPTY array
+  //     here means this lane's chip will NOT show the ⚑ flag; a non-empty array means it will,
+  //     computed automatically, not something you set directly)
+  //   actions: array of task objects, each {task, owner, status, label} where status is one
+  //     of 'not-started' | 'in-progress' | 'blocked' | 'complete' and label is that status's
+  //     matching display text (see actionStatusOptions just below for the exact pairs)
+  let laneData = {
+    general: {
+      goals: ['{{GENERAL_LANE_GOAL}}'],
+      roadblocks: [],
+      actions: []
+    },
+    stakeholder_a: {
+      goals: ['{{STAKEHOLDER_A_GOAL_1}}', '{{STAKEHOLDER_A_GOAL_2}}'],
+      roadblocks: [],
+      actions: [
+        {task:'{{STAKEHOLDER_A_TASK_1}}', owner:'{{OWNER_NAME}}', status:'in-progress', label:'In Progress'},
+        {task:'{{STAKEHOLDER_A_TASK_2}}', owner:'{{OWNER_NAME}}', status:'not-started', label:'Not Started'}
+      ]
+    },
+    stakeholder_b: {
+      goals: ['{{STAKEHOLDER_B_GOAL_1}}'],
+      roadblocks: ['{{STAKEHOLDER_B_ROADBLOCK_1}}'],
+      actions: [
+        {task:'{{STAKEHOLDER_B_TASK_1}}', owner:'{{OWNER_NAME}}', status:'blocked', label:'Blocked'}
+      ]
+    }
+  };
+
+  // Must match whichever laneData key (other than "general") sorts first alphabetically
+  // by its laneLabels display name below — the chip row sorts itself alphabetically with
+  // "general" forced last, and defaults to selecting the first chip in that order. If you
+  // add/rename/remove lanes, re-check this still points at the correct one.
+  let currentLane = 'stakeholder_a';
+  let currentView = 'compact';
+  let editingTaskIdx = null; // null = none, 'new' = adding, number = editing that index
+  const laneRoot = document.getElementById('commandLayout');
+
+  const actionStatusOptions = [
+    ['not-started', 'Not Started'],
+    ['in-progress', 'In Progress'],
+    ['blocked', 'Blocked'],
+    ['complete', 'Complete']
+  ];
+  const actionStatusLabels = Object.fromEntries(actionStatusOptions);
+
+  function escapeAttr(str){
+    return (str || '').replace(/"/g, '&quot;');
+  }
+
+  // For text inserted into innerHTML display contexts (not attribute values) — prevents
+  // a stray < or & in a typed goal/task/note from being interpreted as markup. Safe to
+  // round-trip with contenteditable: browsers already escape these when serializing typed
+  // text back out via .textContent, so re-escaping on display never double-encodes edits.
+  function escapeHtml(str){
+    return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function renderActionStatusSelect(laneKey, idx, status){
+    const opts = actionStatusOptions.map(([key, label]) =>
+      `<option value="${key}" ${key === status ? 'selected' : ''}>${label}</option>`
+    ).join('');
+    return `<select class="status-select ${status}" data-lane="${laneKey}" data-action-idx="${idx}" aria-label="Task status">${opts}</select>`;
+  }
+
+  function taskStatusOptionsHtml(status){
+    return actionStatusOptions.map(([key, label]) =>
+      `<option value="${key}" ${key === status ? 'selected' : ''}>${label}</option>`
+    ).join('');
+  }
+
+  function taskEditRowHtml(idx, action){
+    return `<tr class="task-edit-container">
+      <td><input class="contact-input" type="text" data-task-field="task" placeholder="Task" value="${escapeAttr(action.task)}"></td>
+      <td><input class="contact-input" type="text" data-task-field="owner" placeholder="Owner" value="${escapeAttr(action.owner)}"></td>
+      <td><select class="contact-input" data-task-field="status">${taskStatusOptionsHtml(action.status)}</select></td>
+      <td class="task-icons"><button type="button" class="contact-save-btn" data-save-task="${idx}">Save</button><button type="button" class="contact-cancel-btn" data-cancel-task="${idx}">Cancel</button></td>
+    </tr>`;
+  }
+
+  function taskEditCardHtml(idx, action){
+    return `<div class="kanban-card-edit task-edit-container">
+      <input class="contact-input task-input" type="text" data-task-field="task" placeholder="Task" value="${escapeAttr(action.task)}">
+      <input class="contact-input task-input" type="text" data-task-field="owner" placeholder="Owner" value="${escapeAttr(action.owner)}">
+      <select class="contact-input task-input" data-task-field="status">${taskStatusOptionsHtml(action.status)}</select>
+      <div class="contact-edit-actions">
+        <button type="button" class="contact-save-btn" data-save-task="${idx}">Save</button>
+        <button type="button" class="contact-cancel-btn" data-cancel-task="${idx}">Cancel</button>
+      </div>
+    </div>`;
+  }
+
+  function renderPillGroup(label, items, kind){
+    const pillClass = kind === 'goal' ? 'pill-goal' : 'pill-block';
+    let inner = items.map((text, i) =>
+      `<span class="${pillClass}" contenteditable="true" data-pill-kind="${kind}" data-pill-idx="${i}">${escapeHtml(text)}</span><button type="button" class="pill-remove" data-pill-remove="${kind}:${i}" title="Remove">×</button>`
+    ).join('');
+    inner += `<button type="button" class="pill-add-btn" data-pill-add="${kind}">+ Add</button>`;
+    return `<div class="goal-strip-group"><span class="strip-label">${label}</span><div class="pill-row">${inner}</div></div>`;
+  }
+
+  // --- Shared persistent storage (test build) ---
+  // Keys are namespaced per-dashboard as cheap insurance against any cross-artifact collision.
+  const ROSTER_STORAGE_KEY = '{{DASHBOARD_ID}}-roster-data-v1';
+  const LANE_STORAGE_KEY = '{{DASHBOARD_ID}}-lane-data-v1';
+  let hasLoadedFromStorage = false; // guards against saving default data over real stored data before the initial load finishes
+
+  async function saveRosterData(){
+    if (!window.storage || !hasLoadedFromStorage) return;
+    try {
+      await window.storage.set(ROSTER_STORAGE_KEY, JSON.stringify(rosterData), true);
+    } catch (err) {
+      console.error('Could not save roster data to shared storage:', err);
+    }
+  }
+
+  async function saveLaneData(){
+    if (!window.storage || !hasLoadedFromStorage) return;
+    try {
+      await window.storage.set(LANE_STORAGE_KEY, JSON.stringify(laneData), true);
+    } catch (err) {
+      console.error('Could not save roadmap data to shared storage:', err);
+    }
+  }
+
+  async function loadSharedData(){
+    if (!window.storage) return { rosterFound: false, laneFound: false };
+    let rosterFound = false;
+    let laneFound = false;
+    try {
+      const r = await window.storage.get(ROSTER_STORAGE_KEY, true);
+      if (r && r.value) {
+        rosterData = JSON.parse(r.value);
+        rosterFound = true;
+      }
+    } catch (err) {
+      // No stored roster yet — this throws rather than returning null, per the storage API.
+    }
+    try {
+      const l = await window.storage.get(LANE_STORAGE_KEY, true);
+      if (l && l.value) {
+        laneData = JSON.parse(l.value);
+        laneFound = true;
+      }
+    } catch (err) {
+      // No stored roadmap data yet.
+    }
+    return { rosterFound, laneFound };
+  }
+
+  // Keys here MUST exactly match laneData's keys above, one-to-one. Values are the display
+  // text shown on each chip — this is where "stakeholder_a" becomes a real-looking label
+  // like "Lenders" or "Regulators". HTML entities like &amp; work here since this gets
+  // inserted directly into the page (see LBDS's real "LOS &amp; Servicing Systems" for an
+  // example of a lane combining two stakeholder-table categories into one label).
+  const laneLabels = {
+    general: 'General',
+    stakeholder_a: '{{STAKEHOLDER_A_LABEL}}',
+    stakeholder_b: '{{STAKEHOLDER_B_LABEL}}'
+  };
+
+  function renderChips(){
+    const chipRow = document.getElementById('chipRow');
+    // Alphabetical by label, with "general" always sorted last.
+    const orderedKeys = Object.keys(laneData).sort((a, b) => {
+      if (a === 'general') return 1;
+      if (b === 'general') return -1;
+      return (laneLabels[a] || a).localeCompare(laneLabels[b] || b);
+    });
+    chipRow.innerHTML = orderedKeys.map(key => {
+      const hasRoadblocks = laneData[key].roadblocks.length > 0;
+      const flag = hasRoadblocks ? '<span class="lane-chip-flag">⚑</span>' : '';
+      const selected = key === currentLane ? 'true' : 'false';
+      return `<button class="lane-chip-btn" role="tab" aria-selected="${selected}" data-tab="${key}">${laneLabels[key] || key}${flag}</button>`;
+    }).join('');
+  }
+
+  function renderLane(){
+    const lane = laneData[currentLane];
+    const sidebar = document.getElementById('laneSidebar');
+    const main = document.getElementById('laneMain');
+
+    sidebar.innerHTML = `<div class="goal-strip">${renderPillGroup('Goals', lane.goals, 'goal')}${renderPillGroup('Roadblocks', lane.roadblocks, 'roadblock')}</div>`;
+
+    let html = '';
+    if (currentView === 'compact'){
+      if (lane.actions.length === 0 && editingTaskIdx !== 'new'){
+        html += `<p class="empty-lane-note">No tasks yet for this stakeholder group.</p>`;
+      } else {
+        html += `<table class="action-table-full"><tr><th>Task</th><th>Owner</th><th>Status</th><th></th></tr>`;
+        lane.actions.forEach((a, i) => {
+          if (i === editingTaskIdx){
+            html += taskEditRowHtml(i, a);
+          } else {
+            const doneClass = a.status === 'complete' ? 'done-task' : '';
+            html += `<tr><td class="${doneClass}">${escapeHtml(a.task)}</td><td>${escapeHtml(a.owner)}</td><td>${renderActionStatusSelect(currentLane, i, a.status)}</td><td class="task-icons"><button type="button" class="icon-btn" data-edit-task="${i}" title="Edit">✎</button><button type="button" class="icon-btn" data-remove-task="${i}" title="Remove">🗑</button></td></tr>`;
+          }
+        });
+        if (editingTaskIdx === 'new'){
+          html += taskEditRowHtml('new', {task:'', owner:'', status:'not-started'});
+        }
+        html += `</table>`;
+      }
+      if (editingTaskIdx === null){
+        html += `<button type="button" class="add-task-btn" data-add-task>+ Add task</button>`;
+      }
+    } else {
+      const cols = [
+        {key:'not-started', label:'Not Started'},
+        {key:'in-progress', label:'In Progress'},
+        {key:'blocked', label:'Blocked'},
+        {key:'complete', label:'Complete'}
+      ];
+      if (editingTaskIdx === null){
+        html += `<button type="button" class="add-task-btn" data-add-task style="margin-bottom:14px;">+ Add task</button>`;
+      } else if (editingTaskIdx === 'new'){
+        html += `<div class="kanban-add-wrap">${taskEditCardHtml('new', {task:'', owner:'', status:'not-started'})}</div>`;
+      }
+      html += `<div class="kanban-grid">`;
+      cols.forEach(col => {
+        const items = lane.actions.filter(a => a.status === col.key);
+        html += `<div class="kanban-col"><div class="kanban-col-head"><span class="status-chip ${col.key}">${col.label}</span><span class="kanban-count">${items.length}</span></div>`;
+        if (items.length === 0){
+          html += `<div class="kanban-empty">—</div>`;
+        } else {
+          items.forEach(a => {
+            const idx = lane.actions.indexOf(a);
+            if (idx === editingTaskIdx){
+              html += taskEditCardHtml(idx, a);
+            } else {
+              html += `<div class="kanban-card${a.status === 'complete' ? ' done-task' : ''}">
+                <div class="kanban-task">${escapeHtml(a.task)}</div>
+                <div class="kanban-owner">${escapeHtml(a.owner)}</div>
+                ${renderActionStatusSelect(currentLane, idx, a.status)}
+                <div class="kanban-card-actions"><button type="button" class="icon-btn" data-edit-task="${idx}" title="Edit">✎</button><button type="button" class="icon-btn" data-remove-task="${idx}" title="Remove">🗑</button></div>
+              </div>`;
+            }
+          });
+        }
+        html += `</div>`;
+      });
+      html += `</div>`;
+    }
+
+    main.innerHTML = html;
+    saveLaneData();
+    applyLockState();
+  }
+
+  document.getElementById('chipRow').addEventListener('click', (e) => {
+    const btn = e.target.closest('.lane-chip-btn');
+    if (!btn) return;
+    currentLane = btn.getAttribute('data-tab');
+    editingTaskIdx = null;
+    renderChips();
+    renderLane();
+  });
+
+  const viewButtons = document.querySelectorAll('.view-btn');
+  viewButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      viewButtons.forEach(b => b.setAttribute('aria-pressed', 'false'));
+      btn.setAttribute('aria-pressed', 'true');
+      currentView = btn.getAttribute('data-view');
+      editingTaskIdx = null;
+      renderLane();
+    });
+  });
+
+  renderChips();
+  renderLane();
+
+  // Quick status changes on non-edit rows: update the data model and re-render
+  laneRoot.addEventListener('change', async (e) => {
+    if (!e.target.matches('select.status-select')) return;
+    const laneKey = e.target.getAttribute('data-lane');
+    const idx = parseInt(e.target.getAttribute('data-action-idx'), 10);
+    const newStatus = e.target.value;
+    await ensureLoaded();
+    laneData[laneKey].actions[idx].status = newStatus;
+    laneData[laneKey].actions[idx].label = actionStatusLabels[newStatus];
+    renderLane();
+  });
+
+  // Add / edit / remove tasks
+  laneRoot.addEventListener('click', async (e) => {
+    if (e.target.closest('[data-add-task]')){
+      editingTaskIdx = 'new';
+      renderLane();
+      return;
+    }
+    const editBtn = e.target.closest('[data-edit-task]');
+    if (editBtn){
+      editingTaskIdx = parseInt(editBtn.getAttribute('data-edit-task'), 10);
+      renderLane();
+      return;
+    }
+    const removeBtn = e.target.closest('[data-remove-task]');
+    if (removeBtn){
+      const idx = parseInt(removeBtn.getAttribute('data-remove-task'), 10);
+      await ensureLoaded();
+      laneData[currentLane].actions.splice(idx, 1);
+      editingTaskIdx = null;
+      renderLane();
+      return;
+    }
+    const saveBtn = e.target.closest('[data-save-task]');
+    if (saveBtn){
+      const container = saveBtn.closest('.task-edit-container');
+      const taskVal = container.querySelector('[data-task-field="task"]').value.trim();
+      const ownerVal = container.querySelector('[data-task-field="owner"]').value.trim();
+      const statusVal = container.querySelector('[data-task-field="status"]').value;
+      if (!taskVal){
+        alert('Task name is required.');
+        return;
+      }
+      const rawIdx = saveBtn.getAttribute('data-save-task');
+      await ensureLoaded();
+      const newAction = {task: taskVal, owner: ownerVal || 'Unassigned', status: statusVal, label: actionStatusLabels[statusVal]};
+      if (rawIdx === 'new'){
+        laneData[currentLane].actions.push(newAction);
+      } else {
+        laneData[currentLane].actions[parseInt(rawIdx, 10)] = newAction;
+      }
+      editingTaskIdx = null;
+      renderLane();
+      return;
+    }
+    if (e.target.closest('[data-cancel-task]')){
+      editingTaskIdx = null;
+      renderLane();
+    }
+
+    const pillAddBtn = e.target.closest('[data-pill-add]');
+    if (pillAddBtn){
+      const kind = pillAddBtn.getAttribute('data-pill-add');
+      await ensureLoaded();
+      const arr = kind === 'goal' ? laneData[currentLane].goals : laneData[currentLane].roadblocks;
+      arr.push(kind === 'goal' ? 'New goal' : 'New roadblock');
+      renderLane();
+      setTimeout(() => {
+        const pills = laneRoot.querySelectorAll(`[data-pill-kind="${kind}"]`);
+        const last = pills[pills.length - 1];
+        if (last){
+          last.focus();
+          const range = document.createRange();
+          range.selectNodeContents(last);
+          const sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+        }
+      }, 0);
+      return;
+    }
+    const pillRemoveBtn = e.target.closest('[data-pill-remove]');
+    if (pillRemoveBtn){
+      const [kind, idxStr] = pillRemoveBtn.getAttribute('data-pill-remove').split(':');
+      const idx = parseInt(idxStr, 10);
+      await ensureLoaded();
+      const arr = kind === 'goal' ? laneData[currentLane].goals : laneData[currentLane].roadblocks;
+      arr.splice(idx, 1);
+      renderLane();
+    }
+  });
+
+  // Goal/roadblock pill text: sync to the data model on blur (capture phase, since blur doesn't bubble)
+  laneRoot.addEventListener('blur', async (e) => {
+    const kind = e.target.getAttribute && e.target.getAttribute('data-pill-kind');
+    if (!kind) return;
+    const idx = parseInt(e.target.getAttribute('data-pill-idx'), 10);
+    const textVal = e.target.textContent.trim();
+    await ensureLoaded();
+    const arr = kind === 'goal' ? laneData[currentLane].goals : laneData[currentLane].roadblocks;
+    arr[idx] = textVal;
+    renderLane();
+  }, true);
+
+  // Shared roster data — drives both the engagement table and the funnel bars
+  // One entry per organization. Fields:
+  //   type: must match one of the roster chip/datalist values above (ROSTER_TYPE_1/2)
+  //   org: organization name
+  //   status: one of 'not-applicable' | 'not-started' | 'planned' | 'piloted' | 'in-use'
+  //     (displayed as Not Applicable/Not Started/Planned/Piloted/Implemented respectively)
+  //   primaryContact, title, email: the contact card fields — title and email are genuinely
+  //     optional; leave them as empty strings ('') if unknown rather than guessing, and the
+  //     card will show its own "Add title"/"Add email" edit-prompt automatically
+  //   participants: either a real comma-separated "Name (attended/total)" list, or, if
+  //     nobody on this org's roster met the attendance threshold, a single sentence starting
+  //     with the exact phrase "No one met" (e.g. "No one met the 1/3 attendance threshold —
+  //     closest: Jane Doe (2/12)") — that exact phrase is what tells the page to render it as
+  //     one chip instead of trying to split it into multiple people
+  //   notes: free text, or '—' if there's nothing to say
+  //   rowId: optional — only add this if you specifically need a stable URL anchor to this
+  //     row from elsewhere (e.g. linking to #someorg from another page); most rows don't need it
+  let rosterData = [
+    {type:'{{ROSTER_TYPE_1}}', org:'{{ORG_1_NAME}}', status:'not-started', primaryContact:'{{ORG_1_CONTACT_NAME}}', title:'', email:'', participants:'{{ORG_1_CONTACT_NAME}} ({{ORG_1_MEETINGS_ATTENDED}}/{{MEETING_COUNT}})', notes:'—'},
+    {type:'{{ROSTER_TYPE_1}}', org:'{{ORG_2_NAME}}', status:'piloted', primaryContact:'{{ORG_2_CONTACT_NAME}}', title:'', email:'', participants:'No one met the 1/3 attendance threshold — closest: {{ORG_2_CONTACT_NAME}} ({{ORG_2_MEETINGS_ATTENDED}}/{{MEETING_COUNT}})', notes:'{{ORG_2_NOTE}}'},
+    {type:'{{ROSTER_TYPE_2}}', org:'{{ORG_3_NAME}}', status:'in-use', primaryContact:'{{ORG_3_CONTACT_NAME}}', title:'{{ORG_3_CONTACT_TITLE}}', email:'', participants:'{{ORG_3_CONTACT_NAME}} ({{ORG_3_MEETINGS_ATTENDED}}/{{MEETING_COUNT}})', notes:'—'}
+  ];
+
+  const statusOptions = [
+    ['not-applicable', 'Not Applicable'],
+    ['not-started', 'Not Started'],
+    ['planned', 'Planned'],
+    ['piloted', 'Piloted'],
+    ['in-use', 'Implemented']
+  ];
+
+  // Must contain the exact same set of type values used in the stakeholder table above
+  // (STAKEHOLDER_TYPE_1/2) — these become the pie charts. If your roster uses MORE granular
+  // types than your stakeholder table categories (see the roster-chips comment above for why
+  // that's sometimes useful), map the extra granularity down to a stakeholder-table category
+  // in funnelCategoryFor() below rather than adding it here.
+  const funnelCategories = ['{{STAKEHOLDER_TYPE_1}}', '{{STAKEHOLDER_TYPE_2}}'];
+  function funnelCategoryFor(type){
+    // Identity mapping by default — every roster type value maps directly to itself as a
+    // funnel category. Only add a real mapping here if your roster genuinely uses more
+    // granular type values than your stakeholder-table/funnel categories. Real example from
+    // LBDS: its roster tracks a granular "Servicing Technology Provider" type, but that
+    // rolls up into the broader "LOS Providers" category for the pie charts, via:
+    //   return type === 'Servicing Technology Provider' ? 'LOS Providers' : type;
+    return type;
+  }
+
+  function renderStatusSelect(idx, status){
+    const opts = statusOptions.map(([key, label]) =>
+      `<option value="${key}" ${key === status ? 'selected' : ''}>${label}</option>`
+    ).join('');
+    return `<select class="status-select roster-status ${status}" data-idx="${idx}" aria-label="Adoption status">${opts}</select>`;
+  }
+
+  let editingContactIdx = null;
+
+  function renderContactCell(idx, row){
+    if (idx === editingContactIdx){
+      return `<div class="contact-edit-form">
+        <input class="contact-input" type="text" data-field="name" placeholder="Name" value="${row.primaryContact.replace(/"/g,'&quot;')}">
+        <input class="contact-input" type="text" data-field="title" placeholder="Title" value="${(row.title||'').replace(/"/g,'&quot;')}">
+        <input class="contact-input" type="email" data-field="email" placeholder="Email" value="${(row.email||'').replace(/"/g,'&quot;')}">
+        <div class="contact-edit-actions">
+          <button type="button" class="contact-save-btn" data-save-idx="${idx}">Save</button>
+          <button type="button" class="contact-cancel-btn" data-cancel-idx="${idx}">Cancel</button>
+        </div>
+      </div>`;
+    }
+    const titleHtml = row.title ? `<div class="contact-sub">${escapeHtml(row.title)}</div>` : `<div class="contact-sub placeholder">Add title</div>`;
+    const emailHtml = row.email ? `<div class="contact-sub"><a href="mailto:${escapeAttr(row.email)}">${escapeHtml(row.email)}</a></div>` : `<div class="contact-sub placeholder">Add email</div>`;
+    return `<div class="contact-block">
+      <div class="contact-name">${escapeHtml(row.primaryContact)}</div>
+      ${titleHtml}
+      ${emailHtml}
+      <button type="button" class="contact-edit-btn" data-edit-idx="${idx}">✎ Edit</button>
+    </div>`;
+  }
+
+  const statusColorVar = {
+    'not-applicable': '--slate', 'not-started': '--status-red', 'planned': '--status-orange',
+    'piloted': '--status-yellow', 'in-use': '--status-green'
+  };
+
+  // Splits a participants string into individual chips. Two special cases are NOT
+  // split on comma, since they're a single narrative sentence rather than a list:
+  // (1) "No one met the threshold" messages, which can name 2+ tied people with their
+  // own internal comma; (2) a single person's entry that has explanatory commentary
+  // appended (which may itself contain a comma) rather than being a genuine second
+  // person. Boundary is detected by where a new "Name (" pattern starts, not by comma,
+  // so any trailing/embedded commentary — including its own commas — stays attached
+  // to the person it describes.
+  function splitParticipantChips(str){
+    if (str.startsWith('No one met')) return [str];
+    const boundaryRe = /[A-Z][A-Za-z.’''-]*(?:\s+[A-Za-z][A-Za-z.’''-]*)*\s\(/g;
+    const starts = [];
+    let m;
+    while ((m = boundaryRe.exec(str)) !== null) starts.push(m.index);
+    if (starts.length === 0) return [str];
+    const chips = [];
+    for (let i = 0; i < starts.length; i++){
+      const start = starts[i];
+      const end = i + 1 < starts.length ? starts[i + 1] : str.length;
+      chips.push(str.slice(start, end).replace(/,\s*$/, '').trim());
+    }
+    if (starts[0] > 0) chips.unshift(str.slice(0, starts[0]).replace(/,\s*$/, '').trim());
+    return chips.filter(c => c.length > 0);
+  }
+
+  function renderRosterSidebar(rows){
+    const sidebar = document.getElementById('rosterSidebar');
+    const label = activeType === 'all' ? 'All Orgs' : activeType;
+    const counts = {};
+    statusOptions.forEach(([key]) => counts[key] = 0);
+    rows.forEach(r => { if (counts[r.status] !== undefined) counts[r.status]++; });
+
+    let html = `<div class="roster-side-label">${label}</div><div class="roster-big-stat">${rows.length}</div><div class="roster-big-stat-label">orgs tracked</div><div class="roster-side-label">By status</div>`;
+    statusOptions.forEach(([key, statusLabel]) => {
+      if (counts[key] === 0) return;
+      html += `<div class="roster-status-row"><span class="label"><span class="roster-status-dot" style="background:var(${statusColorVar[key]});"></span>${statusLabel}</span><span class="roster-status-val">${counts[key]}</span></div>`;
+    });
+    sidebar.innerHTML = html;
+  }
+
+  function renderRosterTable(){
+    const orgGrid = document.getElementById('orgGrid');
+    const q = searchInput.value.trim().toLowerCase();
+    let html = '';
+    let visibleCount = 0;
+    const visibleRows = [];
+    rosterData.forEach((row, idx) => {
+      const typeMatch = activeType === 'all' || row.type === activeType;
+      const haystack = `${row.type} ${row.org} ${row.primaryContact} ${row.title||''} ${row.email||''} ${row.participants} ${row.notes}`.toLowerCase();
+      const textMatch = q === '' || haystack.includes(q);
+      if (!(typeMatch && textMatch)) return;
+      visibleCount++;
+      visibleRows.push(row);
+      const idAttr = row.rowId ? ` id="${row.rowId}"` : '';
+      // "No one met the threshold" messages can contain their own internal comma
+      // (e.g. two people tied for closest) — splitting those by comma would break
+      // one coherent sentence into two disconnected, confusing chips. Only split
+      // on comma for genuine multi-name participant lists.
+      const participantChips = splitParticipantChips(row.participants).map(s =>
+        `<span class="participant-chip">${s}</span>`
+      ).join('');
+      html += `<div class="org-card" data-type="${row.type}"${idAttr}>
+        <div class="org-top">
+          <span class="org-name" contenteditable="true" data-roster-field="org" data-idx="${idx}">${escapeHtml(row.org)}</span>
+          ${renderStatusSelect(idx, row.status)}
+        </div>
+        <input class="type-input org-type-input" list="stakeholderTypeOptions" data-roster-field="type" data-idx="${idx}" value="${row.type.replace(/"/g,'&quot;')}">
+        <div class="contact-card">${renderContactCell(idx, row)}</div>
+        <div class="participants-label">Active Participants</div>
+        <div title="Attendance data — not editable">${participantChips}</div>
+        <div class="org-notes" contenteditable="true" data-roster-field="notes" data-idx="${idx}">${escapeHtml(row.notes)}</div>
+      </div>`;
+    });
+    orgGrid.innerHTML = html;
+    emptyMsg.style.display = visibleCount === 0 ? 'block' : 'none';
+    renderRosterSidebar(visibleRows);
+    saveRosterData();
+    applyLockState();
+  }
+
+  function polarToCartesian(cx, cy, r, angleDeg){
+    const rad = (angleDeg - 90) * Math.PI / 180;
+    return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+  }
+
+  function wedgePath(cx, cy, r, startAngle, endAngle){
+    // A full 360° arc can't be drawn as a single SVG arc — split it into two halves.
+    if (endAngle - startAngle >= 359.99){
+      const mid = startAngle + 180;
+      return wedgePath(cx, cy, r, startAngle, mid) + ' ' + wedgePath(cx, cy, r, mid, endAngle);
+    }
+    const start = polarToCartesian(cx, cy, r, endAngle);
+    const end = polarToCartesian(cx, cy, r, startAngle);
+    const largeArcFlag = endAngle - startAngle <= 180 ? '0' : '1';
+    return `M ${cx} ${cy} L ${start.x.toFixed(2)} ${start.y.toFixed(2)} A ${r} ${r} 0 ${largeArcFlag} 0 ${end.x.toFixed(2)} ${end.y.toFixed(2)} Z`;
+  }
+
+  // Every individual organization gets its own wedge (rather than one wedge per status),
+  // with a stroke around each wedge so adjacent same-color orgs stay visually distinct.
+  function buildOrgPie(counts, order, size){
+    const r = size / 2 - 2;
+    const cx = size / 2, cy = size / 2;
+    const totalOrgs = order.reduce((sum, [key]) => sum + counts[key], 0);
+    if (totalOrgs === 0){
+      return `<div class="pie-empty"></div>`;
+    }
+    const anglePerOrg = 360 / totalOrgs;
+    let angle = 0;
+    let paths = '';
+    order.forEach(([key, cssVar]) => {
+      for (let i = 0; i < counts[key]; i++){
+        const start = angle;
+        const end = angle + anglePerOrg;
+        paths += `<path d="${wedgePath(cx, cy, r, start, end)}" fill="var(${cssVar})" stroke="var(--card)" stroke-width="1.5"/>`;
+        angle = end;
+      }
+    });
+    return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${paths}</svg>`;
+  }
+
+  function renderFunnel(){
+    const counts = {};
+    funnelCategories.forEach(cat => counts[cat] = {'not-applicable':0, 'not-started':0, 'planned':0, 'piloted':0, 'in-use':0});
+    rosterData.forEach(row => {
+      const cat = funnelCategoryFor(row.type);
+      if (counts[cat]) counts[cat][row.status]++;
+    });
+
+    const order = [['not-applicable','--slate'], ['not-started','--status-red'], ['planned','--status-orange'], ['piloted','--status-yellow'], ['in-use','--status-green']];
+    const root = document.getElementById('funnelRoot');
+    let html = '';
+    funnelCategories.forEach(cat => {
+      const c = counts[cat];
+      const total = c['not-applicable'] + c['not-started'] + c['planned'] + c['piloted'] + c['in-use'];
+      const pieHtml = buildOrgPie(c, order, 90);
+      html += `<div class="pie-item">
+        <div class="pie-name">${cat}</div>
+        ${pieHtml}
+        <div class="pie-total">${total > 0 ? total + ' org' + (total > 1 ? 's' : '') + ' tracked' : 'no roster data yet'}</div>
+      </div>`;
+    });
+    root.innerHTML = html;
+  }
+
+  function updateAdoptionNote(){
+    const total = rosterData.length;
+    const pilotedOrLive = rosterData.filter(r => r.status === 'piloted' || r.status === 'in-use').length;
+    document.getElementById('adoptionNote').textContent =
+      `${pilotedOrLive} of ${total} tracked orgs are piloting or live · funnel computed live from the roster`;
+  }
+
+  // Roster filtering
+  const typeButtons = document.querySelectorAll('[data-type-filter]');
+  const searchInput = document.getElementById('rosterSearch');
+  const emptyMsg = document.getElementById('rosterEmpty');
+  // Must match whichever ROSTER_TYPE_1/2 value (set in the datalist/chips above) sorts
+  // first alphabetically by its real underlying value — the chip row sorts itself
+  // alphabetically with "All types" forced last, and defaults to selecting the first chip
+  // in that order, exactly like the Roadmap chips above default to the first lane.
+  let activeType = '{{ROSTER_TYPE_1}}';
+
+  typeButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      typeButtons.forEach(b => b.setAttribute('aria-pressed', 'false'));
+      btn.setAttribute('aria-pressed', 'true');
+      activeType = btn.getAttribute('data-type-filter');
+      renderRosterTable();
+    });
+  });
+  searchInput.addEventListener('input', renderRosterTable);
+
+  // Primary contact editing: click Edit to reveal name/title/email inputs for that row only
+  document.getElementById('rosterLayout').addEventListener('click', async (e) => {
+    const editBtn = e.target.closest('.contact-edit-btn');
+    if (editBtn){
+      editingContactIdx = parseInt(editBtn.getAttribute('data-edit-idx'), 10);
+      renderRosterTable();
+      return;
+    }
+    const saveBtn = e.target.closest('.contact-save-btn');
+    if (saveBtn){
+      const idx = parseInt(saveBtn.getAttribute('data-save-idx'), 10);
+      const cell = saveBtn.closest('.contact-edit-form');
+      const nameVal = cell.querySelector('[data-field="name"]').value.trim();
+      const titleVal = cell.querySelector('[data-field="title"]').value.trim();
+      const emailVal = cell.querySelector('[data-field="email"]').value.trim();
+      await ensureLoaded();
+      if (nameVal) rosterData[idx].primaryContact = nameVal;
+      rosterData[idx].title = titleVal;
+      rosterData[idx].email = emailVal;
+      editingContactIdx = null;
+      renderRosterTable();
+      return;
+    }
+    const cancelBtn = e.target.closest('.contact-cancel-btn');
+    if (cancelBtn){
+      editingContactIdx = null;
+      renderRosterTable();
+    }
+  });
+
+  // Type / Organization / Notes are plain editable text — sync to the data model on blur
+  // so edits survive the next re-render (filtering, searching, contact save/cancel).
+  document.getElementById('rosterLayout').addEventListener('blur', async (e) => {
+    const field = e.target.getAttribute && e.target.getAttribute('data-roster-field');
+    if (!field) return;
+    const idx = parseInt(e.target.getAttribute('data-idx'), 10);
+    const val = e.target.tagName === 'INPUT' ? e.target.value.trim() : e.target.textContent.trim();
+    await ensureLoaded();
+    rosterData[idx][field] = val;
+    // Type edits change which funnel bucket this org counts toward, and any edit can
+    // change whether it's counted as piloted/live — keep the pies and adoption note
+    // in sync with every roster edit, not just status changes.
+    renderFunnel();
+    updateAdoptionNote();
+    renderRosterTable();
+  }, true);
+
+  // Status changes: update the data model, then re-render the table row's own
+  // select styling, the funnel bars, and the adoption stat — all from one source of truth.
+  document.getElementById('rosterLayout').addEventListener('change', async (e) => {
+    if (!e.target.matches('select.status-select')) return;
+    const idx = parseInt(e.target.getAttribute('data-idx'), 10);
+    const newStatus = e.target.value;
+    await ensureLoaded();
+    rosterData[idx].status = newStatus;
+    renderFunnel();
+    updateAdoptionNote();
+    saveRosterData();
+    renderRosterTable();
+  });
+
+  // Pure viewing never touches window.storage — only the first actual edit does.
+  // This avoids the account-required prompt firing for people who are just looking.
+  async function ensureLoaded(){
+    if (hasLoadedFromStorage) return;
+    const { rosterFound, laneFound } = await loadSharedData();
+    hasLoadedFromStorage = true;
+    renderLane();
+    renderRosterTable();
+    renderFunnel();
+    updateAdoptionNote();
+    // If this is the very first edit ever made (nothing in shared storage yet), seed it
+    // with the current defaults so every subsequent viewer/editor starts from the same baseline.
+    if (!rosterFound) saveRosterData();
+    if (!laneFound) saveLaneData();
+  }
+
+  renderChips();
+  renderLane();
+  renderRosterTable();
+  renderFunnel();
+  updateAdoptionNote();
+
+  // Stakeholder Groups "Critical?" dropdown: keep the star gold-colored when selected
+  document.querySelectorAll('.crit-select').forEach(sel => {
+    sel.addEventListener('change', () => {
+      sel.classList.toggle('is-star', sel.value === 'star');
+    });
+  });
+
+  // Leaderboard render
+  // [name, organization, engagement score] tuples, ranked by score (highest first — this
+  // array's order IS the display order, nothing re-sorts it). This must be THIS workgroup's
+  // own real meeting-tracker data — LBDS's dashboard once accidentally shipped with another
+  // workgroup's leaderboard here, which was a real, confirmed data-integrity bug, not a
+  // hypothetical risk. If there's no real tracker data yet for this workgroup, don't fill
+  // this with placeholder names — see TPA's governance section for how to handle that case
+  // instead (a plain "no tracker yet" note rather than a fake leaderboard).
+  const leaderboardData = [
+    ["{{LEADERBOARD_NAME_1}}", "{{LEADERBOARD_ORG_1}}", {{LEADERBOARD_SCORE_1}}],
+    ["{{LEADERBOARD_NAME_2}}", "{{LEADERBOARD_ORG_2}}", {{LEADERBOARD_SCORE_2}}],
+    ["{{LEADERBOARD_NAME_3}}", "{{LEADERBOARD_ORG_3}}", {{LEADERBOARD_SCORE_3}}]
+  ];
+  const maxVal = Math.max(...leaderboardData.map(d => d[2]));
+  const lb = document.getElementById('leaderboard');
+  leaderboardData.forEach(([name, org, val]) => {
+    const row = document.createElement('div');
+    row.className = 'leaderboard-row';
+    row.innerHTML = `
+      <span class="who" title="${name}">${name}</span>
+      <span class="leaderboard-track"><span class="leaderboard-fill" style="width:${(val/maxVal*100).toFixed(1)}%"></span></span>
+      <span class="leaderboard-val">${val}</span>
+    `;
+    lb.appendChild(row);
+  });
+  // Calendar invite (.ics) download — computes the next 2nd or 4th Wednesday, 1-2 PM
+  function pad2(n){ return String(n).padStart(2, '0'); }
+
+  // Day-of-week numbering matches JS's own Date.getDay(): 0=Sunday, 1=Monday, 2=Tuesday,
+  // 3=Wednesday, 4=Thursday, 5=Friday, 6=Saturday.
+  function getNthWeekdayOfMonth(year, month, weekday, nth){
+    const first = new Date(year, month, 1);
+    const firstWeekday = first.getDay();
+    const dayOffset = (weekday - firstWeekday + 7) % 7;
+    const day = 1 + dayOffset + (nth - 1) * 7;
+    return new Date(year, month, day);
+  }
+
+  // This version handles a "Nth and Mth weekday of the month" cadence (e.g. "2nd and 4th
+  // Wednesday"). Replace {{MEETING_WEEKDAY_NUMBER}} with the real weekday number (see above)
+  // and {{MEETING_NTH_OCCURRENCE_1}}/{{MEETING_NTH_OCCURRENCE_2}} with which occurrences
+  // (e.g. 2 and 4, or 1 and 3).
+  //
+  // If the real cadence is instead "every week on the same day," DELETE this whole function
+  // and replace it with this simpler version instead (matching CCS's real pattern):
+  //
+  //   function findNextMeetingDate(){
+  //     const today = new Date();
+  //     today.setHours(0, 0, 0, 0);
+  //     const dayOffset = ({{MEETING_WEEKDAY_NUMBER}} - today.getDay() + 7) % 7;
+  //     return new Date(today.getFullYear(), today.getMonth(), today.getDate() + dayOffset);
+  //   }
+  //
+  // And also delete the now-unused getNthWeekdayOfMonth function above.
+  function findNextMeetingDate(){
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    let year = today.getFullYear();
+    let month = today.getMonth();
+    for (let i = 0; i < 6; i++){
+      const first = getNthWeekdayOfMonth(year, month, {{MEETING_WEEKDAY_NUMBER}}, {{MEETING_NTH_OCCURRENCE_1}});
+      const second = getNthWeekdayOfMonth(year, month, {{MEETING_WEEKDAY_NUMBER}}, {{MEETING_NTH_OCCURRENCE_2}});
+      const candidates = [first, second].filter(d => d >= today).sort((a, b) => a - b);
+      if (candidates.length) return candidates[0];
+      month++;
+      if (month > 11){ month = 0; year++; }
+    }
+    return today;
+  }
+
+  function icsLocalDateTime(date, hour, minute){
+    return date.getFullYear() + pad2(date.getMonth() + 1) + pad2(date.getDate()) + 'T' + pad2(hour) + pad2(minute) + '00';
+  }
+
+  function icsUTCNow(){
+    const d = new Date();
+    return d.getUTCFullYear() + pad2(d.getUTCMonth() + 1) + pad2(d.getUTCDate()) + 'T' + pad2(d.getUTCHours()) + pad2(d.getUTCMinutes()) + pad2(d.getUTCSeconds()) + 'Z';
+  }
+
+  const icsBtn = document.getElementById('icsDownloadBtn');
+  if (icsBtn){
+    icsBtn.addEventListener('click', () => {
+      const meetingDate = findNextMeetingDate();
+      const dtstart = icsLocalDateTime(meetingDate, {{MEETING_START_HOUR_24H}}, {{MEETING_START_MINUTE}});
+      const dtend = icsLocalDateTime(meetingDate, {{MEETING_END_HOUR_24H}}, {{MEETING_END_MINUTE}});
+      const workgroupName = document.querySelector('.workgroup-tag').textContent.trim();
+      const icsContent = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//MISMO Initiative Dashboard//EN',
+        'BEGIN:VEVENT',
+        'UID:{{DASHBOARD_ID}}-recurring-meeting@initiative-dashboard', // stable per-dashboard UID so re-downloading updates the same calendar event instead of duplicating it
+        'DTSTAMP:' + icsUTCNow(),
+        'DTSTART;TZID=America/New_York:' + dtstart,
+        'DTEND;TZID=America/New_York:' + dtend,
+        // Must match findNextMeetingDate's actual logic above. For the "Nth/Mth weekday"
+        // pattern this looks like 'RRULE:FREQ=MONTHLY;BYDAY=2WE,4WE' (2nd/4th Wednesday) —
+        // BYDAY codes are SU/MO/TU/WE/TH/FR/SA. For the simpler weekly pattern, use
+        // 'RRULE:FREQ=WEEKLY;BYDAY=MO' (just the day code, no number) instead, matching CCS.
+        'RRULE:FREQ=MONTHLY;BYDAY={{MEETING_NTH_OCCURRENCE_1}}{{MEETING_WEEKDAY_CODE}},{{MEETING_NTH_OCCURRENCE_2}}{{MEETING_WEEKDAY_CODE}}',
+        'SUMMARY:' + workgroupName + ' Meeting',
+        'DESCRIPTION:{{MEETING_DESCRIPTION_TEXT}}',
+        'END:VEVENT',
+        'END:VCALENDAR'
+      ].join('\r\n');
+      const blob = new Blob([icsContent], { type: 'text/calendar' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = workgroupName.replace(/[^a-z0-9]+/gi, '-').toLowerCase() + '-meeting.ics';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    });
+  }
+
+
+  // Work Product Deliverables: status dropdown drives the progress bar
+  const deliverableProgress = {
+    'notstarted': { width: '0%', color: 'transparent' },
+    'progress': { width: '55%', color: 'var(--amber)' },
+    'done': { width: '100%', color: 'var(--success)' }
+  };
+  document.querySelectorAll('.deliv-status-select').forEach(sel => {
+    sel.addEventListener('change', () => {
+      const val = sel.value;
+      sel.className = 'deliv-pill deliv-status-select ' + val;
+      const row = sel.closest('tr');
+      const fill = row.querySelector('.deliv-progress-fill');
+      if (fill && deliverableProgress[val]){
+        fill.style.width = deliverableProgress[val].width;
+        fill.style.background = deliverableProgress[val].color;
+      }
+      const dateLabel = row.querySelector('.deliv-date-label');
+      // The first deliverable row has no .deliv-date-label span - its label now lives
+      // statically in the table header instead, so this dynamic Done<->Expected Publication
+      // Date relabeling only applies to rows 2+. If you manually change the first row's
+      // status away from "Done" later, its header label won't update to match - edit the
+      // header text directly in that case, or move the label back into that row's own
+      // <td> if you need it to stay dynamic.
+      if (dateLabel){
+        dateLabel.textContent = val === 'done' ? 'Completed' : 'Expected Publication Date';
+      }
+    });
+  });
+
+  // Save/Restore: serializes the actual data model (rosterData, laneData, plus every
+  // other editable field's current value) to localStorage, rather than snapshotting
+  // the rendered page HTML. This matters because a <select>'s or <input type="date">'s
+  // *current* value is never reflected in its outerHTML once the user changes it away
+  // from the originally-parsed option/attribute (a real, spec-defined browser behavior,
+  // not a bug in this page) — so an HTML snapshot alone silently loses those edits.
+  // Restoring re-runs this page's own render functions against the saved data instead
+  // of replaying the whole document, which also avoids the disruption of a full reload.
+  const GENERIC_FIELD_EXCLUDE = '#rosterLayout, #commandLayout';
+
+  function captureGenericFieldStates(){
+    const isExcluded = (el) => el.closest(GENERIC_FIELD_EXCLUDE) !== null;
+    const editable = [...document.querySelectorAll('[contenteditable="true"], [contenteditable="false"]')]
+      .filter(el => !isExcluded(el) && el.hasAttribute('data-roster-field') === false)
+      .filter(el => !el.parentElement || el.parentElement.closest('[contenteditable]') === null) // only outermost editable regions, skip nested spans
+      .map(el => el.innerHTML);
+    const selects = [...document.querySelectorAll('select')].filter(el => !isExcluded(el)).map(el => el.value);
+    const dates = [...document.querySelectorAll('input[type="date"]')].filter(el => !isExcluded(el)).map(el => el.value);
+    return { editable, selects, dates };
+  }
+
+  function applyGenericFieldStates(state){
+    if (!state) return;
+    const isExcluded = (el) => el.closest(GENERIC_FIELD_EXCLUDE) !== null;
+    const editableEls = [...document.querySelectorAll('[contenteditable="true"], [contenteditable="false"]')]
+      .filter(el => !isExcluded(el) && el.hasAttribute('data-roster-field') === false)
+      .filter(el => !el.parentElement || el.parentElement.closest('[contenteditable]') === null);
+    editableEls.forEach((el, i) => { if (state.editable && state.editable[i] !== undefined) el.innerHTML = state.editable[i]; });
+
+    const selectEls = [...document.querySelectorAll('select')].filter(el => !isExcluded(el));
+    selectEls.forEach((el, i) => {
+      if (state.selects && state.selects[i] !== undefined){
+        el.value = state.selects[i];
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
+
+    const dateEls = [...document.querySelectorAll('input[type="date"]')].filter(el => !isExcluded(el));
+    dateEls.forEach((el, i) => { if (state.dates && state.dates[i] !== undefined) el.value = state.dates[i]; });
+  }
+
+  const saveSnapshotBtn = document.getElementById('saveSnapshotBtn');
+  // Track unsaved changes: any edit, anywhere, flips the Save button to an
+  // "unsaved changes" state until the user actually clicks Save. Typing in the
+  // roster search box filters the view but isn't an edit, so it's excluded.
+  let hasUnsavedChanges = false;
+  function markDirty(e){
+    if (e.target && e.target.id === 'rosterSearch') return;
+    if (hasUnsavedChanges) return;
+    hasUnsavedChanges = true;
+    saveSnapshotBtn.classList.add('has-changes');
+  }
+  document.addEventListener('input', markDirty, true);
+  document.addEventListener('change', markDirty, true);
+
+  saveSnapshotBtn.addEventListener('click', () => {
+    const label = saveSnapshotBtn.querySelector('.save-label');
+    const originalLabel = label.textContent;
+    try {
+      const snapshot = {
+        rosterData: rosterData,
+        laneData: laneData,
+        generic: captureGenericFieldStates()
+      };
+      localStorage.setItem('{{DASHBOARD_ID}}-dashboard-snapshot', JSON.stringify(snapshot));
+      hasUnsavedChanges = false;
+      saveSnapshotBtn.classList.remove('has-changes');
+      saveSnapshotBtn.classList.add('just-saved');
+      label.textContent = 'Saved!';
+    } catch (e) {
+      label.textContent = 'Save failed';
+      alert('Could not save — this browser may be blocking local storage (common in some private/incognito modes, or in a sandboxed preview). Try the real published link in a normal browser tab.');
+    }
+    setTimeout(() => {
+      saveSnapshotBtn.classList.remove('just-saved');
+      label.textContent = originalLabel;
+    }, 1800);
+  });
+
+  // Show the "you have a saved snapshot" banner if one already existed when this
+  // page loaded (cheap check). The restore button's own listener is always attached
+  // below, independent of this — so restoring also works if you save and then want
+  // to restore again later in the same session, without needing a page reload first.
+  (function(){
+    let savedSnapshotRaw;
+    try {
+      savedSnapshotRaw = localStorage.getItem('{{DASHBOARD_ID}}-dashboard-snapshot');
+    } catch (e) {
+      return;
+    }
+    if (!savedSnapshotRaw) return;
+    document.getElementById('restoreBanner').style.display = 'flex';
+  })();
+
+  document.getElementById('restoreBtn').addEventListener('click', () => {
+    const banner = document.getElementById('restoreBanner');
+    let savedSnapshotRaw;
+    try {
+      savedSnapshotRaw = localStorage.getItem('{{DASHBOARD_ID}}-dashboard-snapshot');
+    } catch (e) {
+      alert('Could not read saved data — this browser may be blocking local storage.');
+      return;
+    }
+    if (!savedSnapshotRaw) return;
+    let snapshot;
+    try {
+      snapshot = JSON.parse(savedSnapshotRaw);
+    } catch (e) {
+      alert('This saved snapshot is unreadable and can\'t be restored.');
+      return;
+    }
+    rosterData = snapshot.rosterData || rosterData;
+    laneData = snapshot.laneData || laneData;
+    renderChips();
+    renderLane();
+    renderRosterTable();
+    renderFunnel();
+    updateAdoptionNote();
+    applyGenericFieldStates(snapshot.generic);
+    applyLockState();
+    banner.style.display = 'none';
+  });
+  document.getElementById('dismissRestoreBtn').addEventListener('click', () => {
+    document.getElementById('restoreBanner').style.display = 'none';
+  });
+</script>
+
+</body>
+</html>

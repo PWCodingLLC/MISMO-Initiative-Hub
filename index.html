@@ -411,6 +411,49 @@
     });
   }
 
+  // Expanding one card expands every card in its visual grid row, and collapsing
+  // one collapses that whole row. Rows are a CSS Grid concept with no DOM
+  // equivalent, so the row has to be derived at click time.
+  //
+  // Column count comes from the grid's *computed* gridTemplateColumns, which
+  // resolves to one length per column (e.g. "341px 341px 341px") and already
+  // reflects whichever media-query breakpoint is currently active — so this
+  // follows the 3 / 2 / 1 column responsive steps with no hardcoded widths.
+  //
+  // Deliberately not grouping by geometry (comparing each card's offsetTop):
+  // cards that sit in the same visual row have been observed reporting tops a
+  // few px apart in this layout, which would silently split a row.
+  function toggleRowDetails(btn){
+    const card = btn.closest('.init-card');
+    const grid = card.closest('.init-grid');
+    if (!card || !grid) return;
+
+    const cards = Array.from(grid.querySelectorAll('.init-card'));
+    const idx = cards.indexOf(card);
+    if (idx === -1) return;
+
+    const cols = getComputedStyle(grid).gridTemplateColumns.split(' ').filter(Boolean).length || 1;
+    const rowStart = Math.floor(idx / cols) * cols;
+    const rowCards = cards.slice(rowStart, rowStart + cols);
+
+    // Resolve the target state once from the clicked card, then apply that same
+    // state to every card in the row, rather than toggling each independently —
+    // so the row always ends up consistent even if it somehow started mixed.
+    const willOpen = !card.classList.contains('expanded');
+
+    rowCards.forEach(c => {
+      const body = c.querySelector('.expand-body');
+      const toggle = c.querySelector('.expand-toggle');
+      if (!body || !toggle) return;
+      body.classList.toggle('open', willOpen);
+      c.classList.toggle('expanded', willOpen);
+      const label = toggle.querySelector('.expand-label');
+      const chevron = toggle.querySelector('.expand-chevron');
+      if (label) label.textContent = willOpen ? 'Hide additional details' : 'See additional details';
+      if (chevron) chevron.classList.toggle('open', willOpen);
+    });
+  }
+
   function renderPanel(){
     if (!activeDomain){
       panelArea.innerHTML = '';
@@ -433,13 +476,7 @@
         </div>
         <div class="card-actions-row">
           ${item.href ? `<a class="view-link" href="${item.href}">View dashboard →</a>` : `<span class="view-link-disabled">No dashboard yet</span>`}
-          <button type="button" class="expand-toggle" onclick="
-            var b = this.closest('.card-actions-row').nextElementSibling;
-            var open = b.classList.toggle('open');
-            this.closest('.init-card').classList.toggle('expanded', open);
-            this.querySelector('.expand-label').textContent = open ? 'Hide additional details' : 'See additional details';
-            this.querySelector('.expand-chevron').classList.toggle('open', open);
-          "><span class="expand-label">See additional details</span> <span class="expand-chevron">▾</span></button>
+          <button type="button" class="expand-toggle" onclick="toggleRowDetails(this)"><span class="expand-label">See additional details</span> <span class="expand-chevron">▾</span></button>
         </div>
         <div class="expand-body">
           <div class="detail-block">
